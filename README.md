@@ -58,7 +58,8 @@ std::cout << list << std::endl; //  [first, second, third, null]
 
 ``` 
 ### Usage
-The simplest way to use Javolution C++ is through Maven with the native plugin and the following dependency in your POM.xml (for a pom.xml example you may look at the javolution-cpp-test repository)
+The simplest way to use Javolution C++ is through Maven with the native plugin (http://www.mojohaus.org/maven-native/native-maven-plugin/) and the following dependencies in your pom.xml (for a pom.xml example you may look at the javolution-cpp-test repository).
+Three major platforms are supported: Windows (Visual C++), Linux (gcc) and Solaris (CC).
 
 ```
     <dependencies>
@@ -66,20 +67,20 @@ The simplest way to use Javolution C++ is through Maven with the native plugin a
             <groupId>org.javolution</groupId>
             <artifactId>libjavolution</artifactId>
             <version>7.0.0</version>
-            <type>inczip</type>
+            <type>inczip</type>  <!-- Headers (.hpp) compilation dependency -->
         </dependency>
         <dependency>
             <groupId>org.javolution</groupId>
             <artifactId>libjavolution</artifactId>
             <version>7.0.0</version>
-            <type>${compile.dependency.type}</type>
+            <type>${compile.dependency.type}</type> <!-- Linked library dependency (.lib on Windows) -->
             <classifier>${compile.dependency.classifier}</classifier>
         </dependency>
         <dependency>
             <groupId>org.javolution</groupId>
             <artifactId>libjavolution</artifactId>
-            <version>${project.version}</version>
-            <type>${runtime.dependency.type}</type>
+            <version>7.0.0</version>
+            <type>${runtime.dependency.type}</type> <!-- Runtime dependency (.dll on Windows) -->
             <classifier>${runtime.dependency.classifier}</classifier>
         </dependency>
 ```
