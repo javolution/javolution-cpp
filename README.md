@@ -23,7 +23,7 @@ namespace org { namespace acme { // Package
 class Foo_Type : public virtual java::lang::Object_Type { // 'virtual' used for Object_Type and interfaces.
     java::lang::String msg;
 public:
-    Foo_Type(const java::lang::String& msg) : msg(msg) {} // Read-only parameters passed as const reference.
+    Foo_Type(const java::lang::String& msg) : msg(msg) {} // Read-only parameters passed as const references.
     void set(const java::lang::String& msg) {
         this->msg = msg;
     }
@@ -44,8 +44,8 @@ StringBuilder StringBuilder_Type::append(...) {
 }
 
 Type::boolean equals(const Object& obj) const override { 
-    Foo that = Type::dynamic_handle_cast<Foo_Type>(obj); // Unlike Java, invalid cast returns null instead of raising an exception. 
-    if (that == Type::Null) return false;
+    Foo that = Type::dynamic_handle_cast<Foo_Type>(obj); // Unlike Java, invalid cast returns null 
+    if (that == Type::Null) return false;                // instead of raising an exception. 
      return equals(that);
 }
 
