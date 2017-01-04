@@ -7,9 +7,8 @@
 ### Javolution C++ - All the benefits of Javolution for C++ developpers.
 
 Javolution C++ makes it easy for developper to reuse / port any existing Java code.
-It includes a port of standard Java classes (java.lang/java.util), OSGi (org.osgi) and JUnit (junit.framework). Garbage collection is done through reference counting (smart pointers) and memory is managed by Javolution 
-itself (no heap allocation performed after activation of the Javolution bundle).
-Its syntax is very close to the Java syntax (more info in the Wiki). 
+It includes a port of standard Java classes (java.lang/java.util), OSGi (org.osgi) and JUnit (junit.framework). Garbage collection is done through reference counting (smart pointers).
+The syntax is very close to the Java syntax (see Javolution source code). 
 Here is a typical C++ header class (org/acme/Foo.hpp) using the Javolution framework.
   
 ```cpp
@@ -20,10 +19,11 @@ Here is a typical C++ header class (org/acme/Foo.hpp) using the Javolution frame
 #include "java/lang/String.hpp"
 
 namespace org { namespace acme { // Package
-class Foo_Type : public virtual java::lang::Object_Type { // 'virtual' used for Object_Type and interfaces. (multiple inheritance)
+
+class Foo_Type : public virtual java::lang::Object_Type { // 'virtual' used for Object_Type and interfaces.
     java::lang::String msg;
 public:
-    Foo_Type(const java::lang::String& msg) : msg(msg) {} // Read-only parameters are passed as const reference (optimization) 
+    Foo_Type(const java::lang::String& msg) : msg(msg) {} // Read-only parameters passed as const reference.
     void set(const java::lang::String& msg) {
         this->msg = msg;
     }
@@ -48,6 +48,7 @@ Type::boolean equals(const Object& obj) const override {
     if (that == Type::Null) return false;
      return equals(that);
 }
+
 Type::boolean equals(const Foo& that) const {
     return this->msg->equals(that->msg);
 } 
@@ -90,7 +91,7 @@ Three major platforms are supported: Windows (Visual C++), Linux (gcc) and Solar
 ```
 
 In order to guarantee the worst case execution time, the size of the heap memory used by  
-Java-Like Objects (derived from java::lang::Object_Type) should be set during bundle activation.
+Java-Like Objects (derived from java::lang::Object_Type) can be set during bundle activation.
 
 ```cpp
 int main(int, char**) {
