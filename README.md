@@ -9,9 +9,9 @@
 Java is fast, very fast, but Javolution C++, can make your Java code even faster!
 
 - **High-Performance** 
-- With Javolution small immutable objects (such as Boolean, Char, Integer, Double) are allocated on the stack instead of the heap (they are manipulated by value). 
-- All Java parameterized classes (e.g. collections/maps) are true C++ templates (no syntactic sugar). 
-- Javolution does not need a garbage collector, memory management is done by the objects themselves through reference counting.
+    - With Javolution small immutable objects (such as Boolean, Char, Integer, Double) are allocated on the stack instead of the heap (they are manipulated by value). 
+    - All Java parameterized classes (e.g. collections/maps) are true C++ templates (no syntactic sugar). 
+    - Javolution does not need a garbage collector, memory management is done by the objects themselves through reference counting.
 
 - **Real-Time** - Since Javolution C++ is a port of Javolution Real-Time classes, it exhibits the same real-time characteristics (even better since there is no jitter caused by JIT or class loading/initialization).
 
