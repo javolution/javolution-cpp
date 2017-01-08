@@ -107,7 +107,7 @@ Three major platforms are supported: Windows (Visual C++), Linux (gcc) and Solar
         </dependency>
 ```
 
-In order to guarantee the worst case execution time, the size of the heap memory used by classes derived from  java::lang::Object_Type can be set during bundle activation. 
+In order to guarantee the worst case execution time, the size of the internal heap memory (managed by Javolution) can be set during the bundle activation and the actual maximum heap usage is logged during bundle deactivation. Only if the heap size is underestimated, system heap allocations are performed (or if the Javolution bundle is not activated). 
 Small immutable objects (such as java::lang::Boolean, java::lang::Char, java::lang::Integer, etc.) are manipulated by value and don't use the heap.
 
 ```cpp
@@ -130,7 +130,7 @@ int main(int, char**) {
     
     ... // Stops others bundles.
     
-    osgi->stop("Javolution"); // Will log the maximum heap usage.
+    osgi->stop("Javolution"); // Logs the maximum heap usage.
     
 }
 ```
