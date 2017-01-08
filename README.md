@@ -6,46 +6,63 @@
 
 ### Javolution C++ - All the benefits of Javolution for C++ developpers.
 
-Javolution C++ makes it easy for developper to reuse / port any existing Java code.
-It includes a port of standard Java classes (java.lang/java.util), OSGi (org.osgi) and JUnit (junit.framework). Garbage collection is done through reference counting (smart pointers).
-The syntax is very close to the Java syntax (see Javolution source code). 
-Here is a typical C++ header class (org/acme/Foo.hpp) using the Javolution framework.
+Java is fast, very fast, but Javolution C++, can make your Java code even faster!
+
+- **High-Performance** - With Javolution small immutable objects (such as Boolean, Integer, Double, Complex numbers) are allocated on the stack instead of the heap (they are manipulated by value). Templates are true C++ templates (no syntaxic sugar).
+Furthermore, Javolution does not need a garbage collector (internal smart pointers ensure efficient memory recycling)
+
+- **Real-Time** - Since Javolution C++ is a port of Javolution Real-Time classes, it exhibits the same real-time 
+characteristics (even better since there is no jitter caused by JIT or class loading/initialization).
+
+- **Easy** - Someone not knowledgeable in C++ but familiar with Java can quickly start developing complex applications in C++ The conversion of Java code to C++ is straightforward and can be done automatically using javolution/javaToCpp (soon available on GitHub).
+
+- **OSGi** - An open-source implementation of OSGi has been partially ported from Java to C++ and is included in the library.
+
+- **JUnit** - JUnit has also been ported (see GitHub javolution/javalution-cpp-test for usage).
+
+- **Maven Based** - Javolution C++ can be used through Maven (available from Maven central).
+
+- **Portable** - Any application based on Javolution C++ will run identically on Linux POSIX, Solaris and Window Visual C++
+
+- **Free** - JVM licensing for embedded systems can be problematic and expensive. It is not the case for Javolution which
+is free and always will be (MIT license). 
+  
+Here is an example of header class (org/acme/Foo.hpp) based on Javolution C++ showing the similitude between with Java
   
 ```cpp
 #ifndef _ORG_ACME_FOO_HPP
 #define _ORG_ACME_FOO_HPP
 
-#include "java/lang/Object.hpp"
+#include "java/lang/Object.hpp" // Same as Java includes.
 #include "java/lang/String.hpp"
 
-namespace org { namespace acme { // Package
+namespace org { namespace acme { // Same as Java package.
 
-class Foo_Type : public virtual java::lang::Object_Type { // 'virtual' used for Object_Type and interfaces.
+/* The class Foo_Type holds Foo instance members (Foo being the handle on Foo_Type) */
+class Foo_Type : public virtual java::lang::Object_Type { 
     java::lang::String msg;
 public:
     Foo_Type(const java::lang::String& msg) : msg(msg) {} // Read-only parameters passed as const references.
     void set(const java::lang::String& msg) {
-        this->msg = msg;
+        this->msg = msg;                                  // . replaced by ->
     }
     virtual java::lang::String toString() const override { 
         return msg;
     }
 };
-typedef Type::Handle<Foo_Type> Foo; // Smart pointer, e.g. Foo foo = new Foo_Type("Hello")
+
+/** Foo handle (smart pointer), you may write for example:  Foo foo = new Foo_Type("Hello")
+    It there were static members, they would be here in Foo class. */
+typedef Type::Handle<Foo_Type> Foo; 
+
 }}
 #endif
 ``` 
 Here are some illustrative snippets of C++ source code
 ```cpp
-// Allows chaining, e.g. sb->append("Duration: ")->append(t)->append("ms")
-StringBuilder StringBuilder_Type::append(...) {
-    ...
-    return this; // Implicit conversion from StringBuilder_Type* to StringBuilder.
-}
-
 Type::boolean equals(const Object& obj) const override { 
-    Foo that = Type::dynamic_handle_cast<Foo_Type>(obj); // Unlike Java, invalid cast returns null 
-    if (that == Type::Null) return false;                // instead of raising an exception. 
+    Foo that = Type::handle_cast<Foo_Type>(obj); // Unlike Java, invalid cast returns null 
+    if (that == Type::Null) return false;        // instead of raising an exception. 
      return equals(that);
 }
 
@@ -53,12 +70,12 @@ Type::boolean equals(const Foo& that) const {
     return this->msg->equals(that->msg);
 } 
 
-List<String> list = FastTable<String>::newTable();
+List<String> list = FastTable<String>::newTable(); // Automatic upcasting.
 list->add("first");
 list->add("second");
 list->add("third");
 list->add(Type::Null);
-std::cout << list << std::endl; //  [first, second, third, null]
+System::out->println(list); //  [first, second, third, null]
 
 ``` 
 ### Usage
@@ -90,8 +107,8 @@ Three major platforms are supported: Windows (Visual C++), Linux (gcc) and Solar
         </dependency>
 ```
 
-In order to guarantee the worst case execution time, the size of the heap memory used by  
-Java-Like Objects (derived from java::lang::Object_Type) can be set during bundle activation.
+In order to guarantee the worst case execution time, the size of the heap memory used by classes derived from  java::lang::Object_Type can be set during bundle activation. 
+Value-type objects (such as Integer, Double, Char) are manipulated by value and don't use the heap.
 
 ```cpp
 int main(int, char**) {
@@ -107,7 +124,7 @@ int main(int, char**) {
     try {
         ... // Run main
     } catch (java::lang::Throwable& error) {
-        std::wcerr << error << std::endl;
+        System::err->println(error);
         error->printStackTrace();
     }
     
