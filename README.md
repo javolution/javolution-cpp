@@ -27,18 +27,18 @@ characteristics (even better since there is no jitter caused by JIT or class loa
 - **Free** - JVM licensing for embedded systems can be problematic and expensive. It is not the case for Javolution which
 is free and always will be (MIT license). 
   
-Here is an example of header class (org/acme/Foo.hpp) based on Javolution C++ showing the similitude between with Java
+Here is an example of header class (org/acme/Foo.hpp) based on Javolution C++ showing the strong similarities with Java
   
 ```cpp
 #ifndef _ORG_ACME_FOO_HPP
 #define _ORG_ACME_FOO_HPP
 
-#include "java/lang/Object.hpp" // Same as Java includes.
+#include "java/lang/Object.hpp" // Same as Java import
 #include "java/lang/String.hpp"
 
 namespace org { namespace acme { // Same as Java package.
 
-/* The class Foo_Type holds Foo instance members (Foo being the handle on Foo_Type) */
+/* The class Foo_Type is the actual Foo type (not a pointer), it specifies the instance members. */
 class Foo_Type : public virtual java::lang::Object_Type { 
     java::lang::String msg;
 public:
@@ -51,9 +51,9 @@ public:
     }
 };
 
-/** Foo handle (smart pointer), you may write for example:  Foo foo = new Foo_Type("Hello")
-    It there were static members, they would be here in Foo class. */
-typedef Type::Handle<Foo_Type> Foo; 
+/** Foo is a pointer (smart pointer) on a Foo_Type instance, e.g. Foo foo = new Foo_Type("Hello")
+    It there are static members, they will be defined in the Foo class. */
+typedef Type::Handle<Foo_Type> Foo; // No static members, a typedef works fine.
 
 }}
 #endif
@@ -108,7 +108,7 @@ Three major platforms are supported: Windows (Visual C++), Linux (gcc) and Solar
 ```
 
 In order to guarantee the worst case execution time, the size of the heap memory used by classes derived from  java::lang::Object_Type can be set during bundle activation. 
-Value-type objects (such as Integer, Double, Char) are manipulated by value and don't use the heap.
+Small immutable objects (such as java::lang::Boolean, java::lang::Char, java::lang::Integer, etc.) are manipulated by value and don't use the heap.
 
 ```cpp
 int main(int, char**) {
