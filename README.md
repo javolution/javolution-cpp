@@ -8,11 +8,12 @@
 
 Java is fast, very fast, but Javolution C++, can make your Java code even faster!
 
-- **High-Performance** - With Javolution small immutable objects (such as Boolean, Integer, Double, Complex numbers) are allocated on the stack instead of the heap (they are manipulated by value). Templates are true C++ templates (no syntaxic sugar).
-Furthermore, Javolution does not need a garbage collector (internal smart pointers ensure efficient memory recycling)
+- **High-Performance** 
+- With Javolution small immutable objects (such as Boolean, Char, Integer, Double) are allocated on the stack instead of the heap (they are manipulated by value). 
+- All Java parameterized classes (e.g. collections/maps) are true C++ templates (no syntactic sugar). 
+- Javolution does not need a garbage collector, memory management is done by the objects themselves through reference counting.
 
-- **Real-Time** - Since Javolution C++ is a port of Javolution Real-Time classes, it exhibits the same real-time 
-characteristics (even better since there is no jitter caused by JIT or class loading/initialization).
+- **Real-Time** - Since Javolution C++ is a port of Javolution Real-Time classes, it exhibits the same real-time characteristics (even better since there is no jitter caused by JIT or class loading/initialization).
 
 - **Easy** - Someone not knowledgeable in C++ but familiar with Java can quickly start developing complex applications in C++ The conversion of Java code to C++ is straightforward and can be done automatically using javolution/javaToCpp (soon available on GitHub).
 
@@ -20,12 +21,11 @@ characteristics (even better since there is no jitter caused by JIT or class loa
 
 - **JUnit** - JUnit has also been ported (see GitHub javolution/javalution-cpp-test for usage).
 
-- **Maven Based** - Javolution C++ can be used through Maven (available from Maven central).
+- **Maven-Based** - Javolution C++ can be used through Maven (available from Maven central).
 
 - **Portable** - Any application based on Javolution C++ will run identically on Linux POSIX, Solaris and Window Visual C++
 
-- **Free** - JVM licensing for embedded systems can be problematic and expensive. It is not the case for Javolution which
-is free and always will be (MIT license). 
+- **Free** - JVM licensing for embedded systems can be problematic and expensive. It is not the case for Javolution which is free and always will be (MIT license). 
   
 Here is an example of header class (org/acme/Foo.hpp) based on Javolution C++ showing the strong similarities with Java
   
