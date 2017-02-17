@@ -3,293 +3,214 @@
  * Copyright (C) 2012 - Javolution (http://javolution.org/)
  * All rights reserved.
  */
-#ifndef _JAVA_LANG_STRING_BUILDER_HPP
-#define _JAVA_LANG_STRING_BUILDER_HPP
+#pragma once
 
+#include <sstream>
 #include "java/lang/Object.hpp"
 #include "java/lang/String.hpp"
 #include "java/lang/Boolean.hpp"
 #include "java/lang/Character.hpp"
 #include "java/lang/IllegalArgumentException.hpp"
 #include "java/lang/IndexOutOfBoundsException.hpp"
-#include "java/lang/Integer32.hpp"
-#include "java/lang/Integer64.hpp"
-#include "java/lang/Float32.hpp"
-#include "java/lang/Float64.hpp"
+#include "java/lang/Integer.hpp"
+#include "java/lang/Long.hpp"
+#include "java/lang/Float.hpp"
+#include "java/lang/Double.hpp"
 
 namespace java {
-    namespace lang {
-        class StringBuilder_API;
-        typedef Type::Handle<StringBuilder_API> StringBuilder;
-    }
-}
+namespace lang {
 
 /**
  * This class represents a mutable sequence of characters.
  *
- * @see  <a href="http://java.sun.com/javase/6/docs/api/java/lang/StringBuilder.html">
+ * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/StringBuilder.html">
  *       Java - StringBuilder</a>
- * @version 1.0
+ * @version 7.0
  */
-class java::lang::StringBuilder_API : public virtual java::lang::Object_API {
-
-    /**
-     * Holds default capacity.
-     */
-    static const Type::int32 DEFAULT_CAPACITY = 16;
-
-    /**
-     * Holds the wide character buffer.
-     */
-    Type::int32 _capacity;
-
-    /**
-     * Holds the current length.
-     */
-    Type::int32 _length;
-
-    /**
-     * Holds the wide character buffer.
-     */
-    Type::wchar* _buffer;
-
-protected:
-    
-    /**
-     * Default constructor.
-     */
-    StringBuilder_API() : _capacity(DEFAULT_CAPACITY), _length(0),
-    _buffer(new Type::wchar[DEFAULT_CAPACITY]) {
-    };
-
+class StringBuilder final : public virtual CharSequence {
 public:
+    StringBuilder(Void = nullptr) {}
+    StringBuilder(Value* value) : Object(value) {}
 
-    /**
-     * Returns a new empty string builder instance.
-     */
+    /** Constructs a new empty string builder. */
     static StringBuilder newInstance() {
-        return new StringBuilder_API();
+        return new Value();
     }
 
     /**
-     * Returns the length (character count).
-     *
-     * @return the number of wide characters.
+     * Appends the textual representation of the specified object.
      */
-     Type::int32 length() {
-        return _length;
+    StringBuilder append(const Object& obj) {
+        return append(String::valueOf(obj));
     }
 
     /**
-     * Returns the character at the specified index.
-     *
-     * @param  i the index of the character.
-     * @return the character at the specified index.
-     * @throws IndexOutOfBoundsException if <code>(i < 0) || (i >= this.length())</code>.
+     * Appends the specified string.
      */
-    Type::wchar charAt(Type::int32 i) {
-        if ((i < 0) || (i >= _length))
-            throw IndexOutOfBoundsException_API::newInstance();
-        return _buffer[i];
+    StringBuilder append(const String& str) {
+        return this_<Value>()->append(str);
     }
 
     /**
-     * Appends the textual representation of the specified object
-     * (<code>null</code> or <code>obj->toString()</code>).
-     *
-     * @param obj the object or <code>Type::Null</code>
-     * @return <code>this</code> 
+     * Appends the specified int value.
      */
-    JAVOLUTION_DLL StringBuilder append(Object const& obj);
+    StringBuilder append(int value) {
+        std::wostringstream out;
+        out << value;
+        return append(out.str());
+    }
 
     /**
-     * Appends the specified C++ wide characters (null terminated).
-     *
-     * @param wchars the wide characters (cannot be NULL).
-     * @return <code>this</code>
+     * Appends the specified long value.
      */
-    JAVOLUTION_DLL StringBuilder append(const wchar_t* wchars);
+    StringBuilder append(long value) {
+        std::wostringstream out;
+        out << value;
+        return append(out.str());
+    }
 
     /**
-     * Appends the specified C++ wide string.
-     *
-     * @param wstr the wide string.
-     * @return <code>this</code>
+     * Appends the specified long long value (at least 64 bits).
      */
-    StringBuilder append(const std::wstring& wstr) {
-    	return append(wstr.c_str());
+    StringBuilder append(long long value) {
+        std::wostringstream out;
+        out << value;
+        return append(out.str());
+    }
+
+    /**
+     * Appends the specified 32 bits float value.
+     */
+    StringBuilder append(float value) {
+        std::wostringstream out;
+        out << value;
+        return append(out.str());
+    }
+
+    /**
+     * Appends the specified 64 bits float value.
+     */
+    StringBuilder append(double value) {
+        std::wostringstream out;
+        out << value;
+        return append(out.str());
     }
 
     /**
      * Appends the specified C++ UTF-8 simple characters (null terminated).
-     *
-     * @param chars the UTF-8 characters (cannot be NULL).
-     * @return <code>this</code>
      */
-   JAVOLUTION_DLL StringBuilder append(const char* chars);
+    StringBuilder append(const char* chars) {
+        return this_<Value>()->append(chars);
+    }
+
+    /**
+     * Appends the specified C++ wide characters (null terminated).
+     */
+    StringBuilder append(const Type::wchar* chars) {
+        return this_<Value>()->append(chars);
+    }
+
+    /**
+     * Appends the specified C++ wide string.
+     */
+    StringBuilder append(const std::wstring& wstr) {
+        return append(wstr.c_str());
+    }
 
     /**
      * Appends the specified C++ string (UTF-8).
-     *
-     * @param str the string.
-     * @return <code>this</code>
      */
     StringBuilder append(const std::string& str) {
-    	return append(str.c_str());
+        return append(str.c_str());
     }
 
     /**
      * Appends the specified ASCII character.
      *
-     * @param value the character value.
-     * @return <code>this</code>
-     * @throw IllegalArgumentException if the specified value is not an ASCII
-     *        character.
+     * @throw IllegalArgumentException if the specified value is not ASCII
      */
-    StringBuilder append(char value) {
-    	if (value < 0) throw IllegalArgumentException_API::newInstance(L"Non-ASCII Character");
-    	if (_length >= _capacity) increaseCapacity();
-    	_buffer[_length++] = (Type::wchar) value;
-    	return this;
+    StringBuilder append(char ascii) {
+        if (ascii > 127)
+        throw IllegalArgumentException("Non-ASCII Character");
+        return append((Type::wchar) ascii);
     }
 
     /**
      * Appends the specified wide character.
-     *
-     * @param value the character value.
-     * @return <code>this</code>
      */
-    StringBuilder append(Type::wchar value) {
-    	if (_length >= _capacity) increaseCapacity();
-    	_buffer[_length++] = value;
-    	return this;
+    StringBuilder append(Type::wchar wc) {
+        return this_<Value>()->append(wc);
     }
 
     /**
-     * Appends the specified 8 bits integer value.
-     *
-     * @param value the 8 bits integer value.
-     * @return <code>this</code> or equivalent.
+     * Appends the specified bool object.
      */
-    StringBuilder append(Type::int8 value) {
-        return append((Type::int32) value);
+    StringBuilder append(bool value) {
+        return append(value ? "true" : "false");
     }
 
-    /**
-     * Appends the specified 16 bits integer value.
-     *
-     * @param value the 16 bits integer value.
-     * @return <code>this</code> or equivalent.
-     */
-    StringBuilder append(Type::int16 value) {
-    	return append((Type::int32) value);
+    //////////////////
+    // CharSequence //
+    //////////////////
+
+    Type::wchar charAt(int index) const {
+        return this_<Value>()->charAt(index);
     }
 
-    /**
-     * Appends the specified 32 bits integer value.
-     *
-     * @param value the 32 bits integer value.
-     * @return <code>this</code> or equivalent.
-     */
-    JAVOLUTION_DLL StringBuilder append(Type::int32 value);
-
-    /**
-     * Appends the specified 64 bits integer value.
-     *
-     * @param value the 64 bits integer value.
-     * @return <code>this</code> or equivalent.
-     */
-    JAVOLUTION_DLL StringBuilder append(Type::int64 value);
-
-    /**
-     * Appends the specified 32 bits float value.
-     *
-     * @param value the 32 bits float value.
-     * @return <code>this</code> or equivalent.
-     */
-    JAVOLUTION_DLL StringBuilder append(Type::float32 value);
-
-    /**
-     * Appends the specified 64 bits float value.
-     *
-     * @param value the 64 bits float value.
-     * @return <code>this</code> or equivalent.
-     */
-    JAVOLUTION_DLL StringBuilder append(Type::float64 value);
-
-    /**
-     * Appends the specified boolean object.
-     *
-     * @param value the boolean value.
-     * @return <code>this</code>
-     */
-    StringBuilder append(Type::boolean value) {
-    	return append(value ? L"true" : L"false");
+    int length() const {
+        return this_<Value>()->length();
     }
 
-    /**
-     * Returns a string representation of this string builder.
-     *
-     * @return the corresponding string.
-     */
-    JAVOLUTION_DLL virtual String toString() const;
+    CharSequence subSequence(int start, int end) const {
+        return this_<Value>()->subSequence(start, end);
+    }
 
-    /**
-     * Overrides destructor to ensure internal array deallocation.
-     */
-	virtual ~StringBuilder_API() {
-		delete [] _buffer;
-	}
+    ////////////////////
+    // Implementation //
+    ////////////////////
 
-	/**
-	 * Equivalent to <code>append(b->booleanValue())</code>
-	 */
-	StringBuilder append(Boolean const& b) {
-		return append(b->booleanValue());
-	}
+    class Value final : public Object::Value, public virtual CharSequence::Interface {
+        static const int WCHARS_INC = 32; // Smooth length increment.
+        Array<Type::wchar> wchars = Array<Type::wchar>::newInstance();
+        int count = 0;
+        bool immutable = false;// Becomes immutable after toString() is called since the array will be shared.
+    public:
 
-	/**
-	 * Equivalent to <code>append(c->charValue())</code>
-	 */
-	StringBuilder append(Character const& c) {
-		return append(c->charValue());
-	}
+        JAVOLUTION_DLL
+        StringBuilder append(Type::wchar wc);
 
-	/**
-	 * Equivalent to <code>append(i32->intValue())</code>
-	 */
-	StringBuilder append(java::lang::Integer32 const& i32) {
-		return append(i32->intValue());
-	}
+        JAVOLUTION_DLL
+        StringBuilder append(const String& str);
 
-	/**
-	 * Equivalent to <code>append(i64->longValue())</code>
-	 */
-	StringBuilder append(java::lang::Integer64 const& i64) {
-		return append(i64->longValue());
-	}
+        JAVOLUTION_DLL
+        StringBuilder append(const char* chars);
 
-	/**
-	 * Equivalent to <code>append(f32->floatValue())</code>
-	 */
-	StringBuilder append(java::lang::Float32 const& f32) {
-		return append(f32->floatValue());
-	}
+        JAVOLUTION_DLL
+        StringBuilder append(const Type::wchar* chars);
 
-	/**
-	 * Equivalent to <code>append(f64->doubleValue())</code>
-	 */
-	StringBuilder append(java::lang::Float64 const& f64) {
-		return append(f64->doubleValue());
-	}
+        Type::wchar charAt(int index) const override {
+            if (index >= count)
+            throw IndexOutOfBoundsException();
+            return wchars[index];
+        }
 
-private:
+        int length() const override {
+            return count;
+        }
 
-    /**
-     * Increases the capacity of the buffer.
-     */
-    JAVOLUTION_DLL void increaseCapacity();
+        CharSequence subSequence(int start, int end) const override {
+            return toString().substring(start, end);
+        }
+
+        String toString() const override {
+            Value* self = const_cast<Value*>(this); // Removes constness.
+            self->wchars.length = count;// Ok, small reduction adjustment (no need to call setLength).
+            self->immutable = true;
+            return new String::Value(self->wchars); // Share the same array.
+        }
+
+    };
 
 };
-
-#endif
+}
+}

@@ -3,47 +3,28 @@
  * Copyright (C) 2012 - Javolution (http://javolution.org/)
  * All rights reserved.
  */
-#ifndef _JAVA_LANG_INDEX_OUT_OF_BOUNDS_EXCEPTION_HPP
-#define _JAVA_LANG_INDEX_OUT_OF_BOUNDS_EXCEPTION_HPP
+#pragma once
 
 #include "java/lang/RuntimeException.hpp"
 
 namespace java {
-    namespace lang {
-        class IndexOutOfBoundsException_API;
-        class IndexOutOfBoundsException : public RuntimeException { 
-        public:
-            IndexOutOfBoundsException(Type::NullHandle = Type::Null) : RuntimeException() {} // Null
-            IndexOutOfBoundsException(IndexOutOfBoundsException_API* ptr) : RuntimeException((RuntimeException_API*)ptr) {}
-        };
-    }   
-}
+namespace lang {
 
 /**
- * Thrown to inddicate that an index of some sort (such as to an array,
+ * Thrown to indicate that an index of some sort (such as to an array,
  * to a string, or to a vector) is out of range.
  *
- * @see  <a href="http://java.sun.com/javase/6/docs/api/java/lang/IndexOutOfBoundsException.html">
+ * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/IndexOutOfBoundsException.html">
  *       Java - IndexOutOfBoundsException</a>
- * @version 1.0
+ * @version 7.0
  */
-class java::lang::IndexOutOfBoundsException_API : public java::lang::RuntimeException_API {
-protected:
-
-    IndexOutOfBoundsException_API(String const& message) :
-        RuntimeException_API(message) {
-    };
-
+class IndexOutOfBoundsException: public RuntimeException {
 public:
-
-    /**
-     * Returns the runtime exception having the specified message.
-     *
-     * @param message the exception message.
-     */
-    static IndexOutOfBoundsException newInstance(String const& message = Type::Null) {
-        return new IndexOutOfBoundsException_API(message);
+    IndexOutOfBoundsException(const String& message = nullptr,
+            const String& classname = "java::lang::IndexOutOfBoundsException") :
+            RuntimeException(message, classname) {
     }
-
 };
-#endif
+
+}
+}

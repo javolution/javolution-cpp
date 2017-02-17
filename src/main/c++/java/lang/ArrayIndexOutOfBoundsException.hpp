@@ -3,48 +3,30 @@
  * Copyright (C) 2012 - Javolution (http://javolution.org/)
  * All rights reserved.
  */
-#ifndef _JAVA_LANG_ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION_HPP
-#define _JAVA_LANG_ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION_HPP
+#pragma once
 
 #include "java/lang/IndexOutOfBoundsException.hpp"
 
 namespace java {
-    namespace lang {
-        class ArrayIndexOutOfBoundsException_API;
-        class ArrayIndexOutOfBoundsException : public IndexOutOfBoundsException {
-        public:
-            ArrayIndexOutOfBoundsException(Type::NullHandle = Type::Null) : IndexOutOfBoundsException() {} // Null
-            ArrayIndexOutOfBoundsException(ArrayIndexOutOfBoundsException_API* ptr) : IndexOutOfBoundsException((IndexOutOfBoundsException_API*)ptr) {}
-        };
-    }
-}
+namespace lang {
 
 /**
  * Thrown to indicate that an array has been accessed with an illegal index.
  * The index is either negative or greater than or equal to the size of the array.
  *
- * @see  <a href="http://java.sun.com/javase/6/docs/api/java/lang/ArrayIndexOutOfBoundsException.html">
+ * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/ArrayIndexOutOfBoundsException.html">
  *       Java - ArrayIndexOutOfBoundsException</a>
- * @version 1.0
+ * @version 7.0
  */
-class java::lang::ArrayIndexOutOfBoundsException_API : public virtual java::lang::IndexOutOfBoundsException_API {
-protected:
-
-    ArrayIndexOutOfBoundsException_API(String const& message) :
-        IndexOutOfBoundsException_API(message) {
-    };
-
+class ArrayIndexOutOfBoundsException: public IndexOutOfBoundsException {
 public:
-
-    /**
-     * Returns the runtime exception having the specified message.
-     *
-     * @param message the exception message.
-     */
-    static ArrayIndexOutOfBoundsException newInstance(String const& message = Type::Null) {
-        return new ArrayIndexOutOfBoundsException_API(message);
+    ArrayIndexOutOfBoundsException(const String& message = nullptr,
+            const String& classname = "java::lang::ArrayIndexOutOfBoundsException") :
+            IndexOutOfBoundsException(message, classname) {
     }
 
 };
 
-#endif
+}
+}
+

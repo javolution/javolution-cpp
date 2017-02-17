@@ -3,48 +3,27 @@
  * Copyright (C) 2012 - Javolution (http://javolution.org/)
  * All rights reserved.
  */
-#ifndef _JAVA_LANG_RUNTIME_EXCEPTION_HPP
-#define _JAVA_LANG_RUNTIME_EXCEPTION_HPP
+#pragma once
 
 #include "java/lang/Exception.hpp"
 
 namespace java {
-    namespace lang {
-        class RuntimeException_API;
-        class RuntimeException : public Exception {
-        public:
-            RuntimeException(Type::NullHandle = Type::Null) : Exception() {} // Null
-            RuntimeException(RuntimeException_API* ptr) : Exception((Exception_API*)ptr) {}
-        };
-    }
-}
+namespace lang {
 
 /**
  * This class and its sub-classes represents exception which should not 
  * occur during normal program execution (typically programming error!).
  *
- * @see  <a href="http://java.sun.com/javase/6/docs/api/java/lang/RuntimeException.html">
+ * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/RuntimeException.html">
  *       Java - RuntimeException</a>
- * @version 1.0
+ * @version 7.0
  */
-class java::lang::RuntimeException_API : public java::lang::Exception_API {
-protected:
-
-    RuntimeException_API(String const& message = Type::Null) :
-        Exception_API(message) {
-    };
-
+class RuntimeException: public Exception {
 public:
-
-    /**
-     * Returns a RuntimeException having the specified message.
-     *
-     * @param message the message.
-     */
-    static RuntimeException newInstance(String message = Type::Null) {
-        return new RuntimeException_API(message);
+    RuntimeException(const String& message = nullptr, const String& classname = "java::lang::RuntimeException") :
+            Exception(message, classname) {
     }
-
 };
 
-#endif
+}
+}

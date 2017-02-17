@@ -3,74 +3,79 @@
  * Copyright (C) 2012 - Javolution (http://javolution.org/)
  * All rights reserved.
  */
-#ifndef _JAVA_LANG_NUMBER_HPP
-#define _JAVA_LANG_NUMBER_HPP
+#pragma once
 
 #include "java/lang/Object.hpp"
 
 namespace java {
-    namespace lang {
-        class Number_API;
-        typedef Type::Handle<Number_API> Number;
-    }
-}
+namespace lang {
 
 /**
- * This class represents the number base class.
+ * This class defines the methods to be implemented by numbers.
  *
- * @see  <a href="http://java.sun.com/javase/6/docs/api/java/lang/Number.html">
+ * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Number.html">
  *       Java - Number</a>
- * @version 1.0
+ * @version 7.0
  */
-class java::lang::Number_API : public virtual java::lang::Object_API {
+class Number: public virtual Object {
 public:
+    Number(Void = nullptr) {}
 
     /**
-     * Returns the value of the specified number as an <code>Type::int32</code>.
-     *
-     * @return the numeric value represented by this number.
+     * Returns the value of the specified number as a 32 bits <code>int</code>.
      */
-    virtual Type::int32 intValue() const = 0;
-
-    /**
-     * Returns the value of the specified number as an <code>Type::int64</code>.
-     *
-     * @return the numeric value represented by this number.
-     */
-    virtual Type::int64 longValue() const = 0;
-
-    /**
-     * Returns the value of the specified number as an <code>Type::float32</code>.
-     *
-     * @return the numeric value represented by this number.
-     */
-    virtual Type::float32 floatValue() const = 0;
-
-    /**
-     * Returns the value of the specified number as an <code>Type::float64</code>.
-     *
-     * @return the numeric value represented by this number.
-     */
-    virtual Type::float64 doubleValue() const = 0;
-
-    /**
-     * Returns the value of the specified number as an <code>Type::int8</code>.
-     *
-     * @return the numeric value represented by this number.
-     */
-    virtual Type::int8 byteValue() const {
-        return (Type::int8)intValue();
+    Type::int32 intValue() const {
+        return this_cast<Interface>()->intValue();
     }
 
     /**
-     * Returns the value of the specified number as an <code>Type::int16</code>.
-     *
-     * @return the numeric value represented by this number.
+     * Returns the value of the specified number as a 64 bits <code>long</code>.
      */
-    virtual Type::int16 shortValue() const {
-        return (Type::int16)intValue();
+    Type::int64 longValue() const {
+        return this_cast<Interface>()->longValue();
     }
+
+    /**
+     * Returns the value of the specified number as an <code>float</code>.
+     */
+    float floatValue() const {
+        return this_cast<Interface>()->floatValue();
+    }
+
+    /**
+     * Returns the value of the specified number as an <code>double</code>.
+     */
+    double doubleValue() const {
+        return this_cast<Interface>()->doubleValue();
+    }
+
+    /**
+     * Returns the value of the specified number as an <code>int8</code>.
+     */
+    Type::int8 byteValue() const {
+        return (Type::int8) intValue();
+    }
+
+    /**
+     * Returns the value of the specified number as an <code>int16</code>.
+     */
+    Type::int16 shortValue() const {
+        return (Type::int16) intValue();
+    }
+
+    ///////////////
+    // Interface //
+    ///////////////
+
+    class Interface: public virtual Object::Interface {
+    public:
+        virtual Type::int32 intValue() const = 0;
+        virtual Type::int64 longValue() const = 0;
+        virtual float floatValue() const = 0;
+        virtual double doubleValue() const = 0;
+    };
 
 };
 
-#endif
+}
+}

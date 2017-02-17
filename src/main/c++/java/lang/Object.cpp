@@ -9,64 +9,61 @@
 #include "java/lang/StringBuilder.hpp"
 #include "java/lang/Class.hpp"
 #include "java/lang/UnsupportedOperationException.hpp"
-#include <typeinfo> // Used for Object_API::getClass() (C++ Reflection)
+#include "java/lang/NullPointerException.hpp"
+#include "java/lang/ArrayIndexOutOfBoundsException.hpp"
+#include "java/lang/NegativeArraySizeException.hpp"
+#include <typeinfo> // Used for Object::getClass() (C++ Reflection)
 
-using namespace Javolution;
-using namespace std;
-using namespace java::lang;
 
-Javolution::MemoryCache java::lang::Object_API::_memoryCache;
+///////////////////////
+// Object_Interface //
+///////////////////////
 
-Class_ANY Object_API::getClass() const {
-    String name = String_API::valueOf(typeid(*this).name());
-    if (name->startsWith(L"class ")) {
-    	name = name->substring(6);
+Class Object_Interface::getClass() const {
+    String name = String::valueOf(typeid(*this).name());
+    if (name.startsWith("class ")) {
+    	name = name.substring(6);
     }
-    return Class_ANY_API::forName(name);
+    return Class::forName(name);
 }
 
-String Object_API::toString() const {
-    void const* thisAddress = dynamic_cast<void const*> (this);
-    intptr_t address = (intptr_t) thisAddress;
-    StringBuilder sb = StringBuilder_API::newInstance();
-    return sb->append(L"Object#")->append((Type::int32) address)->toString();
+String Object_Interface::toString() const {
+    const void* address = this;
+    StringBuilder sb = StringBuilder::newInstance();
+    return sb.append("Object#").append((int)address).toString();
 }
 
-Type::int32 Object_API::hashCode() const {
-    void const * address = dynamic_cast<void const *> (this);
-    intptr_t a = (intptr_t) address;
-    // Ensures uniform distribution.
-    Type::int32 h = (Type::int32) a;
-    h += ~(h << 9);
-    h ^= (h >> 14);
-    h += (h << 4);
-    return h ^ (h >> 10);
+Type::Mutex& Object_Interface::monitor_() const {
+    throw UnsupportedOperationException("Object::monitor_() not implemented");
 }
 
-Type::Mutex& Object_API::getMutex() const {
-    throw java::lang::UnsupportedOperationException_API::newInstance(L"getMutex() not implemented");
+Class Object::getClass() const {
+      if (value == nullptr) throw NullPointerException();
+      return value->getClass();
 }
 
-std::ostream& operator<<(std::ostream& out, java::lang::Object_API const& that) {
-	return out << that.toString()->toUTF8();
-}
-std::wostream& operator<<(std::wostream& wout, java::lang::Object_API const& that) {
-    return wout << that.toString()->toWString();
+String Object::toString() const {
+    if (value == nullptr) throw NullPointerException();
+    return value->toString();
 }
 
-std::string operator+(std::string const& left, java::lang::Object_API const& right) {
-    return left + right.toString()->toUTF8();
+void Object_Exceptions::throwNullPointerException()  {
+    throw NullPointerException();
 }
 
-std::string operator+(java::lang::Object_API const& left, std::string const& right) {
-    return left.toString()->toUTF8() + right;
+void Object_Exceptions::throwArrayIndexOutOfBoundsException()  {
+    throw ArrayIndexOutOfBoundsException();
 }
 
-std::wstring operator+(std::wstring const& left, java::lang::Object_API const& right) {
-    return left + right.toString()->toWString();
+void Object_Exceptions::throwNegativeArraySizeException() {
+    throw NegativeArraySizeException();
 }
 
-std::wstring operator+(java::lang::Object_API const& left, std::wstring const& right) {
-    return left.toString()->toWString() + right;
+std::ostream& operator<<(std::ostream& os, const Object& that) {
+    return (that != nullptr) ? os << that.toString().toUTF8() : os << "null";
+}
+
+std::wostream& operator<<(std::wostream& wos, const Object& that) {
+    return (that != nullptr) ? wos << that.toString().toWString() : wos << "null";
 }
 

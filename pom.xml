@@ -45,25 +45,6 @@
     </organization>
     <inceptionYear>2005</inceptionYear>
 
-    <!-- =========================================================== -->
-    <!--     Developers and Contributors                             -->
-    <!-- =========================================================== -->
-    <developers>
-        <developer>
-            <name>Jean-Marie Dautelle</name>
-            <id>dautelle</id>
-            <email>jean-marie@dautelle.com</email>
-            <organization>Airbus</organization>
-            <organizationUrl>http://www.airbus.com</organizationUrl>
-            <timezone>+1</timezone>
-            <roles>
-                <role>Project Founder</role>
-                <role>Java Developer</role>
-                <role>Senior Architect</role>
-            </roles>
-        </developer>
-    </developers>
-
     <!-- ======================================================= -->
     <!--     Properties setting                                  -->
     <!-- ======================================================= -->
@@ -85,11 +66,10 @@
             <properties>
                 <native.classifier>win32</native.classifier>  
                 <native.dll>dll</native.dll> <!-- Default -->
-                <native.exe>exe</native.exe>                  
                 <native.compilerConcurrency>1</native.compilerConcurrency>  <!--  Bug in Visual Studio 2013 for parallel compilations -->              
                 
                 <!-- Only maven dependencies to dynamic libraries are supported 
-                     since we build either a dynamic library (default) or an executable.  --> 
+                     since we build either a dynamic library or an executable.  --> 
                 <compile.dependency.type>lib</compile.dependency.type>
                 <compile.dependency.classifier /> <!-- No classifier for .lib secondary artifact of dll -->
                 <runtime.dependency.type>dll</runtime.dependency.type>
@@ -106,9 +86,7 @@
             
                 <!-- On windows the stack trace is only available for code compiled with optimization disabled -->    
                 <native.dll.compilerOptions>/EHsc /TP /W4 /Od /Zi /Fd${project.artifactId} /MDd /DLL</native.dll.compilerOptions>
-                <native.exe.compilerOptions>/EHsc /TP /W4 /O2 /Zi /Fd${project.artifactId} /MDd</native.exe.compilerOptions>
                 <native.dll.linkerOptions>/DEBUG /DLL</native.dll.linkerOptions>                
-                <native.exe.linkerOptions>/DEBUG</native.exe.linkerOptions>
                 
                 <!-- On windows to build the javolution dll we link with DbgHelp.Lib to get backtrace working. -->
                 <native.javolution.linkerOptions>${project.basedir}\lib\windows\DbgHelp.Lib</native.javolution.linkerOptions>                
@@ -124,7 +102,6 @@
             <properties>
              <native.classifier>linux</native.classifier>  
                 <native.dll>so</native.dll> <!-- Default -->
-                <native.exe>exe</native.exe>                  
                 <native.compilerConcurrency>16</native.compilerConcurrency>
                 
                 <!-- Only maven dependencies to dynamic libraries are supported 
@@ -143,9 +120,7 @@
                 <native.define>-D</native.define>
             
                 <native.dll.compilerOptions>-Wall -O2 -g -fPIC</native.dll.compilerOptions>
-                <native.exe.compilerOptions>-Wall -O2 -g</native.exe.compilerOptions>
                 <native.dll.linkerOptions>-pthread -rdynamic -shared</native.dll.linkerOptions> <!-- Option -rdynamic to obtains backtrace -->               
-                <native.exe.linkerOptions>-pthread -rdynamic</native.exe.linkerOptions>
                 
                 <!-- On linux to build javolution we link with the debug library to get backtrace working. -->
                 <native.javolution.linkerOptions>-ldl</native.javolution.linkerOptions>                      
@@ -162,7 +137,6 @@
              <properties>
              <native.classifier>solaris</native.classifier>  
                 <native.dll>so</native.dll> <!-- Default -->
-                <native.exe>exe</native.exe>                  
                 <native.compilerConcurrency>16</native.compilerConcurrency>
                 
                 <!-- Only maven dependencies to dynamic libraries are supported 
@@ -181,9 +155,7 @@
                 <native.define>-D</native.define>
             
                 <native.dll.compilerOptions>-xtarget=generic -mt -g -xO2 -xcode=pic32</native.dll.compilerOptions>
-                <native.exe.compilerOptions>-xtarget=generic -mt -g -xO2</native.exe.compilerOptions>
                 <native.dll.linkerOptions>-mt -lpthread -G</native.dll.linkerOptions>               
-                <native.exe.linkerOptions>&gt;-mt -lpthread</native.exe.linkerOptions>
                 
                 <!-- On solaris to build javolution we link with the debug library to get backtrace working. -->
                 <native.javolution.linkerOptions>-ldl -ldemangle -lrt</native.javolution.linkerOptions>                      
@@ -192,13 +164,10 @@
     </profiles>
 
     <build>
-        <!-- ================================== -->
-        <!--     Default plugin configuration   -->
-        <!-- ================================== -->
         <plugins>
-            <!-- ======================================================= -->
-            <!--     Native Plugin Default Configuration (DLL)           -->
-            <!-- ======================================================= -->  
+            <!-- ======================================== -->
+            <!--     Native Plugin Configuration (DLL)    -->
+            <!-- ======================================== -->  
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>native-maven-plugin</artifactId>
@@ -223,7 +192,11 @@
                         <linkerEndOption>${native.javolution.linkerOptions}</linkerEndOption>
                    </linkerEndOptions>
                    <linkerSecondaryOutputExtensions>${native.linkerSecondaryOutputExtensions}</linkerSecondaryOutputExtensions>
-                    <compilerStartOptions>
+
+                   <!-- ========================= -->
+                    <!-- Project Specific Settings -->
+                    <!-- ========================= -->                    
+                     <compilerStartOptions>
                         <compilerStartOption>${native.dll.compilerOptions}</compilerStartOption>
                         <compilerStartOption>${native.define}JAVOLUTION_DLL_EXPORT</compilerStartOption>
                         <compilerStartOption>${native.define}JAVOLUTION_VERSION=\"${project.version}-${native.classifier}\"</compilerStartOption>
@@ -244,9 +217,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5.3</version>
-                <configuration>
-                    <autoversionsubmodules>true</autoversionsubmodules>
-                </configuration>
             </plugin>
             
         </plugins>

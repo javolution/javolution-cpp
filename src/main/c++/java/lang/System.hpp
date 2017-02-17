@@ -3,82 +3,107 @@
  * Copyright (C) 2012 - Javolution (http://javolution.org/)
  * All rights reserved.
  */
-#ifndef _JAVA_LANG_SYSTEM_HPP
-#define _JAVA_LANG_SYSTEM_HPP
+#pragma once
 
-#include "java/lang/Object.hpp"
+#include "java/lang/String.hpp"
+#include "java/lang/Class.hpp"
 #include "java/lang/IndexOutOfBoundsException.hpp"
-#include <string.h>
+#include "iostream"
 
 namespace java {
-    namespace lang {
-        class System_API;
+namespace lang {
+
+// TODO: Move to java.io.PrintStream
+class OutPrintStream: public Object {
+    JAVOLUTION_DLL
+    static const Class CLASS;
+public:
+
+    void println() const {
+        synchronized(CLASS){
+        std::wcout << std::endl << std::flush;
     }
 }
+
+template<typename T> void print(T t) const {
+    synchronized(CLASS) {
+        std::wcout << String::valueOf(t).toWString() << std::flush;
+    }
+}
+template<typename T> void println(T t) const {
+    synchronized(CLASS) {
+        std::wcout << String::valueOf(t).toWString() << std::endl << std::flush;
+    }
+}
+};
+
+// TODO: Move to java.io.PrintStream
+class ErrPrintStream: public Object {
+    JAVOLUTION_DLL
+    static const Class CLASS;
+public:
+
+    void println() const {
+        synchronized(CLASS){
+        std::wcerr << std::endl << std::flush;
+    }
+}
+template<typename T> void print(T t) const {
+    synchronized(CLASS) {
+        std::wcerr << String::valueOf(t).toWString() << std::flush;
+    }
+}
+template<typename T> void println(T t) const {
+    synchronized(CLASS) {
+        std::wcerr << String::valueOf(t).toWString() << std::endl << std::flush;
+    }
+}
+};
 
 /**
  * The System class contains several useful class fields and methods.
  *
- * @version 2.0
- * @see  <a href="http://java.sun.com/javase/6/docs/api/java/lang/System.html">
+ * @version 7.0
+ * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/System.html">
  *       Java - System</a>
  */
-class java::lang::System_API {
+class System {
 
-	/**
-     * Utility class, cannot be instantiated.
-     */
-    System_API() {
+    /** Utility class, cannot be instantiated. */
+    System() {
     }
 
 public:
 
-    /**
-     * Copies an array from the specified source array, beginning at the
-     * specified position, to the specified position of the destination array.
-     * This method ensures that copy constructors of the array elements
-     * are being called.
-     *
-     * @param src the source array.
-     * @param srcPos the starting position in the source array.
-     * @param dest the destination array.
-     * @param destPos the starting position in the destination data.
-     * @param length the number of array elements to be copied.
-     * @throws IndexOutOfBoundsException if <code>(srcPos+length &gt; src.length)
-     *          || (destPos+length &gt; dest.length)</code>
-     */
-    template<class E> static void arraycopy(
-    		Type::Array<E> src, Type::int32 srcPos,
-    		Type::Array<E> dest, Type::int32 destPos, Type::int32 length) {
-    	if ( (srcPos+length > src.length) || (destPos+length > dest.length) )
-    		throw java::lang::IndexOutOfBoundsException_API::newInstance();
-    	// We cannot use std::memcpy for non-primitive types (copy constructor not called),
-    	for (int i=0; i < length; i++) {
-    		dest[i+destPos] = src[i+srcPos];
-    	}
-    }
+    /** Standard output stream. */
+    JAVOLUTION_DLL
+    static const OutPrintStream out;
+
+    /** Standard error stream. */
+    JAVOLUTION_DLL
+    static const ErrPrintStream err;
 
     /**
-     * Copies an array of primitive types from the specified source array,
-     * beginning at the specified position, to the specified position of
-     * the destination array. This method should not be used on non-primitive
-     * types since the copy constructor of the element is not called.
+     * Copies an array from the specified source array, beginning at the specified position, to the specified
+     * position of the destination array. This method ensures that copy constructors of the array elements (if any)
+     * are being called.
      *
-     * @param src the source array.
-     * @param srcPos the starting position in the source array.
-     * @param dest the destination array.
-     * @param destPos the starting position in the destination data.
-     * @param length the number of array elements to be copied.
+     * @throws IndexOutOfBoundsException if <code>(srcPos+length &gt; src.length)
+     *          || (dstPos+length &gt; dst.length)</code>
      */
-    template<typename E> static void arraycopy(
-    		E* src, Type::int32 srcPos,
-    		E* dest, Type::int32 destPos, Type::int32 length) {
-        if ((length <= 0) && ((E)length)) return ; // Would not compile if E is not a primitive type.
-    	E* s = src + srcPos;
-    	E* d = dest + destPos;
-    	memcpy(d, s, length * sizeof(E));
+    template<class E> static void arraycopy(const Array<E>& src, int srcPos, Array<E>& dst, int dstPos, int length) {
+        if ((srcPos < 0) || (dstPos < 0) || (length < 0) || (srcPos + length > src.length)
+                || (dstPos + length > dst.length))
+            throw IndexOutOfBoundsException(
+                    String::valueOf("srcPos: ") + srcPos + ", dstPos: " + dstPos + ", length: " + length);
+        Array<E>::Value * srcValue = src.this_<Array<E>::Value>();
+        Array<E>::Value * dstValue = dst.this_<Array<E>::Value>();
+        for (int i = 0; i < length; ++i) {
+            dstValue->elementAt(dstPos + i) = srcValue->elementAt(srcPos + i);
+        }
     }
 
 };
 
-#endif
+}
+}

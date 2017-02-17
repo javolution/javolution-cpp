@@ -3,107 +3,108 @@
  * Copyright (C) 2012 - Javolution (http://javolution.org/)
  * All rights reserved.
  */
-#ifndef _JAVA_LANG_BOOLEAN_HPP
-#define _JAVA_LANG_BOOLEAN_HPP
+#pragma once
 
-#include "java/lang/Object.hpp"
 #include "java/lang/String.hpp"
 
 namespace java {
-    namespace lang {
-        class Boolean_API;
-        class Boolean; 
-    }
-}
+namespace lang {
 
 /**
- * This class wraps a value of the primitive type <code>Type::boolean</code>
- * in an object.
+ * This value-type represents the primitive <code>bool</code>
  *
- * Autoboxing and direct comparisons with  <code>Type::boolean</code> type
+ * Autoboxing and direct comparisons with  <code>bool</code> type
  * are supported. For example: <pre><code>
  *      Boolean b = false;
  *      ...
  *      if (b == false) { ... }
- * <code></pre>
+ * </code></pre>
  *
- * @see  <a href="http://java.sun.com/javase/6/docs/api/java/lang/Boolean.html">
+ * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Boolean.html">
  *       Java - Boolean</a>
- * @version 1.0
+ * @version 7.0
  */
-class java::lang::Boolean_API : public virtual java::lang::Object_API {
+class Boolean final : public Object::Interface { // Value-Type.
 
-    /**
-     * Holds the boolean value.
-     */
-    Type::boolean _value;
-
-    /**
-     * Private constructor (factory methods should be used).
-     */
-    Boolean_API(Type::boolean value) : _value(value) {
-    }
+    bool value;
 
 public:
 
-    /**
-     * Returns a boolean for the specified value.
-     *
-     * @param value the boolean value.
-     */
-    static Boolean const& valueOf(Type::boolean value); // Reference ok. Returns static instance.
+    /** The Boolean object corresponding to the primitive value <code>true</code>. */
+    static const Boolean TRUE;
 
-    /**
-     * Returns the primitive boolean value for this boolean object.
-     */
-    Type::boolean booleanValue() const {
-        return _value;
+    /** The Boolean object corresponding to the primitive value <code>false</code>. */
+    static const Boolean FALSE;
+
+    /** Autoboxing constructor. */
+    Boolean(bool value) :
+            value(value) {
     }
 
     /**
-     * Returns the textual representation of this boolean.
+     * Returns a bool having the specified value.
      */
-    java::lang::String toString() const {
-    	return String_API::valueOf(_value);
+    static Boolean valueOf(bool value) {
+        return value ? TRUE : FALSE;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // No need to override Object.equals and Object.hashCode due to unicity. //
-    ///////////////////////////////////////////////////////////////////////////
+    /**
+     * Returns the primitive bool value for this bool object.
+     */
+    bool boolValue() const {
+        return value;
+    }
 
-private:
+    /**
+     * Compares this bool with the one specified.
+     */
+    bool equals(const Boolean& that) const {
+        return value == that.value;
+    }
 
-    JAVOLUTION_DLL static Boolean newStaticInstance(Type::boolean value);
+    ////////////////////////
+    // Overriding methods //
+    ////////////////////////
+
+    String toString() const override {
+        return String::valueOf(value);
+    }
+
+    bool equals(const Object&) const override {
+        return false; // Not related.
+    }
+
+    int hashCode() const override {
+        return (int) value;
+    }
+
+    //////////////////////////
+    // Operator Overloading //
+    //////////////////////////
+
+    Boolean& operator=(bool b) {
+        value = b;
+        return *this;
+    }
+
+    Boolean& operator=(const Boolean& that) {
+        value = that.value;
+        return *this;
+    }
+
+    bool operator==(const Boolean& that) const {
+        return value == that.value;
+    }
+
+    bool operator!=(const Boolean& that) const {
+        return value != that.value;
+    }
+
+    operator bool() const { // Deboxing.
+        return value;
+    }
 
 };
 
-// Sub-class of Handle<Boolean_API> to support automatic conversions/comparisons.
-class java::lang::Boolean : public Type::Handle<java::lang::Boolean_API> {
-public:
-    Boolean(Type::NullHandle = Type::Null) : Type::Handle<Boolean_API>() {} // Null.
-    Boolean(Boolean_API* ptr) : Type::Handle<Boolean_API>(ptr) {} // Construction from handle.
-
-    // Autoboxing.
-    Boolean(Type::boolean value) {
-        *this = Boolean_API::valueOf(value);
-    }
-
-    Boolean& operator=(Type::boolean value) {
-        return *this = Boolean_API::valueOf(value);
-    }
-
-    // Deboxing.
-    operator Type::boolean() const {
-        return get()->booleanValue();
-    }
-
-};
-
-inline java::lang::Boolean const& java::lang::Boolean_API::valueOf(Type::boolean value) {
-    static Boolean booleanTrue = newStaticInstance(true);
-    static Boolean booleanFalse = newStaticInstance(false);
-    return value ? booleanTrue : booleanFalse;
 }
-
-#endif
-
+}

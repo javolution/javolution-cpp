@@ -3,151 +3,119 @@
  * Copyright (C) 2012 - Javolution (http://javolution.org/)
  * All rights reserved.
  */
-#ifndef _JAVA_LANG_CHARACTER_HPP
-#define _JAVA_LANG_CHARACTER_HPP
+#pragma once
 
-#include "java/lang/Object.hpp"
 #include "java/lang/String.hpp"
 #include "java/lang/ArithmeticException.hpp"
 
 namespace java {
-    namespace lang {
-        class Character_API;
-        class Character;
-    }
-}
+namespace lang {
+
 /**
- * This class wraps the value of the primitive type <code>Type::wchar</code>
+ * This class wraps the value of the primitive type <code>wchar</code>
  * in an object.
  *
  * Autoboxing and direct comparisons with <code>char</code> (ASCII) and
- * <code>Type::wchar</code> are supported. For example: <pre><code>
- *      Character b = L'x';
+ * <code>wchar</code> are supported. For example: <pre><code>
+ *      Character b = 'x';
  *      ...
- *      if (b >= L'A') { ... }
- * <code></pre>
+ *      if (b >= L'µ') { ... }
+ * </code></pre>
  *
- * @see  <a href="http://java.sun.com/javase/6/docs/api/java/lang/Character.html">
+ * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Character.html">
  *       Java - Character</a>
- * @version 1.0
+ * @version 7.0
  */
-class java::lang::Character_API : public virtual java::lang::Object_API {
+class Character final : public Object::Interface { // Value-Type.
 
-    /**
-     * Holds the Character value.
-     */
-    Type::wchar _value;
-
-    /**
-     * Private constructor (factory methods should be used).
-     */
-    Character_API(Type::wchar value) : _value(value) {
-    }
+    Type::wchar value;
 
 public:
 
+    /** Autoboxing constructor. */
+    Character(Type::wchar value) :
+            value(value) {
+    }
+
     /**
-     * Returns a Character for the specified ASCII character.
-     *
-     * @param ascii the ascii character.
+     * Returns a character having the specified value.
      */
-    static Character& valueOf(char ascii); // Reference ok. Returns static instance.
+    static Character valueOf(Type::wchar value) {
+        return Character(value);
+    }
 
     /**
-     * Returns a Character for the specified value.
-     *
-     * @param value the wide character value.
-     */
-    static Character valueOf(Type::wchar value);
-
-    /**
-      * Returns the ASCII character value for this character.
-      * This method throws an overflow error if this character cannot
-      * be represented as an ascii character.
-      */
-     unsigned char asciiValue() const {
-     	if (_value > 127) throw ArithmeticException_API::newInstance("wchar to ascii overflow");
-         return (char) _value;
-     }
-
-     /**
-     * Returns the primitive wide character value for this character.
+     * Returns the primitive character value for this Character object.
      */
     Type::wchar charValue() const {
-        return _value;
+        return value;
     }
 
     /**
-     * Returns the textual representation of this Character (string of length 1).
+     * Compares this character with the one specified.
      */
-    java::lang::String toString() const {
-        return String_API::valueOf(_value);
+    bool equals(const Character& that) const {
+        return value == that.value;
     }
 
-    // Overrides
-    Type::boolean equals(java::lang::Object const& obj) const;
-    Type::boolean equals(Character const& that) const;
-   
-    // Overrides
-    Type::int32 hashCode() const {
-        return (Type::int32) _value;
+    /**
+     * Returns the ASCII character value for this character.
+     * @throw ArithmeticException if this character cannot be represented
+     *        as an ascii character.
+     */
+    unsigned char asciiValue() const {
+        if (value > 127)
+            throw ArithmeticException("wchar to ascii overflow");
+        return (char) value;
     }
 
-private:
+    ////////////////////////
+    // Overriding methods //
+    ////////////////////////
 
-    JAVOLUTION_DLL static Character* getASCIICharacters();
+    String toString() const override {
+        return String::valueOf(value);
+    }
+
+    bool equals(const Object&) const override {
+        return false; // Not related.
+    }
+
+    int hashCode() const override {
+        return (int) value;
+    }
+
+    //////////////////////////
+    // Operator Overloading //
+    //////////////////////////
+
+    Character& operator=(bool b) {
+        value = b;
+        return *this;
+    }
+
+    Character& operator=(const Character& that) {
+        value = that.value;
+        return *this;
+    }
+
+    bool operator==(const Character& that) const {
+        return value == that.value;
+    }
+
+    bool operator!=(const Character& that) const {
+        return value != that.value;
+    }
+
+    operator Type::wchar() const { // Deboxing.
+        return value;
+    }
+
+    operator char() const { // Deboxing
+        return asciiValue();
+    }
 
 };
 
-// Sub-class of Handle<Character_API> to support automatic conversions/comparisons.
-class java::lang::Character : public Type::Handle<java::lang::Character_API> {
-public:
-    Character(Type::NullHandle = Type::Null) : Type::Handle<Character_API>() {} // Null.
-    Character(Character_API* ptr) : Type::Handle<Character_API>(ptr) {} // Construction from handle.
-
-    // Autoboxing.
-    Character(char ascii) {
-        *this = Character_API::valueOf(ascii);
-    }
-
-    Character(Type::wchar value) {
-        *this = Character_API::valueOf(value);
-    }
-
-    Character& operator=(char ascii) {
-        return *this = Character_API::valueOf(ascii);
-    }
-
-    Character& operator=(Type::wchar value) {
-        return *this = Character_API::valueOf(value);
-    }
-
-    // Deboxing.
-    operator char() const {
-        return get()->asciiValue();
-    }
-
-    operator Type::wchar() const {
-        return get()->charValue();
-    }
-
- };
-
-inline java::lang::Character& java::lang::Character_API::valueOf(char ascii) { // Reference ok, static instance.
-    static Character* characters = getASCIICharacters(); // To avoid C++ initialization fiasco.
-    return characters[(unsigned char)ascii]; // IndexOutOfBound exception if character is not ASCII.
 }
-inline java::lang::Character java::lang::Character_API::valueOf(Type::wchar value) {
-    return (value < 128) ? Character_API::valueOf((char)value) : Character(new Character_API(value));
 }
-inline Type::boolean java::lang::Character_API::equals(java::lang::Object const& obj) const {
-    Character that = Type::dynamic_handle_cast<Character_API>(obj);
-    if (that == Type::Null) return false;
-    return equals(that);
-}
-inline Type::boolean java::lang::Character_API::equals(java::lang::Character const& that) const {
-    return _value == that->_value;
-}
-
-#endif
-

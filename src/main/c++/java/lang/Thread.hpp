@@ -3,72 +3,44 @@
  * Copyright (C) 2012 - Javolution (http://javolution.org/)
  * All rights reserved.
  */
-#ifndef _JAVA_LANG_THREAD_HPP
-#define _JAVA_LANG_THREAD_HPP
+#pragma once
 
 #include "java/lang/Object.hpp"
 #include "java/lang/String.hpp"
 #include "java/lang/Runnable.hpp"
 
 namespace java {
-    namespace lang {
-        class Thread_API;
-        typedef Type::Handle<Thread_API> Thread;
-    }
-}
+namespace lang {
 
 /**
  * This class represents an execution thread.
  *
- * @see  <a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.html">
+ * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Thread.html">
  *       Java - Thread</a>
- * @version 1.0
+ * @version 7.0
  */
-class java::lang::Thread_API : public virtual java::lang::Runnable_API {
+class Thread: public virtual Runnable {
 
-    /**
-     * Holds the runnable if any.
-     */
-    Runnable _target;
-
-    /**
-     * Holds the thread name.
-     */
-    String _name;
-
-    /**
-     * Holds the pointer to the native thread object.
-     */
-    void* _nativeThreadPtr;
-
-protected: 
-    
-    /**
-     * Creates a thread having the specified target and name.
-     *
-     * @param target the runnable to be executed by this thread.
-     * @param name the name of the thread.
-     */
-    JAVOLUTION_DLL Thread_API(Runnable const& target, String const& name);
+    JAVOLUTION_DLL
+    static Type::atomic_count threadNumber; // Autonumbering anonymous threads.
 
 public:
+    Thread(Void = nullptr) {}
+    Thread(Value* value) : Object(value) {}
 
     /**
-     * Returns a new thread instance executing the specified runnable and 
-     * having the specified name.
-     *
-     * @param target the runnable to be executed by this thread.
-     * @param name the name of the thread.
+     * Returns a thread having the specified target to be executed and the specified name.
      */
-    static Thread newInstance(Runnable const& target, String const& name) {
-        return new Thread_API(target, name);
+    static Thread newInstance(const Runnable& target, const String& name= nullptr) {
+        String threadName = (name != nullptr) ? name : "Thread-" + ++threadNumber;
+        return new Value(target, threadName);
     }
 
     /**
      * Returns this thread's name.
      */
-    java::lang::String getName() const {
-    	 return _name;
+    String getName() const {
+        return this_<Value>()->getName();
     }
 
     /**
@@ -77,35 +49,63 @@ public:
      * In particular, a thread may not be restarted once it has completed
      * execution.
      */
-    JAVOLUTION_DLL virtual void start();
+    void start() {
+        this_<Value>()->start();
+    }
 
     /**
      * Waits for this thread to die.
      */
-    JAVOLUTION_DLL virtual void join();
+    void join() {
+        this_<Value>()->join();
+    }
 
     /**
-     * If this thread was constructed using a separate Runnable run object,
-     * then that Runnable object's run method is called; otherwise, this
-     * method does nothing and returns.
+     * If this thread was constructed using a separate Runnable run object, then that Runnable object's run method is
+     * called; otherwise, this method does nothing and returns.
      */
-    JAVOLUTION_DLL virtual void run();
+    void run() {
+        this_<Value>()->run();
+    }
 
     /**
-     * Causes the currently executing thread to sleep (temporarily cease
-     * execution) for the specified number of milliseconds, subject to
-     * the precision and accuracy of system timers and schedulers. The thread
+     * Causes the currently executing thread to sleep (temporarily cease execution) for the specified number of
+     * milliseconds, subject to the precision and accuracy of system timers and schedulers. The thread
      * does not lose ownership of any monitors.
-     *
-     * @param millis the length of time to sleep in milliseconds.
      */
-    JAVOLUTION_DLL static void sleep(Type::int64 millis);
+    JAVOLUTION_DLL
+    static void sleep(long millis);
 
-    /**
-     * Default destructor.
-     */
-    JAVOLUTION_DLL ~Thread_API();
+    ////////////////////
+    // Implementation //
+    ////////////////////
+
+    class Value : public Object::Value, public virtual Runnable::Interface {
+          String name;
+          Runnable target;
+          void* nativeThreadPtr;
+      public:
+
+          JAVOLUTION_DLL
+          Value(const Runnable& target = nullptr, const String& name = nullptr);
+
+          JAVOLUTION_DLL
+          virtual void start();
+
+          JAVOLUTION_DLL
+          virtual void join();
+
+          JAVOLUTION_DLL
+          virtual void run() override;
+
+          JAVOLUTION_DLL ~Value() override;
+
+          String getName() {
+              return name;
+          }
+      };
 
 };
 
-#endif
+}
+}

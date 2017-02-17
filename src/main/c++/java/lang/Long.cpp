@@ -4,6 +4,7 @@
  * All rights reserved.
  */
 
-#include "java/lang/Character.hpp"
+#include "java/lang/Long.hpp"
 
-// No static.
+const Long Long::MAX_VALUE = Long(0x7FFFFFFFFFFFFFFFL);
+const Long Long::MIN_VALUE = Long(0x8000000000000000L);

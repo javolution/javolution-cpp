@@ -3,117 +3,89 @@
  * Copyright (C) 2012 - Javolution (http://javolution.org/)
  * All rights reserved.
  */
-#ifndef _JAVA_LANG_CLASS_HPP
-#define _JAVA_LANG_CLASS_HPP
+#pragma once
 
 #include "java/lang/Object.hpp"
 #include "java/lang/String.hpp"
 
 namespace java {
-    namespace lang {
-        class Class_ANY_API; // Base class.
-        typedef Type::Handle<Class_ANY_API> Class_ANY;
-        template<class T> class Class_API;
-        template<class T> class Class;
-    }
-}
+namespace lang {
 
 /**
- * This class represents unique class instances. They can be used to perform
- * static synchronized operations (synchronization on the whole class)
- * For example:[code]
- *     static const Class<Foo_API> CLASS; // Class_API<Foo_API>::forName(L"fooPkg::Foo_API") in body.
+ * This class represents a class instances. They can be used to perform static synchronized operations
+ * (synchronization on the whole class).
+ * <pre><code>
+ * class Foo : public Object {
+ *     static const Class CLASS; // Class::forName("org::acme::Foo") in compilation body (.cpp)
  *     static Foo getInstance(String id) {
- *         synchronized (CLASS) { // Makes it equivalent to "static synchronized Foo getInstance(String id) { ... }"
+ *         synchronized (CLASS) { // Equivalent to "static synchronized"
  *             ...
  *         }
  *     }
- * [/code]
+ * };</code></pre>
  *
- * This class maintains unicity (operator == can be used in place of Object.equals(obj)).
- *
- * @see  <a href="http://java.sun.com/javase/6/docs/api/java/lang/Class.html">
+ * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Class.html">
  *       Java - Class</a>
  * @version 1.1
  */
-class java::lang::Class_ANY_API : public virtual java::lang::Object_API {
+class Class final : public virtual Object {
+public:
+    Class(Value* value) : Object(value) {}
 
-     /**
-	 * Holds the name of this class (static since the class itself is static).
-	 */
-	String _name;
+    /** Returns the class having the specified name. */
+    static Class forName(const String& name) {
+        return new Value(name);
+    }
 
-	/**
-	 * Holds the mutex associated.
-	 */
-	Type::Mutex _mutex;
-
-	/**
-	 * Private constructor (factory methods should be used).
-	 */
-	Class_ANY_API(String const& name) : _name(name) {
-	}
-
- public:
-
-    /**
-     * Returns the unique class instance for the specified name.
-     */
-    JAVOLUTION_DLL static Class_ANY forName(String const& name);
-
-    /**
-     * Returns the Java class name of this instance (for example
-     * java.lang.Boolean).
-     */
+    /** Returns the class name of this instance (for example "java::lang::Boolean"). */
     String getName() const {
-        return _name;
+        return this_<Value>()->getName();
     }
 
-    /**
-     * Returns the textual representation of this class.
-     */
-    String toString() const {
-        return getName();
-    }
+    ////////////////////
+    // Implementation //
+    ////////////////////
 
-    /**
-     * Returns the mutex for this class object.
-     */
-    Type::Mutex& getMutex() const {
-        return const_cast<Class_ANY_API*>(this)->_mutex;
-    }
+    class Value: public Object::Value {
+        String name;
+        Type::Mutex monitor;
+    public:
+        Value(const String& name) :
+                name(name) {
+        }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // No need to override Object.equals and Object.hashCode due to unicity. //
-    ///////////////////////////////////////////////////////////////////////////
+        String getName() const {
+            return name;
+        }
 
- };
+        bool equals(const Object& other) const override {
+            if (this == other)
+                return true;
+            Class that = other.cast_<Value>();
+            return equals(that);
+        }
 
-/////////////////////////
-// Parameterized types //
-/////////////////////////
+        bool equals(const Class& that) const {
+            if (that == nullptr)
+                return false;
+            return name.equals(that.getName());
+        }
 
-template <class T> class java::lang::Class_API : public Class_ANY_API  {
-    Class_API() {} // Private constructor (there is no instance of this class).
-public:
+        int hashCode() const override {
+            return name.hashCode();
+        }
 
-    /**
-     * Returns the unique class instance having the specified name
-     * (e.g. <code>java::lang::Boolean_API</code>).
-     *
-     * @param name the name of the class instance.
-     */
-    static Class<T> forName(String const& name) {
-        Class_ANY classAny = Class_ANY_API::forName(name);
-        return Class<T>(classAny);
-    }
+        String toString() const override {
+            return String::valueOf("Class ") + getName();
+        }
+
+        Type::Mutex& monitor_() const override {
+            return const_cast<Type::Mutex&>(monitor);
+        }
+
+    };
+
 };
 
-template<class T>
-class java::lang::Class : public java::lang::Class_ANY  {
-public:
-    Class(Type::NullHandle = Type::Null) : Class_ANY() {} // Null.
-    explicit Class(Class_ANY const& source) : Class_ANY(source) {}
-};
-
-#endif
+}
+}

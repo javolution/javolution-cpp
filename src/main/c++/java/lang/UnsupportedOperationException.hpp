@@ -3,47 +3,28 @@
  * Copyright (C) 2012 - Javolution (http://javolution.org/)
  * All rights reserved.
  */
-#ifndef _JAVA_LANG_UNSUPPORTED_OPERATION_EXCEPTION_HPP
-#define _JAVA_LANG_UNSUPPORTED_OPERATION_EXCEPTION_HPP
+#pragma once
 
 #include "java/lang/RuntimeException.hpp"
 
 namespace java {
-    namespace lang {
-        class UnsupportedOperationException_API;
-        class UnsupportedOperationException : public RuntimeException {
-        public:
-            UnsupportedOperationException(Type::NullHandle = Type::Null) : RuntimeException() {} // Null
-            UnsupportedOperationException(UnsupportedOperationException_API* ptr) : RuntimeException((RuntimeException_API*)ptr) {}
-        };
-     }
-}
+namespace lang {
 
 /**
  * Thrown to indicate that the requested operation is not supported.
  *
- * @see  <a href="http://java.sun.com/javase/6/docs/api/java/lang/UnsupportedOperationException.html">
+ * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/UnsupportedOperationException.html">
  *       Java - UnsupportedOperationException</a>
- * @version 1.0
+ * @version 7.0
  */
-class java::lang::UnsupportedOperationException_API : public java::lang::RuntimeException_API {
-protected:
 
-    UnsupportedOperationException_API(String const& message) :
-        RuntimeException_API(message) {
-    };
-
+class UnsupportedOperationException: public RuntimeException {
 public:
-
-    /**
-     * Returns an unsupported operation having the specified message.
-     *
-     * @param message the exception message.
-     */
-    static UnsupportedOperationException newInstance(String const& message = Type::Null) {
-        return new UnsupportedOperationException_API(message);
+    UnsupportedOperationException(const String& message = nullptr,
+            const String& classname = "java::lang::UnsupportedOperationException") :
+            RuntimeException(message, classname) {
     }
-
 };
 
-#endif
+}
+}

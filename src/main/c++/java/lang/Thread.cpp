@@ -4,22 +4,24 @@
  * All rights reserved.
  */
 
-#include "java/lang/Thread.hpp"
 #include <exception>
+#include "java/lang/Thread.hpp"
 #include "java/lang/Throwable.hpp"
 #include "java/lang/Error.hpp"
+#include "java/lang/System.hpp"
 
-void java::lang::Thread_API::run() {
-    if (_target != Type::Null) {
+Type::atomic_count Thread::threadNumber(0);
+
+void Thread::Value::run() {
+    if (target != nullptr) {
         try {
-            _target->run();
-        } catch (java::lang::Throwable& error) {
-            std::wcerr << error << std::endl;
-            error->printStackTrace();
+            target.run();
+        } catch (Throwable& error) {
+            error.printStackTrace();
         } catch (const std::exception& ex) {
-            std::wcerr << "ERREUR : " << ex.what() << std::endl;
+            System::err.println(String::valueOf("ERREUR : ") + ex.what());
         } catch (...) {
-            std::wcerr << "Unknown C++ Error!" << std::endl;
+            System::err.println("Unknown C++ Error!");
         }
     }
 }
@@ -32,68 +34,89 @@ void java::lang::Thread_API::run() {
 
 extern "C" {
     void * MyThreadFunction(void* threadPtr) {
-        ((java::lang::Thread_API*)threadPtr)->run();
+        try {
+            ((Thread::Value*) threadPtr)->run();
+        } catch (Throwable& error) {
+            error.printStackTrace();
+        } catch (const std::exception& ex) {
+            System::err.println(String::valueOf("C++ Exception : ") + ex.what());
+        } catch (...) {
+            System::err.println("Unknown C++ Error!");
+        }
         // TODO : Ensure deletion when execution is over!
-        return NULL;
+        return nullptr;
     }
 }
 
-void java::lang::Thread_API::start() {
-    pthread_create((pthread_t*) _nativeThreadPtr, NULL, MyThreadFunction, (void*) this);
+void Thread::Value::start() {
+    pthread_create((pthread_t*) nativeThreadPtr, nullptr, MyThreadFunction, (void*) this);
 }
 
-void java::lang::Thread_API::join() {
-    pthread_t* pthreadPtr = (pthread_t*) _nativeThreadPtr;
-    if (pthread_join(*pthreadPtr, NULL) != 0)
-        throw java::lang::Error_API::newInstance(L"Thread_API::join() internal error");
+void Thread::Value::join() {
+    pthread_t* pthreadPtr = (pthread_t*) nativeThreadPtr;
+    if (pthread_join(*pthreadPtr, nullptr) != 0)
+    throw Error("Thread_Type::join() internal error");
 }
 
-void java::lang::Thread_API::sleep(Type::int64 msec) {
-	  enum { NANOSEC_PER_MSEC = 1000000 };
-	  struct timespec sleepTime;
-	  struct timespec remainingSleepTime;
-	  sleepTime.tv_sec = msec / 1000;
-	  sleepTime.tv_nsec = (msec % 1000) * NANOSEC_PER_MSEC;
-	  nanosleep(&sleepTime, &remainingSleepTime);
+Thread::Value::Value(const Runnable& target, const String& name) :
+target(target), name(name) {
+    nativeThreadPtr = new pthread_t();
 }
 
-java::lang::Thread_API::Thread_API(Runnable const& target, String const& name) :
-		_target(target), _name(name) {
-    _nativeThreadPtr = new pthread_t();
-}
-
-java::lang::Thread_API::~Thread_API() {
-    pthread_t* pthreadPtr = (pthread_t*) _nativeThreadPtr;
+Thread::Value::~Value() {
+    pthread_t* pthreadPtr = (pthread_t*) nativeThreadPtr;
     delete pthreadPtr;
+}
+
+void Thread::sleep(long msec) {
+    enum {
+        NANOSEC_PER_MSEC = 1000000
+    };
+    struct timespec sleepTime;
+    struct timespec remainingSleepTime;
+    sleepTime.tv_sec = msec / 1000;
+    sleepTime.tv_nsec = (msec % 1000) * NANOSEC_PER_MSEC;
+    nanosleep(&sleepTime, &remainingSleepTime);
 }
 
 #else
 
 #include <windows.h>
 DWORD WINAPI MyThreadFunction(LPVOID lpParam) {
-    java::lang::Thread_API* thisThread = (java::lang::Thread_API*) lpParam;
-    thisThread->run();
+    try {
+        Thread::Value* thisThread = (Thread::Value*) lpParam;
+        thisThread->run();
+    } catch (Throwable& error) {
+        error.printStackTrace();
+    } catch (const std::exception& ex) {
+        System::err.println(String::valueOf("C++ Exception : ") + ex.what());
+    } catch (...) {
+        System::err.println("Unknown C++ Error!");
+    }
     return 0;
 }
-void java::lang::Thread_API::start() {
+void Thread::Value::start() {
     DWORD threadId;
-    _nativeThreadPtr = CreateThread(
-            NULL, // default security attributes
+    nativeThreadPtr = CreateThread(nullptr, // default security attributes
             0, // use default stack size
             MyThreadFunction, // thread function name
             this, // argument to thread function
             0, // use default creation flags
             &threadId); // returns the thread identifier
 }
-void java::lang::Thread_API::join() {
-    WaitForSingleObject(_nativeThreadPtr, INFINITE);
+void Thread::Value::join() {
+    WaitForSingleObject(nativeThreadPtr, INFINITE);
 }
-void java::lang::Thread_API::sleep(Type::int64 millis) {
-    Sleep((DWORD)millis); // Windows::Thread method.
+
+Thread::Value::Value(const Runnable& target, const String& name) :
+        target(target), name(name) {
 }
-java::lang::Thread_API::Thread_API(Runnable const& target, String const& name) : _target(target), _name(name) {
+
+Thread::Value::~Value() {
 }
-java::lang::Thread_API::~Thread_API() {
+
+void Thread::sleep(long millis) {
+    Sleep((DWORD) millis); // Windows::Thread method.
 }
 
 #endif

@@ -5,8 +5,5 @@
  */
 #include "java/lang/Boolean.hpp"
 
-using namespace java::lang;
-
-Boolean Boolean_API::newStaticInstance(Type::boolean value) { // Static.
-    return new Boolean_API(value);
-}
+const Boolean Boolean::TRUE = Boolean(true);
+const Boolean Boolean::FALSE = Boolean(false);

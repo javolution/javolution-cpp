@@ -5,55 +5,33 @@
  */
 
 #include "Javolution.hpp"
-#include "java/lang/StringBuilder.hpp"
-#include "java/lang/NullPointerException.hpp"
-#include "java/lang/ArrayIndexOutOfBoundsException.hpp"
 #include "java/lang/RuntimeException.hpp"
-#include "java/lang/Integer32.hpp"
-#include "org/javolution/log/Logging.hpp"
+#include "java/lang/IllegalStateException.hpp"
+#include "java/lang/IllegalArgumentException.hpp"
 
 using namespace java::lang;
-using namespace org::javolution::log;
 
-// The generic null handle instance.
-Type::NullHandle Type::Null = Type::NullHandle();
+Type::FastHeap Type::FastHeap::INSTANCE = Type::FastHeap();
 
-// Exception mapped to java::lang::NullPointerException (default implementation).
-void Type::NullHandle::throwNullPointerException(const char* msg) {
-    throw NullPointerException_API::newInstance(msg);
-}
+void Type::FastHeap::setHeapSize(size_t size) {
+	if (queue != nullptr)
+		throw IllegalStateException("FastHeap size already set!");
+	bool isPowerOf2 = ((size != 0) && !(size & (size - 1)));
+	if (!isPowerOf2)
+		throw IllegalArgumentException(String::valueOf("Size: ") + ((Type::int64)size) + " not a power of 2!");
+	queueSize = size;
+	queueMask = size - 1;
+	queue = new void*[size];
 
-// Exceptions is mapped to java::lang::ArrayIndexOutOfBoundsException (default implementation).
-void Type::NullHandle::throwArrayIndexOutOfBoundsException(Type::int32 index, Type::int32 length) {
-    StringBuilder tmp = StringBuilder_API::newInstance();
-    tmp->append(L"Index: ")->append(index)->append(" for array of Length: ")->append(length);
-    throw ArrayIndexOutOfBoundsException_API::newInstance(tmp->toString());
- }
+	buffer = new Block[size];
+	bufferFirst = &buffer[0];
+	bufferLast = &buffer[size - 1];
 
-void Javolution::MemoryCache::enable(Type::boolean isEnabled) {
-	if ((isEnabled) && (_cacheMin == 0)) { // First time, allocate the cache.
-		 Block* cache = new Block[SIZE];
-		 _queue = new void*[SIZE];
-		 for (int i=0; i < SIZE; i++) {
-			 _queue[i] = &cache[i];
-		 }
-	     _cacheMin = &cache[0];
-	     _cacheMax = &cache[SIZE-1];
-    }
-	if (isEnabled) {
-		Logging_API::info(L"JAVOLUTION", L"Enable Memory Cache, free: ",
-				(Integer32)freeCount(), L", used: ", (Integer32)useCount());
-	} else {
-		Logging_API::info(L"JAVOLUTION", L"Disable Memory Cache, free: ",
-				(Integer32)freeCount(), L", used: ", (Integer32)useCount());
-		if (_debugMaxUsage != 0) {
-			Logging_API::info(L"JAVOLUTION", L"Memory Cache number of allocations: ", (Integer32)_newCount);
-			Logging_API::info(L"JAVOLUTION", L"Memory Cache number of deallocations: ", (Integer32)_deleteCount);
-			Logging_API::info(L"JAVOLUTION", L"Memory Cache peak use: ", (Integer32)_debugMaxUsage);
-		}
+	for (size_t i = 0; i < size; ++i) {
+		queue[i] = &buffer[i];
 	}
-    _isEnabled = isEnabled;
 }
+
 #ifdef _SOLARIS // Add missing define in Solaris 10 (pthreads.h)
 #define PTHREAD_MUTEX_RECURSIVE_NP PTHREAD_MUTEX_RECURSIVE
 #endif
@@ -61,28 +39,28 @@ void Javolution::MemoryCache::enable(Type::boolean isEnabled) {
 #ifndef _WINDOWS
 Type::Mutex::Mutex() {
 	Type::int32 rc = pthread_mutexattr_init(&attr);
-	if (rc != 0) throw RuntimeException_API::newInstance(L"pthread_mutexattr_init returns " + rc);
+	if (rc != 0) throw RuntimeException("pthread_mutexattr_init returns " + rc);
     rc = pthread_mutexattr_settype (&attr, PTHREAD_MUTEX_RECURSIVE_NP);
-	if (rc != 0) throw RuntimeException_API::newInstance(L"pthread_mutexattr_settype returns " + rc);
+	if (rc != 0) throw RuntimeException("pthread_mutexattr_settype returns " + rc);
     rc = pthread_mutex_init (&mutex, &attr);
-	if (rc != 0) throw RuntimeException_API::newInstance(L"pthread_mutex_init returns " + rc);
+	if (rc != 0) throw RuntimeException("pthread_mutex_init returns " + rc);
     rc = pthread_mutexattr_destroy(&attr);
-	if (rc != 0) throw RuntimeException_API::newInstance(L"pthread_mutexattr_destroy returns " + rc);
+	if (rc != 0) throw RuntimeException("pthread_mutexattr_destroy returns " + rc);
 }
 
 Type::Mutex::~Mutex() {
 	Type::int32 rc = pthread_mutex_destroy(&mutex);
-	if (rc != 0) throw RuntimeException_API::newInstance(L"pthread_mutex_destroy returns " + rc);
+	if (rc != 0) throw RuntimeException("pthread_mutex_destroy returns " + rc);
 }
 
 Type::ScopedLock::ScopedLock(Mutex& m) : mutex(m.mutex){
 	Type::int32 rc = pthread_mutex_lock(&mutex);
-	if (rc != 0) throw RuntimeException_API::newInstance(L"pthread_mutex_lock returns " + rc);
+	if (rc != 0) throw RuntimeException("pthread_mutex_lock returns " + rc);
     isLocked = true;
 }
 
 Type::ScopedLock::~ScopedLock() {
 	Type::int32 rc = pthread_mutex_unlock(&mutex);
-	if (rc != 0) throw RuntimeException_API::newInstance(L"pthread_mutex_unlock returns " + rc);
+	if (rc != 0) throw RuntimeException("pthread_mutex_unlock returns " + rc);
 }
 #endif

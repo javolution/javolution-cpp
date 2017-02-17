@@ -3,46 +3,27 @@
  * Copyright (C) 2012 - Javolution (http://javolution.org/)
  * All rights reserved.
  */
-#ifndef _JAVA_LANG_NULL_POINTER_EXCEPTION_HPP
-#define _JAVA_LANG_NULL_POINTER_EXCEPTION_HPP
+#pragma once
 
 #include "java/lang/RuntimeException.hpp"
 
 namespace java {
-    namespace lang {
-        class NullPointerException_API;
-        class NullPointerException : public RuntimeException { 
-        public:
-            NullPointerException(Type::NullHandle = Type::Null) : RuntimeException() {} // Null
-            NullPointerException(NullPointerException_API* ptr) : RuntimeException((RuntimeException_API*)ptr) {}
-        };
-    }
-}
+namespace lang {
 
 /**
- * Thrown when an application attempts to use <code>Type::Null</code> in a case where an object is required.
+ * Thrown when an application attempts to use <code>nullptr</code> in a case where an object is required.
  *
- * @see  <a href="http://java.sun.com/javase/6/docs/api/java/lang/NullPointerException.html">
+ * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/NullPointerException.html">
  *       Java - NullPointerException</a>
- * @version 1.0
+ * @version 7.0
  */
-class java::lang::NullPointerException_API : public java::lang::RuntimeException_API {
-protected:
-
-    NullPointerException_API(String const& message) :
-        RuntimeException_API(message) {
-    };
-
+class NullPointerException: public RuntimeException {
 public:
-
-    /**
-     * Returns a NullPointerException having the specified message.
-     *
-     * @param message the exception message.
-     */
-    static NullPointerException newInstance(String const& message = Type::Null) {
-        return new NullPointerException_API(message);
+    NullPointerException(const String message = nullptr,
+            const String& classname = "java::lang::NullPointerException") :
+            RuntimeException(message, classname) {
     }
 };
 
-#endif
+}
+}

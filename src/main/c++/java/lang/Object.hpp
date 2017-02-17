@@ -3,280 +3,291 @@
  * Copyright (C) 2012 - Javolution (http://javolution.org/)
  * All rights reserved.
  */
-#ifndef _JAVA_LANG_OBJECT_HPP
-#define _JAVA_LANG_OBJECT_HPP
+#pragma once
 
 #include "Javolution.hpp"
+#include "java/lang/Void.hpp"
 
-// Declares the namespace here to avoid unnecessary indentation later.
+using namespace java::lang; // Set default java::lang namespace (global setting).
+
 namespace java {
-    namespace lang {
-        class Object_API;
-        typedef Type::Handle<Object_API> Object;
-        class Class_ANY_API; // Forward reference.
-        typedef Type::Handle<Class_ANY_API> Class_ANY;
-        class String;
-        void handle_add_ref(Object_API* that);
-        void handle_release(Object_API* that);
-    }
-}
+namespace lang {
+
+class Object;
+class Class;
+class String;
 
 /**
- * <p> This class represents the root of the class hierarchy for any Java-Like
- *     API. For such API, classes <b>and</b> interfaces should derive directly
- *     or indirectly from <code>Object_API</code>.</p>
- *
- * <p> Many classes from Javolution have been translated from Open Source
- *     Java code (e.g. Java, Javolution, OSGi Java Spec, JUnit, etc.)
- *     Therefore for consistency and maintainability we follow the same
- *     <a href="http://geosoft.no/development/javastyle.html">Java Style</a>.
- *     Java objects are represented using Type::Handle<XXX_API> where XXX is
- *     the corresponding Java class. Garbage collection is done through
- *     reference counting (Type::Handle are intrusive pointers).
- *     The general pattern for class/interface definition is as follow (foo.hpp):
- *
- *     <pre><code>
- *
- *     #include "java/lang/Object.hpp"
- *     #include "com/bar/Bar.hpp"
- *     namespace com { // Namespace declaration to avoid indenting later.
- *         namespace bar {
- *            class Foo_API;
- *            typedef Type::Handle<Foo_API> Foo; // Foo is the handle of Foo_API
- *        }
- *     }
- *     class com::bar::Foo_API : public virtual java::lang::Object_API {
- *         Bar _bar;                       // Private member.
- *     public:
- *         Foo_API(Bar bar) : _bar(bar) {}  // Constructor (e.g. Foo foo = new Foo_API(bar);)
- *         virtual void g() { ... };        // Member method implemented in header.
- *         JAVOLUTION_DLL virtual void f(); // Member method implemented in body.
- *     }
- *
- *     </code></pre></p>
- *
- * <p> Javolution handles, like standard C++ pointers, are initialized to null.
- *     The constant <code>Type::Null</code> can be used for resetting or
- *     testing of handles. Accessing members from a null handle results
- *     in a <code>NullPointerException</code> being thrown.</p>
- *
- * <p> Javolution handles can be implicitly created from raw pointers.<pre><code>
- *
- *     <pre><code>
- *     // Allows chaining, e.g. sb->append("Duration: ")->append(t)->append("ms")
- *     StringBuilder StringBuilder_API::append(...) {
- *         ...
- *         return this; // Implicit conversion from StringBuilder_API* to StringBuilder.
- *     }
- *     </code></pre>
- *
- *     To facilitate object casting Type::static_handle_cast and
- *     Type::dynamic_handle_cast are provided.
- *
- *     <pre><code>
- *     Type::boolean equals(Object obj) const {  // String_API::equals(Object)
- *        String that = Type::dynamic_handle_cast<String_API>(obj);
- *        if (that == Type::Null) return false;
- *        return equals(that);
- *     }
- *     Type::boolean equals(String const& that) const { 
- *        return _wchars == that->_wchars;
- *     }
- *     </code></pre>
- *
- *     Special precaution must be taken in case of cycles (object referencing
- *     themselves directly or indirectly). Self reference to oneself should
- *     be set directly (no reference count increment) to allow for object
- *     automatic deletion when there is no external reference to it.
- *
- *     <pre><code>
- *     class ServiceTracker_API : public virtual ServiceTrackerCustomizer_API {
- *          ServiceTrackerCustomizer _customizer;
- *          ServiceTracker_API(ServiceTrackerCustomizer customizer) {
- *              _customizer = customizer; 
- *              if (customizer == Type::Null) { // Then the customizer is itself.
- *                  _customizer.set(this); // The set method does not increment the reference count.
- *              }
- *          }
- *     }
- *     </code></pre>
- *     </p>
- *
- * <p> Any object can be output directly (standard or wide stream).
- *
- *     <pre><code>
- *     List<String> list = new FastTable_API<String>();
- *     list->add(L"first");
- *     list->add(L"second");
- *     list->add(L"third");
- *     list->add(Type::Null);
- *     std::cout << list << std::endl; // Displays list->toString() content.
- *
- *     >> [first, second, third, null]
- *
- *     </code</pre>>
- *     </p>
- *
- * <p> Concatenations between string literals and objects are supported,
- *     e.g. <code>String str = L"Hello " + user;</code>.</p>
- *
- * <p> Object handles should be always stored and manipulated by value.
- *     'const&' is used solely when passing handles as parameters 
- *     (as long as the method implementation cannot cause the dereferencing 
- *      of the parameter). Functions returning handles return them by value.
- * </p>
- *
- * @see  <a href="http://java.sun.com/javase/6/docs/api/java/lang/Object.html">Java - Object</a>
- * @see  <a href="http://en.wikipedia.org/wiki/Comparison_of_Java_and_C%2B%2B">Comparison of Java and C++</a>
- * @version 1.0
+ * <p> Holds the methods to be implemented by every class and interfaces (explicit virtual inheritance).</p>
  */
-class java::lang::Object_API  {
-
-	/**
-	 * Holds reference count.
-	 */
-	Type::atomic_count _refCount;
-
-	/**
-	 * Holds memory cache for small objects.
-	 */
-	JAVOLUTION_DLL static Javolution::MemoryCache _memoryCache;
-
+class Object_Interface {
 public:
 
     /**
-     * Default constructor.
-     */
-    Object_API() : _refCount(0) {
-    };
-
-    /**
-     * Returns the runtime class of this object (as a generic object type).
-     * The default implementation returns a class having for name the 
-     * RTTI (typeinfo) name.
-     *
-     * @return a class instance identifying this object.
-     */
-    JAVOLUTION_DLL virtual Class_ANY getClass() const;
-
-    /**
-     * Returns a string representation of the object.
-     *
-     * @return the textual representation of this object.
-     */
-    JAVOLUTION_DLL virtual String toString() const;
-
-    /**
      * Indicates whether some other object is "equal to" this one.
-     * The default implementation returns <code>true</code> only
-     * if this object and that object are the same.
-     *
-     * @param obj the reference object with which to compare.
-     * @return <code>true</code> if this object is the same as the argument;
-     *         <code>false</code> otherwise.
      */
-    virtual Type::boolean equals(Object const& obj) const {
-    	return this == obj.get();
+    virtual bool equals(const Object& other) const;
+
+    /**
+     * Returns the hash code value for this object.
+     */
+    virtual int hashCode() const {
+        return (int) this;
     }
 
     /**
-     * Returns a well distributed hash code value for this object.
+     * Returns the runtime class of this object.
+     */
+    JAVOLUTION_DLL
+    virtual Class getClass() const;
+
+    /**
+     * Returns the string representation of this object.
+     */
+    JAVOLUTION_DLL
+    virtual String toString() const;
+
+    /**
+     * Returns the monitor associated to this object. This method should be overridden by classes supporting
+     * synchronization such as Collection classes.
      *
-     * @return this object hash code.
+     * @throw UnsupportedOperationException if the class does not support synchronization (default).
      */
-    JAVOLUTION_DLL virtual Type::int32 hashCode() const;
+    JAVOLUTION_DLL
+    virtual Type::Mutex& monitor_() const;
 
-    /**
-     * Returns a reference to the mutex associated to this object (if any).
-     * The default implementation raises a <code>java::lang::UnsupportedOperationException</code>.
-     * This method should be overridden by classes supporting synchronization
-     * (e.g. all collection classes).
-     *
-     * @return a unique mutex for this object.
-     */
-    JAVOLUTION_DLL virtual Type::Mutex& getMutex() const;
 
-    /**
-     * Ensures sub-classes destructors are called (C++).
-     * Since members should never be references or pointers, this method
-     * should rarely be overridden.
-     */
-    virtual ~Object_API() { 
-    };
+};
 
-    /**
-     * Returns the memory cache used by Object_API and its sub-classes.
-     */
-    static Javolution::MemoryCache& getMemoryCache() {
-    	return _memoryCache;
+/**
+ *  The base class for heap allocated values handled by Object instances (direct inheritance).
+ *  Heap allocations/deallocations are performed using FastHeap (if activated).
+ */
+class Object_Value: public virtual Object_Interface {
+friend class Object;
+
+    Type::atomic_count refCount;
+
+    void incRefCount() {
+        ++refCount;
+    }
+
+    bool decRefCount() {
+        return --refCount == 0;
+    }
+
+public:
+
+    Object_Value() :
+            refCount(0) {
+    }
+
+    /** Allocates new instances from FastHeap. */
+    inline void* operator new(size_t size) {
+        return Type::FastHeap::INSTANCE.allocate(size);
+    }
+
+    /** Deletes this instance back to FastHeap. */
+    inline void operator delete(void* mem) {
+        Type::FastHeap::INSTANCE.deallocate(mem);
+    }
+
+    /** Destructor (virtual, could be called through a pointer to base class). */
+    virtual ~Object_Value() {
+    }
+};
+
+// Standard Java exceptions.
+class Object_Exceptions {
+public:
+    JAVOLUTION_DLL
+    static void throwNullPointerException();
+
+    JAVOLUTION_DLL
+    static void throwArrayIndexOutOfBoundsException();
+
+    JAVOLUTION_DLL
+    static void throwNegativeArraySizeException();
+};
+
+/**
+ * The root class for all "Java-Like" objects or interfaces (through virtual inheritance).
+ *
+ * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html">Java - Object</a>
+ * @see  <a href="http://en.wikipedia.org/wiki/Comparison_of_Java_and_C%2B%2B">Comparison of Java and C++</a>
+ * @version 7.0
+ */
+class Object : public virtual Object_Interface {
+
+    Object_Value* value; // The managed object.
+
+ public:
+
+    /** Equivalent to java::lang::Object_Interface */
+    typedef Object_Interface Interface;
+
+    /** Equivalent to java::lang::Object_Exceptions */
+    typedef Object_Exceptions Exceptions;
+
+    /** Equivalent to java::lang::Object_Value */
+    typedef Object_Value Value;
+
+    /** Default constructor */
+    Object(Void = nullptr) : value(nullptr) {
+    }
+
+    /** Constructor for the specified value. */
+    Object(Value* value) : value(value) {
+        if (value != nullptr)
+            this->value->incRefCount();
+    }
+
+    /** Copy constructor. */
+    Object(const Object& that) :
+            value(that.value) {
+        if (value != nullptr)
+            value->incRefCount();
+    }
+
+    /** Returns a new object instance. */
+    static Object newInstance() {
+        return new Value();
+    }
+
+    /** Cast this object value to the specified type; returns nullptr if the cast is invalid.*/
+    template<class T> T* cast_() const {
+        return dynamic_cast<T*>(value);
     }
 
     /**
-     * Custom allocator.
+     * Returns the shared value managed by this instance.
+     *
+     * @throw NullPointerException if this object value is null.
      */
-    inline void* operator new (size_t size) {
-     	return _memoryCache.allocate(size);
+    template<class T> T* this_() const {
+        if (value == nullptr)
+            Object_Exceptions::throwNullPointerException();
+        return static_cast<T*>(value);
     }
 
     /**
-     * Custom deallocator.
+     * Cast and returns the shared value managed by this instance.
+     * Unlike the cast_() methods this method raises an exception if the object value is null.
+     *
+     * @throw NullPointerException if this object value is null.
      */
-    inline void operator delete (void* mem) {
-     	_memoryCache.deallocate(mem);
+    template<class T> T* this_cast() const {
+        if (value == nullptr)
+            Object_Exceptions::throwNullPointerException();
+        return dynamic_cast<T*>(value);
+    }
+
+    bool equals(const Object& other) const override {
+        if (value == nullptr)
+            Object_Exceptions::throwNullPointerException();
+        return value->equals(other);
+    }
+
+    int hashCode() const override {
+        if (value == nullptr)
+            Object_Exceptions::throwNullPointerException();
+        return value->hashCode();
+    }
+
+    JAVOLUTION_DLL
+    Class getClass() const override;
+
+    JAVOLUTION_DLL
+    String toString() const override;
+
+    Type::Mutex& monitor_() const override {
+        if (value == nullptr)
+            Object_Exceptions::throwNullPointerException();
+        return value->monitor_();
+    }
+
+    //////////////////////////////////
+    // Intrusive Pointer Management //
+    //////////////////////////////////
+
+    Object& operator=(const Object& that) {
+        Object(that).swap(*this);
+        return *this;
+    }
+
+    Object& operator=(Value* that) {
+        Object(that).swap(*this);
+        return *this;
+    }
+
+    Object& operator=(Void) {
+        if (value != nullptr)
+            if (value->decRefCount())
+                delete value;
+        value = nullptr;
+        return *this;
+    }
+
+    ~Object() {
+        if (value != 0)
+            if (value->decRefCount())
+                delete value;
+    }
+
+    /** Returns the shared value managed by this object.*/
+    Value* value_() const {
+        return value;
+    }
+
+    /** Replaces the value of this object without incrementing its reference count or decrementing the reference count
+     *  of the previous value. This method is typically used to prevent cycles (instance referencing to itself or to
+     *  one its container). */
+    void value_(Value* newValue) {
+        value = newValue;
     }
 
 private:
 
-    friend void handle_add_ref(Object_API* that);
-    friend void handle_release(Object_API* that);
+    void swap(Object& that) {
+        Value* tmp = value;
+        value = that.value;
+        that.value = tmp;
+    }
+
 };
 
-inline void java::lang::handle_add_ref(Object_API* that) {
-	 ++(that->_refCount);
 }
-inline void java::lang::handle_release(Object_API* that) {
-  	 if (--(that->_refCount) == 0) delete that;
 }
 
-// Stream operators.
-JAVOLUTION_DLL std::ostream& operator<<(std::ostream& out, java::lang::Object_API const& that);
-JAVOLUTION_DLL std::wostream& operator<<(std::wostream& wout, java::lang::Object_API const& that);
-
-// Concatenation operators.
-JAVOLUTION_DLL std::string operator+(std::string const& left, java::lang::Object_API const& right);
-JAVOLUTION_DLL std::string operator+(java::lang::Object_API const& left, std::string const& right);
-JAVOLUTION_DLL std::wstring operator+(std::wstring const& left, java::lang::Object_API const& right);
-JAVOLUTION_DLL std::wstring operator+(java::lang::Object_API const& left, std::wstring const& right);
-
-
-///////////////////
-// Array Support //
-///////////////////
-
-namespace Type {
-    template<class E> class Array_API;
+inline bool Object_Interface::equals(const Object& other) const {
+    return this == other.value_();
 }
-template<class E> class Type::Array_API: public virtual java::lang::Object_API {
-	friend class Type::Array<E>;
-	E* value;
-public:
-	Array_API(Type::int32 length) : value(new E[length]) {}
-	virtual ~Array_API() {
-		delete[] value;
-	}
-};
 
-template<class E> class Type::Array: public Type::Handle<Type::Array_API<E> > {
-public:
-	Type::int32 length;
-	Array(Type::NullHandle = Type::Null) : Type::Handle<Array_API<E> >(), length(0) {} // Null
-	Array(Type::int32 len) : Type::Handle<Array_API<E> >(new Array_API<E> (len)), length(len) {}
-	E& operator[](Type::int32 index) const {
-            if ((index < 0) || (index >= length))
-			Type::NullHandle::throwArrayIndexOutOfBoundsException(index, length);
-            if (this->get() == 0) Type::NullHandle::throwNullPointerException("Null Array.");
-            return this->get()->value[index];
-	}
-};
+// Pointers equalities.
 
-#endif
+inline bool operator==(const Object& obj, const void* ptr) {
+    return obj.value_() == ptr;
+}
+inline bool operator!=(const Object& obj, const void* ptr) {
+    return obj.value_() != ptr;
+}
+inline bool operator==(const void* ptr, const Object& obj) {
+    return obj.value_() == ptr;
+}
+inline bool operator!=(const void* ptr, const Object& obj) {
+    return obj.value_() != ptr;
+}
+inline bool operator==(const Object& obj1, const Object& obj2) {
+    return obj1.value_() == obj2.value_();
+}
+inline bool operator!=(const Object& obj1, const Object& obj2) {
+    return obj1.value_() != obj2.value_();
+}
+
+// Stream operation.
+JAVOLUTION_DLL
+std::ostream& operator<<(std::ostream& os, const Object& that);
+
+JAVOLUTION_DLL
+std::wostream& operator<<(std::wostream& wos, const Object& that);
+

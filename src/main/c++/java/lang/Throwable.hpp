@@ -3,89 +3,56 @@
  * Copyright (C) 2012 - Javolution (http://javolution.org/)
  * All rights reserved.
  */
-#ifndef _JAVA_LANG_THROWABLE_HPP
-#define _JAVA_LANG_THROWABLE_HPP
+#pragma once
 
 #include <exception>
 #include <booster/backtrace.hpp>
-#include "java/lang/Object.hpp"
-#include "java/lang/Class.hpp"
 #include "java/lang/String.hpp"
 
-#define LINE_INFO java::lang::StringBuilder_API::newInstance()->append(L"File: ")->append((Type::int32)__FILE__)->append(L", Line: ")->append((Type::int32)__LINE__)->toString()
+#define LINE_INFO (*java::lang::StringBuilder::newInstance()).append("File: ").append((int)__FILE__).append(", Line: ").append((int)__LINE__).toString()
 
 namespace java {
-    namespace lang {
-        class Throwable_API;
-        class Throwable : public Type::Handle<Throwable_API>, public std::exception { 
-        public:
-            Throwable(Type::NullHandle = Type::Null) : Type::Handle<Throwable_API>() {} // Null
-            Throwable(Throwable_API* ptr) : Type::Handle<Throwable_API>(ptr) {}
-            JAVOLUTION_DLL virtual const char* what() const throw();
-            virtual ~Throwable() throw() { };
-        };
-    }
-}
+namespace lang {
 
 /**
  * The class is the superclass of all errors and exceptions.
+ * Instances of this class should be thrown by value and caught by reference.
  *
- * Note: This class can have subclasses but because this classes and all
- *       its sub-classes are manipulated using Type::Handle<Throwable_API>
- *       instances, member methods should not  be overridden.
- *
- * @see  <a href="http://java.sun.com/javase/6/docs/api/java/lang/Throwable.html">
+ * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html">
  *       Java - Throwable</a>
- * @version 1.0
+ * @version 7.0
  */
-class java::lang::Throwable_API : public virtual java::lang::Object_API, public booster::backtrace {
-
-    /**
-     * Holds the error message.
-     */
-    String _message;
-
-
+class Throwable : public virtual Object::Interface, public booster::backtrace { // Value type.
+   String message;
+   String classname;
 public:
-
-    JAVOLUTION_DLL Throwable_API(String const& message);
+    Throwable(const String& message = nullptr, const String& classname = "java::lang::Throwable") :
+        message(message), classname(classname) {}
 
     /**
-     * Returns  a throwable having the specified message.
-     * Note: A debug message holding the stack trace may be logged
-     *       (useful if an exception is raised during static initialization).
-     *
-     * @param thisMessage the error message or Type::Null if none.
+     * Prints this throwable and its backtrace to the standard error stream.
      */
-    static Throwable newInstance(String const& message = Type::Null) {
-        return new Throwable_API(message);
-    }
+    JAVOLUTION_DLL
+    virtual void printStackTrace() const;
 
     /**
-     * Returns the detail message of this exception or Type::Null if none.
-     *
-     * @return the detail message string or Type::Null
+     * Returns the detail message of this exception or nullptr if none.
      */
     virtual String getMessage() const {
-        return _message;
+        return message;
     }
-    
+
     /**
-     * Logs the stack trace as error.
-     *
-     * Note: The stack trace is automatically printed when errors are raised
-     *       unless <code>Logging_API::isLogErrorEnabled("JAVA")</code> is
-     *       <code>false</code>. Application may disables the printing
-     *       of the stack trace by calling:
-     *       <code>Logging_API::setLogErrorEnabled(L"JAVA", false)</code>
+     * Returns a short description of this throwable (classname + ": " + getMessage())
      */
-    JAVOLUTION_DLL virtual void printStackTrace() const;
+    JAVOLUTION_DLL
+    virtual String toString() const;
 
-    // Should not be overridden by sub-classes.
-    String toString() const {
-    	return getMessage();
-    }
-
+    /**
+     * Returns a null terminated character sequence that may be used to identify the exception (C++).
+     */
+    JAVOLUTION_DLL virtual const char* what() const throw();
 };
 
-#endif
+}
+}

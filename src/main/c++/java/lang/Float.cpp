@@ -4,6 +4,6 @@
  * All rights reserved.
  */
 
-#include "java/lang/Character.hpp"
+#include "java/lang/Float.hpp"
 
 // No static.

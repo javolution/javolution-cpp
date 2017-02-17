@@ -4,6 +4,7 @@
  * All rights reserved.
  */
 
-#include "java/lang/Character.hpp"
+#include "java/lang/Integer.hpp"
 
-// No static.
+const Integer Integer::MAX_VALUE = Integer(0x7FFFFFFF);
+const Integer Integer::MIN_VALUE = Integer(0x80000000);
