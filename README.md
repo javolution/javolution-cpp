@@ -36,10 +36,11 @@ String str = "Hello";
 StringBuilder sb = StringBuilder::newInstance(); 
 sb.append("Hell").append('o');
 Object obj = sb.toString();                       
+assert(obj.equals(str));
 assert(str.equals(obj));
 
 E get(int i) {
-    if (i > length) throw IndexOutOfRangeException(); // Throws by value, but caught by reference (&).
+    if (i >= length) throw IndexOutOfRangeException(); // Throws by value, but caught by reference (&).
     return data[i];
 }
 
@@ -86,7 +87,7 @@ public:
         this_<Value>()->setMessage(value);
     }
     
-    void run() {  // Optional (inherited from Runnable), but no dynamic cast here!
+    void run() {  // Optional (inherited from Runnable), but avoid dynamic cast here!
         this_<Value>()->run();
     }
 
