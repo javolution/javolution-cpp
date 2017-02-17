@@ -13,12 +13,6 @@ namespace java {
 namespace lang {
 class String;
 class StringBuilder;
-class Boolean;
-class Character;
-class Integer;
-class Long;
-class Float;
-class Double;
 
 /**
  * A string of wide characters (wchar).
