@@ -300,7 +300,7 @@ public:
         }
 
         String toString() const override {
-            return String(new Value(wchars));
+            return new Value(wchars);
         }
     };
 
