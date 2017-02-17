@@ -168,8 +168,7 @@ public:
      * Indicates whether the specified object is a string holding the same characters as this string.
      */
     bool equals(const Object& other) const {
-        String that = other.cast_<Value>();
-        return equals(that);
+        return this_<Value>()->equals(other);
     }
 
     /**
