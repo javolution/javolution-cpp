@@ -19,34 +19,41 @@ namespace lang {
  */
 class Number: public virtual Object {
 public:
+    class Interface: public virtual Object::Interface {
+    public:
+        virtual Type::int32 intValue() const = 0;
+        virtual Type::int64 longValue() const = 0;
+        virtual float floatValue() const = 0;
+        virtual double doubleValue() const = 0;
+    };
     Number(Void = nullptr) {}
 
     /**
      * Returns the value of the specified number as a 32 bits <code>int</code>.
      */
     Type::int32 intValue() const {
-        return this_cast<Interface>()->intValue();
+        return this_cast_<Interface>()->intValue();
     }
 
     /**
      * Returns the value of the specified number as a 64 bits <code>long</code>.
      */
     Type::int64 longValue() const {
-        return this_cast<Interface>()->longValue();
+        return this_cast_<Interface>()->longValue();
     }
 
     /**
      * Returns the value of the specified number as an <code>float</code>.
      */
     float floatValue() const {
-        return this_cast<Interface>()->floatValue();
+        return this_cast_<Interface>()->floatValue();
     }
 
     /**
      * Returns the value of the specified number as an <code>double</code>.
      */
     double doubleValue() const {
-        return this_cast<Interface>()->doubleValue();
+        return this_cast_<Interface>()->doubleValue();
     }
 
     /**
@@ -62,19 +69,6 @@ public:
     Type::int16 shortValue() const {
         return (Type::int16) intValue();
     }
-
-    ///////////////
-    // Interface //
-    ///////////////
-
-    class Interface: public virtual Object::Interface {
-    public:
-        virtual Type::int32 intValue() const = 0;
-        virtual Type::int64 longValue() const = 0;
-        virtual float floatValue() const = 0;
-        virtual double doubleValue() const = 0;
-    };
-
 };
 
 }

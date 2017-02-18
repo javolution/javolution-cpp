@@ -50,6 +50,8 @@
 #endif
 #endif
 
+#define CTOR(CLASS) CLASS(Void = nullptr) {} CLASS(Value* value) : Object(value) {}
+
 namespace Type {
 
 ////////////////////////////////////

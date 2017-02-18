@@ -29,7 +29,7 @@ Java is fast, very fast, but Javolution C++, can make your Java code even faster
 - **Free** - JVM licensing for embedded systems can be problematic and expensive. It is not the case for Javolution which is free and always will be (MIT license). 
   
 For consistency and maintainability we follow the Java Style (http://geosoft.no/development/javastyle.html).
-The main difference with Java is that all instances are created using factory methods (valueOf/newInstance) and Javolution supports value types (immutable allocated on the stack).
+The main difference with Java is that instances are usually created using factory methods (valueOf/newInstance).
 
 ```cpp
 String str = "Hello"; 
@@ -54,12 +54,12 @@ void Thread::run() {
 
 class Runnable : public virtual Object { // Java-like type (sub-type of Object).
 public:
-    Runnable(Void = nullptr) {} 
-    void run() { this_cast<Interface>()->run(); } // Default implementation (dynamic cast)
     class Interface : public virtual Object::Interface { // The actual interface (abstract)
     public:
         virtual void run() = 0;    
-    };
+    }; 
+    Runnable(Void = nullptr) {} // Default constructor (null) 
+    void run() { this_cast<Interface>()->run(); } // Default implementation (dynamic cast)
 };
 ``` 
 
@@ -73,25 +73,6 @@ namespace org { namespace acme { // Package org::acme
 
 class Foo : public virtual Runnable { 
 public:
-
-    Foo(Void = nullptr) {} 
-    Foo(Value* value) : Object(value) {} 
-    
-    static Foo newInstance(
-             const Runnable& action = nullptr,  // Default parameters values supported.
-             const String& message = nullptr) {
-        return new Value(action, message);
-    }
-
-    void setMessage(const String& value) {  
-        this_<Value>()->setMessage(value);
-    }
-    
-    void run() {  // Optional (inherited from Runnable), but avoid dynamic cast here!
-        this_<Value>()->run();
-    }
-
-    // Implementation //
     class Value : public Object::Value, public virtual Runnable::Interface  {     
         Runnable action;
         String message;
@@ -106,7 +87,22 @@ public:
             if (message != nullptr) System::out.println(message);
             if (action != nullptr) action.run();
         }
-    };    
+    };
+    CTOR(Foo) // Foo default constructors (from null and Value*).
+        
+    static Foo newInstance(
+             const Runnable& action = nullptr,  // Default parameters values supported.
+             const String& message = nullptr) {
+        return new Value(action, message);
+    }
+
+    void setMessage(const String& value) {  
+        this_<Value>()->setMessage(value);
+    }
+    
+    void run() {  // Optional (inherited from Runnable), to avoid dynamic cast.
+        this_<Value>()->run();
+    }
 }; 
 
 }}

@@ -19,40 +19,34 @@ namespace lang {
  */
 class CharSequence: public virtual Object {
 public:
-    CharSequence(Void = nullptr) {}
-
-    /**
-     * Returns the char value at the specified index.
-     */
-    Type::wchar charAt(int index) const {
-        return this_cast<Interface>()->charAt(index);
-    }
-
-    /**
-     * Returns the length of this character sequence.
-     */
-    int length() const {
-        return this_cast<Interface>()->length();
-    }
-
-    /**
-     * Returns a CharSequence that is a subsequence of this sequence.
-     */
-    CharSequence subSequence(int start, int end) const {
-        return this_cast<Interface>()->subSequence(start, end);
-    }
-
-    ///////////////
-    // Interface //
-    ///////////////
-
     class Interface: public virtual Object::Interface {
     public:
         virtual Type::wchar charAt(int index) const = 0;
         virtual int length() const = 0;
         virtual CharSequence subSequence(int start, int end) const = 0;
     };
+    CharSequence(Void = nullptr) {}
 
+    /**
+     * Returns the char value at the specified index.
+     */
+    Type::wchar charAt(int index) const {
+        return this_cast_<Interface>()->charAt(index);
+    }
+
+    /**
+     * Returns the length of this character sequence.
+     */
+    int length() const {
+        return this_cast_<Interface>()->length();
+    }
+
+    /**
+     * Returns a CharSequence that is a subsequence of this sequence.
+     */
+    CharSequence subSequence(int start, int end) const {
+        return this_cast_<Interface>()->subSequence(start, end);
+    }
 
 };
 

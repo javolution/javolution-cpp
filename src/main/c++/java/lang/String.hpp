@@ -32,277 +32,268 @@ class StringBuilder;
  */
 class String final : public virtual CharSequence {
 public:
-    String(Void = nullptr) {}
-    String(Value* value) : Object(value) {}
+	class Value final : public Object::Value, public virtual CharSequence::Interface {
+		friend class StringBuilder;
+		Array<Type::wchar> wchars;
+		Value(const Array<Type::wchar>& wchars) :
+				wchars(wchars) {
+		}
+	public:
 
-    /**
-     * Returns the string representing the specified object ("null" if (obj == nullptr)).
-     */
-    static String valueOf(const Object& obj) {
-        return obj == nullptr ? "null" : obj.toString();
-    }
+		JAVOLUTION_DLL
+		String substring(int beginIndex, int endIndex) const;
 
-    /**
-     * Equivalent to <code>obj.toString()</code>
-     */
-    static String valueOf(const Object::Interface& obj) {
-         return obj.toString();
-    }
+		JAVOLUTION_DLL
+		String concat(const String& that) const;
 
-     /**
-     * Returns the string holding the specified wide characters
-     * (null terminated).
-     */
-    JAVOLUTION_DLL
-    static String valueOf(const Type::wchar* wchars);
+		JAVOLUTION_DLL
+		bool startsWith(const String& prefix, int offset) const;
 
-    /**
-     * Returns the string holding the specified C++ wide string.
-     */
-    JAVOLUTION_DLL
-    static String valueOf(const std::wstring& wstr);
+		JAVOLUTION_DLL
+		bool endsWith(const String& suffix) const;
 
-    /**
-     * Returns the string holding the specified UTF-8 simple characters
-     * (null terminated).
-     */
-    JAVOLUTION_DLL
-    static String valueOf(const char* chars);
+		JAVOLUTION_DLL
+		bool equals(const Object& obj) const override;
 
-    /**
-     * Returns the string holding the specified UTF-8 C++ string.
-     */
-    JAVOLUTION_DLL
-    static String valueOf(const std::string& str);
+		JAVOLUTION_DLL
+		bool equals(const String& that) const;
 
-    /**
-     * Returns the string holding the specified wide character.
-     */
-    JAVOLUTION_DLL
-    static String valueOf(Type::wchar value);
+		JAVOLUTION_DLL
+		int hashCode() const override;
 
-    /**
-     * Returns the string holding the specified ascii character.
-     */
-    JAVOLUTION_DLL
-    static String valueOf(char value);
+		JAVOLUTION_DLL
+		std::wstring toWString() const;
 
-    /**
-     * Returns the string holding the decimal representation of the specified int value.
-     */
-    JAVOLUTION_DLL
-    static String valueOf(int value);
+		JAVOLUTION_DLL
+		std::string toUTF8() const;
 
-    /**
-     * Returns the string holding the decimal representation of the specified long value.
-     */
-    JAVOLUTION_DLL
-    static String valueOf(long value);
+		Type::wchar charAt(int index) const override {
+			return wchars[index];
+		}
 
-    /**
-     * Returns the string holding the decimal representation of the specified long long value (at least 64 bits).
-     */
-    JAVOLUTION_DLL
-    static String valueOf(long long value);
+		int length() const override {
+			return wchars.length;
+		}
 
-    /**
-     * Returns the string holding the decimal representation of the specified 32 bits floating point value.
-     */
-    JAVOLUTION_DLL
-    static String valueOf(float value);
+		CharSequence subSequence(int start, int end) const override {
+			return substring(start, end);
+		}
 
-    /**
-     * Returns the string holding the decimal representation of the specified 64 bits floating point value.
-     */
-    JAVOLUTION_DLL
-    static String valueOf(double value);
+		String toString() const override {
+			return new Value(wchars);
+		}
+	};CTOR(String)
 
-    /**
-     * Returns the string holding the representation of the specified boolean value.
-     */
-    JAVOLUTION_DLL
-    static String valueOf(bool value);
+	/**
+	 * Returns the string representing the specified object ("null" if (obj == nullptr)).
+	 */
+	static String valueOf(const Object& obj) {
+		return obj == nullptr ? "null" : obj.toString();
+	}
 
-    /**
-     * Returns a new string that is a substring of this string.
-     */
-    String substring(int beginIndex) const {
-        return substring(beginIndex, length());
-    }
+	/**
+	 * Equivalent to <code>obj.toString()</code>
+	 */
+	static String valueOf(const Object::Interface& obj) {
+		return obj.toString();
+	}
 
-    /**
-     * Returns a new string that is a substring of this string.
-     */
-    String substring(int beginIndex, int endIndex) const {
-        return this_<Value>()->substring(beginIndex, endIndex);
-    }
+	/**
+	 * Returns the string holding the specified wide characters
+	 * (null terminated).
+	 */
+	JAVOLUTION_DLL
+	static String valueOf(const Type::wchar* wchars);
 
-    /**
-     * Returns the result of the concatenation of this string with the one specified.
-     */
-    String concat(const String& that) const {
-        return this_<Value>()->concat(that);
-    }
+	/**
+	 * Returns the string holding the specified C++ wide string.
+	 */
+	JAVOLUTION_DLL
+	static String valueOf(const std::wstring& wstr);
 
-    /**
-     * Tests if this string starts with the specified prefix.
-     */
-    bool startsWith(const String& prefix) const {
-        return startsWith(prefix, 0);
-    }
-    /**
-     * Tests if the substring of this string beginning at the specified offset starts with the specified prefix.
-     */
-    bool startsWith(const String& prefix, int offset) const {
-        return this_<Value>()->startsWith(prefix, offset);
-    }
+	/**
+	 * Returns the string holding the specified UTF-8 simple characters
+	 * (null terminated).
+	 */
+	JAVOLUTION_DLL
+	static String valueOf(const char* chars);
 
-    /**
-     * Tests if this string ends with the specified suffix.
-     */
-    bool endsWith(const String& suffix) const {
-        return this_<Value>()->endsWith(suffix);
-    }
+	/**
+	 * Returns the string holding the specified UTF-8 C++ string.
+	 */
+	JAVOLUTION_DLL
+	static String valueOf(const std::string& str);
 
-    /**
-     * Indicates whether the specified object is a string holding the same characters as this string.
-     */
-    bool equals(const Object& other) const {
-        return this_<Value>()->equals(other);
-    }
+	/**
+	 * Returns the string holding the specified wide character.
+	 */
+	JAVOLUTION_DLL
+	static String valueOf(Type::wchar value);
 
-    /**
-     * Indicates whether the specified string is holding the same characters as this string.
-     */
-    bool equals(const String& that) const {
-        return this_<Value>()->equals(that);
-    }
+	/**
+	 * Returns the string holding the specified ascii character.
+	 */
+	JAVOLUTION_DLL
+	static String valueOf(char value);
 
-    /**
-     * Returns the C++ wide string corresponding to this string object.
-     */
-    std::wstring toWString() const {
-        return this_<Value>()->toWString();
-    }
+	/**
+	 * Returns the string holding the decimal representation of the specified int value.
+	 */
+	JAVOLUTION_DLL
+	static String valueOf(int value);
 
-    /**
-     * Returns the C++ char string (UTF-8 encoded) corresponding to this string object
-     * (can be used for serialization purpose).
-     */
-    std::string toUTF8() const {
-        return this_<Value>()->toUTF8();
-    }
+	/**
+	 * Returns the string holding the decimal representation of the specified long value.
+	 */
+	JAVOLUTION_DLL
+	static String valueOf(long value);
 
-    //////////////////
-    // CharSequence //
-    //////////////////
+	/**
+	 * Returns the string holding the decimal representation of the specified long long value (at least 64 bits).
+	 */
+	JAVOLUTION_DLL
+	static String valueOf(long long value);
 
-    Type::wchar charAt(int index) const {
-        return this_<Value>()->charAt(index);
-    }
+	/**
+	 * Returns the string holding the decimal representation of the specified 32 bits floating point value.
+	 */
+	JAVOLUTION_DLL
+	static String valueOf(float value);
 
-    int length() const  {
-        return this_<Value>()->length();
-    }
+	/**
+	 * Returns the string holding the decimal representation of the specified 64 bits floating point value.
+	 */
+	JAVOLUTION_DLL
+	static String valueOf(double value);
 
-    CharSequence subSequence(int start, int end) const {
-        return this_<Value>()->subSequence(start, end);
-    }
+	/**
+	 * Returns the string holding the representation of the specified boolean value.
+	 */
+	JAVOLUTION_DLL
+	static String valueOf(bool value);
 
-    /////////////////////////////////////////
-    // Autoboxing and literal assignments. //
-    /////////////////////////////////////////
+	/**
+	 * Returns a new string that is a substring of this string.
+	 */
+	String substring(int beginIndex) const {
+		return substring(beginIndex, length());
+	}
 
-    Object& operator=(Void) { // Since new assignments are defined, they all need to be explicit (no inheritance).
-        return Object::operator=(nullptr);
-    }
+	/**
+	 * Returns a new string that is a substring of this string.
+	 */
+	String substring(int beginIndex, int endIndex) const {
+		return this_<Value>()->substring(beginIndex, endIndex);
+	}
 
-    String& operator=(const char* chars) {
-        return *this = String::valueOf(chars);
-    }
+	/**
+	 * Returns the result of the concatenation of this string with the one specified.
+	 */
+	String concat(const String& that) const {
+		return this_<Value>()->concat(that);
+	}
 
-    String(const char* chars) {
-        *this = String::valueOf(chars);
-    }
+	/**
+	 * Tests if this string starts with the specified prefix.
+	 */
+	bool startsWith(const String& prefix) const {
+		return startsWith(prefix, 0);
+	}
+	/**
+	 * Tests if the substring of this string beginning at the specified offset starts with the specified prefix.
+	 */
+	bool startsWith(const String& prefix, int offset) const {
+		return this_<Value>()->startsWith(prefix, offset);
+	}
 
-    String(std::string const& str) {
-        *this = String::valueOf(str);
-    }
+	/**
+	 * Tests if this string ends with the specified suffix.
+	 */
+	bool endsWith(const String& suffix) const {
+		return this_<Value>()->endsWith(suffix);
+	}
 
-    String& operator=(const Type::wchar* wchars) {
-        return *this = String::valueOf(wchars);
-    }
+	/**
+	 * Indicates whether the specified object is a string holding the same characters as this string.
+	 */
+	bool equals(const Object& other) const {
+		return this_<Value>()->equals(other);
+	}
 
-    String(const Type::wchar* wchars) {
-        *this = String::valueOf(wchars);
-    }
+	/**
+	 * Indicates whether the specified string is holding the same characters as this string.
+	 */
+	bool equals(const String& that) const {
+		return this_<Value>()->equals(that);
+	}
 
-    String(std::wstring const& wstr) {
-        *this = String::valueOf(wstr);
-    }
+	/**
+	 * Returns the C++ wide string corresponding to this string object.
+	 */
+	std::wstring toWString() const {
+		return this_<Value>()->toWString();
+	}
 
-    template<typename E>
-    String operator+(const E& e) const {
-        return concat(String::valueOf(e));
-    }
+	/**
+	 * Returns the C++ char string (UTF-8 encoded) corresponding to this string object
+	 * (can be used for serialization purpose).
+	 */
+	std::string toUTF8() const {
+		return this_<Value>()->toUTF8();
+	}
 
-    ////////////////////
-    // Implementation //
-    ////////////////////
+	//////////////////
+	// CharSequence //
+	//////////////////
 
-    class Value final : public Object::Value, public virtual CharSequence::Interface {
-        friend class StringBuilder;
+	Type::wchar charAt(int index) const {
+		return this_<Value>()->charAt(index);
+	}
 
-        Array<Type::wchar> wchars;
-        Value(const Array<Type::wchar>& wchars) :
-                wchars(wchars) {
-        }
+	int length() const {
+		return this_<Value>()->length();
+	}
 
-    public:
+	CharSequence subSequence(int start, int end) const {
+		return this_<Value>()->subSequence(start, end);
+	}
 
-        JAVOLUTION_DLL
-        String substring(int beginIndex, int endIndex) const;
+	/////////////////////////////////////////
+	// Autoboxing and literal assignments. //
+	/////////////////////////////////////////
 
-        JAVOLUTION_DLL
-        String concat(const String& that) const;
+	Object& operator=(Void) { // Since new assignments are defined, they all need to be explicit (no inheritance).
+		return Object::operator=(nullptr);
+	}
 
-        JAVOLUTION_DLL
-        bool startsWith(const String& prefix, int offset) const;
+	String& operator=(const char* chars) {
+		return *this = String::valueOf(chars);
+	}
 
-        JAVOLUTION_DLL
-        bool endsWith(const String& suffix) const;
+	String(const char* chars) {
+		*this = String::valueOf(chars);
+	}
 
-        JAVOLUTION_DLL
-        bool equals(const Object& obj) const override;
+	String(std::string const& str) {
+		*this = String::valueOf(str);
+	}
 
-        JAVOLUTION_DLL
-        bool equals(const String& that) const;
+	String& operator=(const Type::wchar* wchars) {
+		return *this = String::valueOf(wchars);
+	}
 
-        JAVOLUTION_DLL
-        int hashCode() const override;
+	String(const Type::wchar* wchars) {
+		*this = String::valueOf(wchars);
+	}
 
-        JAVOLUTION_DLL
-        std::wstring toWString() const;
+	String(std::wstring const& wstr) {
+		*this = String::valueOf(wstr);
+	}
 
-        JAVOLUTION_DLL
-        std::string toUTF8() const;
-
-        Type::wchar charAt(int index) const override {
-            return wchars[index];
-        }
-
-        int length() const override {
-            return wchars.length;
-        }
-
-        CharSequence subSequence(int start, int end) const override {
-            return substring(start, end);
-        }
-
-        String toString() const override {
-            return new Value(wchars);
-        }
-    };
+	template<typename E>
+	String operator+(const E& e) const {
+		return concat(String::valueOf(e));
+	}
 
 };
 

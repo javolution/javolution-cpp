@@ -28,9 +28,9 @@ Class Object_Interface::getClass() const {
 }
 
 String Object_Interface::toString() const {
-    const void* address = this;
+	std::size_t address = reinterpret_cast<std::size_t>(this);
     StringBuilder sb = StringBuilder::newInstance();
-    return sb.append("Object#").append((int)address).toString();
+    return sb.append("Object#").append((long long)address).toString();
 }
 
 Type::Mutex& Object_Interface::monitor_() const {

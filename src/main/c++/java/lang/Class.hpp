@@ -30,60 +30,55 @@ namespace lang {
  */
 class Class final : public virtual Object {
 public:
-    Class(Value* value) : Object(value) {}
+	class Value: public Object::Value {
+		friend class Class;
+		String name;
+		Type::Mutex monitor;
+		Value(const String& name) :
+				name(name) {
+		}
+	public:
 
-    /** Returns the class having the specified name. */
-    static Class forName(const String& name) {
-        return new Value(name);
-    }
+		String getName() const {
+			return name;
+		}
 
-    /** Returns the class name of this instance (for example "java::lang::Boolean"). */
-    String getName() const {
-        return this_<Value>()->getName();
-    }
+		bool equals(const Object& other) const override {
+			if (this == other)
+				return true;
+			Class that = other.cast_<Value>();
+			return equals(that);
+		}
 
-    ////////////////////
-    // Implementation //
-    ////////////////////
+		bool equals(const Class& that) const {
+			if (that == nullptr)
+				return false;
+			return name.equals(that.getName());
+		}
 
-    class Value: public Object::Value {
-        String name;
-        Type::Mutex monitor;
-    public:
-        Value(const String& name) :
-                name(name) {
-        }
+		int hashCode() const override {
+			return name.hashCode();
+		}
 
-        String getName() const {
-            return name;
-        }
+		String toString() const override {
+			return String::valueOf("Class ") + getName();
+		}
 
-        bool equals(const Object& other) const override {
-            if (this == other)
-                return true;
-            Class that = other.cast_<Value>();
-            return equals(that);
-        }
+		Type::Mutex& monitor_() const override {
+			return const_cast<Type::Mutex&>(monitor);
+		}
 
-        bool equals(const Class& that) const {
-            if (that == nullptr)
-                return false;
-            return name.equals(that.getName());
-        }
+	};CTOR(Class)
 
-        int hashCode() const override {
-            return name.hashCode();
-        }
+	/** Returns the class having the specified name. */
+	static Class forName(const String& name) {
+		return new Value(name);
+	}
 
-        String toString() const override {
-            return String::valueOf("Class ") + getName();
-        }
-
-        Type::Mutex& monitor_() const override {
-            return const_cast<Type::Mutex&>(monitor);
-        }
-
-    };
+	/** Returns the class name of this instance (for example "java::lang::Boolean"). */
+	String getName() const {
+		return this_<Value>()->getName();
+	}
 
 };
 

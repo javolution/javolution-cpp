@@ -21,90 +21,84 @@ namespace lang {
  */
 class Thread: public virtual Runnable {
 
-    JAVOLUTION_DLL
-    static Type::atomic_count threadNumber; // Autonumbering anonymous threads.
+	JAVOLUTION_DLL
+	static Type::atomic_count threadNumber; // Autonumbering anonymous threads.
 
 public:
-    Thread(Void = nullptr) {}
-    Thread(Value* value) : Object(value) {}
+	class Value: public Object::Value, public virtual Runnable::Interface {
+		Runnable target;
+		String name;
+		void* nativeThreadPtr;
+	public:
 
-    /**
-     * Returns a thread having the specified target to be executed and the specified name.
-     */
-    static Thread newInstance(const Runnable& target, const String& name= nullptr) {
-        String threadName = (name != nullptr) ? name : "Thread-" + ++threadNumber;
-        return new Value(target, threadName);
-    }
+		JAVOLUTION_DLL
+		Value(const Runnable& target = nullptr, const String& name = nullptr);
 
-    /**
-     * Returns this thread's name.
-     */
-    String getName() const {
-        return this_<Value>()->getName();
-    }
+		JAVOLUTION_DLL
+		virtual void start();
 
-    /**
-     * Causes this thread to begin execution of the <code>run</code> method of
-     * this thread. It is never legal to start a thread more than once.
-     * In particular, a thread may not be restarted once it has completed
-     * execution.
-     */
-    void start() {
-        this_<Value>()->start();
-    }
+		JAVOLUTION_DLL
+		virtual void join();
 
-    /**
-     * Waits for this thread to die.
-     */
-    void join() {
-        this_<Value>()->join();
-    }
+		JAVOLUTION_DLL
+		virtual void run() override;
 
-    /**
-     * If this thread was constructed using a separate Runnable run object, then that Runnable object's run method is
-     * called; otherwise, this method does nothing and returns.
-     */
-    void run() {
-        this_<Value>()->run();
-    }
+		JAVOLUTION_DLL
+		~Value() override;
 
-    /**
-     * Causes the currently executing thread to sleep (temporarily cease execution) for the specified number of
-     * milliseconds, subject to the precision and accuracy of system timers and schedulers. The thread
-     * does not lose ownership of any monitors.
-     */
-    JAVOLUTION_DLL
-    static void sleep(long millis);
+		String getName() {
+			return name;
+		}
 
-    ////////////////////
-    // Implementation //
-    ////////////////////
+	};CTOR(Thread)
 
-    class Value : public Object::Value, public virtual Runnable::Interface {
-          String name;
-          Runnable target;
-          void* nativeThreadPtr;
-      public:
+	/**
+	 * Returns a thread having the specified target to be executed and the specified name.
+	 */
+	static Thread newInstance(const Runnable& target, const String& name = nullptr) {
+		String threadName = (name != nullptr) ? name : "Thread-" + ++threadNumber;
+		return new Value(target, threadName);
+	}
 
-          JAVOLUTION_DLL
-          Value(const Runnable& target = nullptr, const String& name = nullptr);
+	/**
+	 * Returns this thread's name.
+	 */
+	String getName() const {
+		return this_<Value>()->getName();
+	}
 
-          JAVOLUTION_DLL
-          virtual void start();
+	/**
+	 * Causes this thread to begin execution of the <code>run</code> method of
+	 * this thread. It is never legal to start a thread more than once.
+	 * In particular, a thread may not be restarted once it has completed
+	 * execution.
+	 */
+	void start() {
+		this_<Value>()->start();
+	}
 
-          JAVOLUTION_DLL
-          virtual void join();
+	/**
+	 * Waits for this thread to die.
+	 */
+	void join() {
+		this_<Value>()->join();
+	}
 
-          JAVOLUTION_DLL
-          virtual void run() override;
+	/**
+	 * If this thread was constructed using a separate Runnable run object, then that Runnable object's run method is
+	 * called; otherwise, this method does nothing and returns.
+	 */
+	void run() {
+		this_<Value>()->run();
+	}
 
-          JAVOLUTION_DLL ~Value() override;
-
-          String getName() {
-              return name;
-          }
-      };
-
+	/**
+	 * Causes the currently executing thread to sleep (temporarily cease execution) for the specified number of
+	 * milliseconds, subject to the precision and accuracy of system timers and schedulers. The thread
+	 * does not lose ownership of any monitors.
+	 */
+	JAVOLUTION_DLL
+	static void sleep(long millis);
 };
 
 }

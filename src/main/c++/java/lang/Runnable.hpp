@@ -19,6 +19,10 @@ namespace lang {
  */
 class Runnable: public virtual Object {
 public:
+    class Interface: public virtual Object::Interface {
+    public:
+        virtual void run() = 0;
+    };
     Runnable(Void = nullptr) {}
 
     /**
@@ -26,13 +30,8 @@ public:
      * the object's run method to be called in that separately executing thread.
      */
     void run() {
-        this_cast<Interface>()->run();
+        this_cast_<Interface>()->run();
     }
-
-    class Interface: public virtual Object::Interface {
-    public:
-        virtual void run() = 0;
-    };
 
 };
 

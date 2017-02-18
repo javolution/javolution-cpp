@@ -5,9 +5,11 @@
  */
 #pragma once
 
+#include <iostream>
 #include "Javolution.hpp"
 #include "java/lang/Void.hpp"
 
+#define CTOR(CLASS) CLASS(Void = nullptr) {} CLASS(Value* value) : Object(value) {} // Object constructors pattern.
 using namespace java::lang; // Set default java::lang namespace (global setting).
 
 namespace java {
@@ -32,7 +34,8 @@ public:
      * Returns the hash code value for this object.
      */
     virtual int hashCode() const {
-        return (int) this;
+    	std::size_t address = reinterpret_cast<std::size_t>(this);
+        return (int) address;
     }
 
     /**
@@ -176,7 +179,7 @@ class Object : public virtual Object_Interface {
      *
      * @throw NullPointerException if this object value is null.
      */
-    template<class T> T* this_cast() const {
+    template<class T> T* this_cast_() const {
         if (value == nullptr)
             Object_Exceptions::throwNullPointerException();
         return dynamic_cast<T*>(value);

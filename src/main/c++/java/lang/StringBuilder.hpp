@@ -29,187 +29,180 @@ namespace lang {
  */
 class StringBuilder final : public virtual CharSequence {
 public:
-    StringBuilder(Void = nullptr) {}
-    StringBuilder(Value* value) : Object(value) {}
+	class Value final : public Object::Value, public virtual CharSequence::Interface {
+		static const int WCHARS_INC = 32; // Smooth length increment.
+		Array<Type::wchar> wchars = Array<Type::wchar>::newInstance();
+		int count = 0;
+		bool immutable = false; // Becomes immutable after toString() is called since the array will be shared.
+	public:
 
-    /** Constructs a new empty string builder. */
-    static StringBuilder newInstance() {
-        return new Value();
-    }
+		JAVOLUTION_DLL
+		StringBuilder append(Type::wchar wc);
 
-    /**
-     * Appends the textual representation of the specified object.
-     */
-    StringBuilder append(const Object& obj) {
-        return append(String::valueOf(obj));
-    }
+		JAVOLUTION_DLL
+		StringBuilder append(const String& str);
 
-    /**
-     * Appends the specified string.
-     */
-    StringBuilder append(const String& str) {
-        return this_<Value>()->append(str);
-    }
+		JAVOLUTION_DLL
+		StringBuilder append(const char* chars);
 
-    /**
-     * Appends the specified int value.
-     */
-    StringBuilder append(int value) {
-        std::wostringstream out;
-        out << value;
-        return append(out.str());
-    }
+		JAVOLUTION_DLL
+		StringBuilder append(const Type::wchar* chars);
 
-    /**
-     * Appends the specified long value.
-     */
-    StringBuilder append(long value) {
-        std::wostringstream out;
-        out << value;
-        return append(out.str());
-    }
+		Type::wchar charAt(int index) const override {
+			if (index >= count)
+				throw IndexOutOfBoundsException();
+			return wchars[index];
+		}
 
-    /**
-     * Appends the specified long long value (at least 64 bits).
-     */
-    StringBuilder append(long long value) {
-        std::wostringstream out;
-        out << value;
-        return append(out.str());
-    }
+		int length() const override {
+			return count;
+		}
 
-    /**
-     * Appends the specified 32 bits float value.
-     */
-    StringBuilder append(float value) {
-        std::wostringstream out;
-        out << value;
-        return append(out.str());
-    }
+		CharSequence subSequence(int start, int end) const override {
+			return toString().substring(start, end);
+		}
 
-    /**
-     * Appends the specified 64 bits float value.
-     */
-    StringBuilder append(double value) {
-        std::wostringstream out;
-        out << value;
-        return append(out.str());
-    }
+		String toString() const override {
+			Value* self = const_cast<Value*>(this); // Removes constness.
+			self->wchars.length = count; // Ok, small reduction adjustment (no need to call setLength).
+			self->immutable = true;
+			return new String::Value(self->wchars); // Share the same array.
+		}
 
-    /**
-     * Appends the specified C++ UTF-8 simple characters (null terminated).
-     */
-    StringBuilder append(const char* chars) {
-        return this_<Value>()->append(chars);
-    }
+	};CTOR(StringBuilder)
 
-    /**
-     * Appends the specified C++ wide characters (null terminated).
-     */
-    StringBuilder append(const Type::wchar* chars) {
-        return this_<Value>()->append(chars);
-    }
+	/** Constructs a new empty string builder. */
+	static StringBuilder newInstance() {
+		return new Value();
+	}
 
-    /**
-     * Appends the specified C++ wide string.
-     */
-    StringBuilder append(const std::wstring& wstr) {
-        return append(wstr.c_str());
-    }
+	/**
+	 * Appends the textual representation of the specified object.
+	 */
+	StringBuilder append(const Object& obj) {
+		return append(String::valueOf(obj));
+	}
 
-    /**
-     * Appends the specified C++ string (UTF-8).
-     */
-    StringBuilder append(const std::string& str) {
-        return append(str.c_str());
-    }
+	/**
+	 * Appends the specified string.
+	 */
+	StringBuilder append(const String& str) {
+		return this_<Value>()->append(str);
+	}
 
-    /**
-     * Appends the specified ASCII character.
-     *
-     * @throw IllegalArgumentException if the specified value is not ASCII
-     */
-    StringBuilder append(char ascii) {
-        if (ascii > 127)
-        throw IllegalArgumentException("Non-ASCII Character");
-        return append((Type::wchar) ascii);
-    }
+	/**
+	 * Appends the specified int value.
+	 */
+	StringBuilder append(int value) {
+		std::wostringstream out;
+		out << value;
+		return append(out.str());
+	}
 
-    /**
-     * Appends the specified wide character.
-     */
-    StringBuilder append(Type::wchar wc) {
-        return this_<Value>()->append(wc);
-    }
+	/**
+	 * Appends the specified long value.
+	 */
+	StringBuilder append(long value) {
+		std::wostringstream out;
+		out << value;
+		return append(out.str());
+	}
 
-    /**
-     * Appends the specified bool object.
-     */
-    StringBuilder append(bool value) {
-        return append(value ? "true" : "false");
-    }
+	/**
+	 * Appends the specified long long value (at least 64 bits).
+	 */
+	StringBuilder append(long long value) {
+		std::wostringstream out;
+		out << value;
+		return append(out.str());
+	}
 
-    //////////////////
-    // CharSequence //
-    //////////////////
+	/**
+	 * Appends the specified 32 bits float value.
+	 */
+	StringBuilder append(float value) {
+		std::wostringstream out;
+		out << value;
+		return append(out.str());
+	}
 
-    Type::wchar charAt(int index) const {
-        return this_<Value>()->charAt(index);
-    }
+	/**
+	 * Appends the specified 64 bits float value.
+	 */
+	StringBuilder append(double value) {
+		std::wostringstream out;
+		out << value;
+		return append(out.str());
+	}
 
-    int length() const {
-        return this_<Value>()->length();
-    }
+	/**
+	 * Appends the specified C++ UTF-8 simple characters (null terminated).
+	 */
+	StringBuilder append(const char* chars) {
+		return this_<Value>()->append(chars);
+	}
 
-    CharSequence subSequence(int start, int end) const {
-        return this_<Value>()->subSequence(start, end);
-    }
+	/**
+	 * Appends the specified C++ wide characters (null terminated).
+	 */
+	StringBuilder append(const Type::wchar* chars) {
+		return this_<Value>()->append(chars);
+	}
 
-    ////////////////////
-    // Implementation //
-    ////////////////////
+	/**
+	 * Appends the specified C++ wide string.
+	 */
+	StringBuilder append(const std::wstring& wstr) {
+		return append(wstr.c_str());
+	}
 
-    class Value final : public Object::Value, public virtual CharSequence::Interface {
-        static const int WCHARS_INC = 32; // Smooth length increment.
-        Array<Type::wchar> wchars = Array<Type::wchar>::newInstance();
-        int count = 0;
-        bool immutable = false;// Becomes immutable after toString() is called since the array will be shared.
-    public:
+	/**
+	 * Appends the specified C++ string (UTF-8).
+	 */
+	StringBuilder append(const std::string& str) {
+		return append(str.c_str());
+	}
 
-        JAVOLUTION_DLL
-        StringBuilder append(Type::wchar wc);
+	/**
+	 * Appends the specified ASCII character.
+	 *
+	 * @throw IllegalArgumentException if the specified value is not ASCII
+	 */
+	StringBuilder append(char ascii) {
+		if (ascii > 127)
+			throw IllegalArgumentException("Non-ASCII Character");
+		return append((Type::wchar) ascii);
+	}
 
-        JAVOLUTION_DLL
-        StringBuilder append(const String& str);
+	/**
+	 * Appends the specified wide character.
+	 */
+	StringBuilder append(Type::wchar wc) {
+		return this_<Value>()->append(wc);
+	}
 
-        JAVOLUTION_DLL
-        StringBuilder append(const char* chars);
+	/**
+	 * Appends the specified bool object.
+	 */
+	StringBuilder append(bool value) {
+		return append(value ? "true" : "false");
+	}
 
-        JAVOLUTION_DLL
-        StringBuilder append(const Type::wchar* chars);
+	//////////////////
+	// CharSequence //
+	//////////////////
 
-        Type::wchar charAt(int index) const override {
-            if (index >= count)
-            throw IndexOutOfBoundsException();
-            return wchars[index];
-        }
+	Type::wchar charAt(int index) const {
+		return this_<Value>()->charAt(index);
+	}
 
-        int length() const override {
-            return count;
-        }
+	int length() const {
+		return this_<Value>()->length();
+	}
 
-        CharSequence subSequence(int start, int end) const override {
-            return toString().substring(start, end);
-        }
-
-        String toString() const override {
-            Value* self = const_cast<Value*>(this); // Removes constness.
-            self->wchars.length = count;// Ok, small reduction adjustment (no need to call setLength).
-            self->immutable = true;
-            return new String::Value(self->wchars); // Share the same array.
-        }
-
-    };
+	CharSequence subSequence(int start, int end) const {
+		return this_<Value>()->subSequence(start, end);
+	}
 
 };
 }

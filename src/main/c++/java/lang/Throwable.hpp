@@ -22,36 +22,41 @@ namespace lang {
  *       Java - Throwable</a>
  * @version 7.0
  */
-class Throwable : public virtual Object::Interface, public booster::backtrace { // Value type.
-   String message;
-   String classname;
+class Throwable: public virtual Object::Interface, public booster::backtrace { // Value type.
+
+	String message;
+	String classname;
+
 public:
-    Throwable(const String& message = nullptr, const String& classname = "java::lang::Throwable") :
-        message(message), classname(classname) {}
 
-    /**
-     * Prints this throwable and its backtrace to the standard error stream.
-     */
-    JAVOLUTION_DLL
-    virtual void printStackTrace() const;
+	Throwable(const String& message = nullptr, const String& classname = "java::lang::Throwable") :
+			message(message), classname(classname) {
+	}
 
-    /**
-     * Returns the detail message of this exception or nullptr if none.
-     */
-    virtual String getMessage() const {
-        return message;
-    }
+	/**
+	 * Prints this throwable and its backtrace to the standard error stream.
+	 */
+	JAVOLUTION_DLL
+	virtual void printStackTrace() const;
 
-    /**
-     * Returns a short description of this throwable (classname + ": " + getMessage())
-     */
-    JAVOLUTION_DLL
-    virtual String toString() const;
+	/**
+	 * Returns the detail message of this exception or nullptr if none.
+	 */
+	virtual String getMessage() const {
+		return message;
+	}
 
-    /**
-     * Returns a null terminated character sequence that may be used to identify the exception (C++).
-     */
-    JAVOLUTION_DLL virtual const char* what() const throw();
+	/**
+	 * Returns a short description of this throwable (classname + ": " + getMessage())
+	 */
+	JAVOLUTION_DLL
+	virtual String toString() const;
+
+	/**
+	 * Returns a null terminated character sequence that may be used to identify the exception (C++).
+	 */
+	JAVOLUTION_DLL
+	virtual const char* what() const throw ();
 };
 
 }
