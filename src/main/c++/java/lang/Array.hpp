@@ -485,8 +485,9 @@ private:
          typedef BlockValue32 Outer;
      public:
          static const Type::int64 SHIFT = Inner::SHIFT + 4;
-         static const Type::int64 MASK = (1L << SHIFT) - 1;
-         static const Type::int64 MAX_CAPACITY = 1L << SHIFT;
+         static const Type::int64 ONE = 1;
+         static const Type::int64 MASK = (ONE << SHIFT) - 1;
+         static const Type::int64 MAX_CAPACITY = ONE << SHIFT;
 
          Object blocks[16];
 
@@ -537,7 +538,8 @@ private:
          typedef BlockValue32 This;
      public:
          static const Type::int64 SHIFT = Inner::SHIFT + 4;
-         static const Type::int64 MASK = (1L << SHIFT) - 1;
+         static const Type::int64 ONE = 1;
+         static const Type::int64 MASK = (ONE << SHIFT) - 1;
 
          Object blocks[16];
 
