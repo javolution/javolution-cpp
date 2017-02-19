@@ -5,19 +5,14 @@
  */
 #pragma once
 
-#include "boost/detail/atomic_count.hpp"
+#include <cstdint>
+#include <atomic>
 #include "boost/detail/lightweight_mutex.hpp"
-#include "boost/cstdint.hpp"
 
 #if defined(_WIN32) || defined(_WIN64) || defined __CYGWIN__
 #define _WINDOWS
 #define _DEPRECATED(text) __declspec(deprecated(#text))
 #pragma warning(disable: 4290) //  Visual C++ does not implement checked exceptions (throw declaration ignored).
-#endif
-
-#if defined(__sun)
-#define _SOLARIS
-#define _DEPRECATED(text)
 #endif
 
 #if defined(__linux)
@@ -60,17 +55,17 @@ namespace Type {
 
 typedef wchar_t wchar;
 typedef bool boolean;
-typedef boost::int8_t int8;
-typedef boost::int16_t int16;
-typedef boost::int32_t int32;
-typedef boost::int64_t int64;
-typedef boost::detail::atomic_count atomic_count;
+typedef std::int8_t int8;
+typedef std::int16_t int16;
+typedef std::int32_t int32; // Should be the same as 'int'
+typedef std::int64_t int64;
+typedef std::atomic_int atomic_count; // No Mutex on 32-bits hardware.
 
-///////////////////////////////////////////////////////////////////////////////////////
-// Define Lock-free heap of fixed-size blocks. Real-time systems should ensure
-// that no heap allocation exceeding the block size is ever performed in order to avoid
-// non time-deterministic system heap allocations
-///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Define Lock-free heap of fixed-size blocks. Real-time systems should ensure that no heap allocation exceeding
+// the block size is ever performed in order to avoid non time-deterministic system heap allocations.
+// The maximum capacity of the FastHeap is about 13/26 GBytes (on 32/64 bits systems).
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class FastHeap {
 
@@ -81,12 +76,12 @@ class FastHeap {
         Block() : refCount(0) {}
     };
 
-    Type::atomic_count newCount = -1; // Number of block allocated minus one.
-    Type::atomic_count delCount = -1; // Number of blocks deleted minus one.
+    Type::atomic_count newCount; // Number of block allocated minus one.
+    Type::atomic_count delCount; // Number of blocks deleted minus one.
 
     void** queue = nullptr; // Circular queue of memory blocks.
-    size_t queueSize = 0; // Size of the queue (power of 2).
-    size_t queueMask = 0; // Mask (size -1)
+    int queueSize = 0; // Size of the queue (power of 2).
+    int queueMask = 0; // Mask (size -1)
 
     Block* buffer = nullptr; // Memory buffer.
     void* bufferFirst = nullptr; // Address of first block in buffer.
@@ -94,37 +89,39 @@ class FastHeap {
 
     Type::int64 systemHeapCount = 0; // Number of system heap allocations when enabled (should be zero).
     size_t blockSize = 0; // 0 when disabled, else BLOCK_SIZE
-    size_t maxUseCount = 0; // Maximum number of blocks allocated simultaneously.
+    int maxUseCount = 0;
 
 public:
+    FastHeap() : newCount(-1), delCount(-1) {}
 
-    /** Returns the block capacity in bytes (excluding reference count). */
-    static const size_t BLOCK_CAPACITY = MAX_HANDLES * sizeof(void*);
+    /** The free block capacity in bytes (excludes reference count member). */
+    static const size_t BLOCK_FREE_SIZE = MAX_HANDLES * sizeof(void*);
 
-    /** The global FastHeap instance. */
+    /** The global instance. */
     JAVOLUTION_DLL
     static FastHeap INSTANCE;
 
     /** The maximum number of CPUs accessing a fast heap instance simultaneously (32). */
-    static const size_t MAX_CPU = 32; // Power of 2 - Avoids newCount and delCount collisions.
+    static const int MAX_CPU = 32; // To avoids newCount and delCount collisions.
 
-    /** The fixed-block size (32 bytes). */
+    /** The block size in bytes. */
     static const size_t BLOCK_SIZE = sizeof(Block);
 
-    /** Sets the heap size in bytes (e.g. 64 * 1024 * 1024 for 64 MBytes).
-     *  If the specified heap size is not a power of two, an exception is thrown. */
+    /** Sets the number of blocks managed by this heap (should be a power of 2).*/
     JAVOLUTION_DLL
-    void setHeapSize(size_t sizeInBytes);
+    void setSize(int size);
 
-    /** Returns the maximum heap utilization in bytes (up to heap size if
-     *  the heap is under-sized).*/
-    size_t getHeapMaxUsage() {
-        return (maxUseCount + MAX_CPU) * BLOCK_SIZE;
+    /** Returns the number of blocks managed by this heap (memory usage is: size * BLOCK_MEMORY). */
+    int getSize() {
+    	return queueSize;
     }
 
-    /** Returns the number of standard heap allocations performed
-     *  while the fast heap is enabled (should be zero unless the heap is
-     *  under-sized or allocations of more than 32 bytes are requested).*/
+    /** Returns the maximum number of blocks used simultaneously since the heap is enabled.*/
+    int getMaxUsage() {
+        return maxUseCount;
+    }
+
+    /** Returns the number of system heap allocations performed since the heap is enabled.*/
     Type::int64 getSystemHeapCount() {
         return systemHeapCount;
     }
@@ -132,11 +129,9 @@ public:
     /** Allocates from buffer if size < BLOCK_SIZE. */
     inline void* allocate(size_t size) {
         if (size <= blockSize) {
-            size_t useCount = newCount - delCount;
-            if (useCount < maxUseCount)
-                return queue[++newCount & queueMask];
-            if (useCount + MAX_CPU < queueSize) {
-                maxUseCount = useCount;
+            int useCount = newCount - delCount + MAX_CPU;
+            if (useCount < queueSize) {
+            	if (maxUseCount <= useCount) maxUseCount = ++useCount;
                 return queue[++newCount & queueMask];
             } // Else heap under-sized.
         } // Else size too big.
@@ -152,18 +147,19 @@ public:
         queue[++delCount & queueMask] = mem;
     }
 
-    /** Indicates if FastHeap is enabled. */
+    /** Indicates if fast heap allocations are enabled (false by default). */
     Type::boolean isEnabled() {
         return (blockSize != 0);
     }
 
-    /** Enables buffer allocations. If the heap minimum size is not set,
-     *  a default minimum heap size of 64 MBytes is used. */
+    /** Enables fast heap allocations. If the heap size is not set, a default heap size of 64 MBytes is used. */
     void enable() {
-        if (blockSize != 0)
-            return; // Already enabled.
-        if (queue == nullptr)
-            setHeapSize(64 * 1024 * 1024);
+        if (blockSize != 0) // Already enabled.
+            return;
+        if (queueSize == 0) // Size not set.
+            setSize(64 * 1024 * 1024);
+        systemHeapCount = 0;
+        maxUseCount = 0;
         blockSize = BLOCK_SIZE;
     }
 

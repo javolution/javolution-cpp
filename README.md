@@ -59,7 +59,7 @@ public:
         virtual void run() = 0;    
     }; 
     Runnable(Void = nullptr) {} // Default constructor (null) 
-    void run() { this_cast<Interface>()->run(); } // Default implementation (dynamic cast)
+    void run() { this_cast_<Interface>()->run(); } // Default implementation (dynamic cast)
 };
 ``` 
 
@@ -88,7 +88,7 @@ public:
             if (action != nullptr) action.run();
         }
     };
-    CTOR(Foo) // Foo default constructors (from null and Value*).
+    CTOR(Foo) // Foo constructors (for null and Value*).
         
     static Foo newInstance(
              const Runnable& action = nullptr,  // Default parameters values supported.

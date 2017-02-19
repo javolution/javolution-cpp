@@ -6,19 +6,20 @@
 
 #include "Javolution.hpp"
 #include "java/lang/RuntimeException.hpp"
-#include "java/lang/IllegalStateException.hpp"
+#include "java/lang/UnsupportedOperationException.hpp"
 #include "java/lang/IllegalArgumentException.hpp"
 
 using namespace java::lang;
 
-Type::FastHeap Type::FastHeap::INSTANCE = Type::FastHeap();
+Type::FastHeap Type::FastHeap::INSTANCE;
 
-void Type::FastHeap::setHeapSize(size_t size) {
-	if (queue != nullptr)
-		throw IllegalStateException("FastHeap size already set!");
+void Type::FastHeap::setSize(int size) {
+	if (size == queueSize) return;
+	if (queueSize != 0)
+		throw UnsupportedOperationException("FastHeap resizing not supported.");
 	bool isPowerOf2 = ((size != 0) && !(size & (size - 1)));
 	if (!isPowerOf2)
-		throw IllegalArgumentException(String::valueOf("Size: ") + ((Type::int64)size) + " not a power of 2!");
+		throw IllegalArgumentException("Size should be a power of two.");
 	queueSize = size;
 	queueMask = size - 1;
 	queue = new void*[size];
@@ -27,7 +28,7 @@ void Type::FastHeap::setHeapSize(size_t size) {
 	bufferFirst = &buffer[0];
 	bufferLast = &buffer[size - 1];
 
-	for (size_t i = 0; i < size; ++i) {
+	for (int i = 0; i < size; ++i) {
 		queue[i] = &buffer[i];
 	}
 }

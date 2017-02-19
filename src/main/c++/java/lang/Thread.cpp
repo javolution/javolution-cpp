@@ -11,19 +11,10 @@
 #include "java/lang/System.hpp"
 
 Type::atomic_count Thread::threadNumber(0);
+thread_local Thread Thread::Value::current = Thread::newInstance(nullptr, "Thread-Main");
 
 void Thread::Value::run() {
-    if (target != nullptr) {
-        try {
-            target.run();
-        } catch (Throwable& error) {
-            error.printStackTrace();
-        } catch (const std::exception& ex) {
-            System::err.println(String::valueOf("ERREUR : ") + ex.what());
-        } catch (...) {
-            System::err.println("Unknown C++ Error!");
-        }
-    }
+    if (target != nullptr) target.run();
 }
 
 #ifndef _WINDOWS
@@ -35,7 +26,9 @@ void Thread::Value::run() {
 extern "C" {
     void * MyThreadFunction(void* threadPtr) {
         try {
-            ((Thread::Value*) threadPtr)->run();
+        	Thread::Value* thisThread = ((Thread::Value*) threadPtr);
+            Thread::Value::current = thisThread;
+            thisThread->run();
         } catch (Throwable& error) {
             error.printStackTrace();
         } catch (const std::exception& ex) {
@@ -85,6 +78,7 @@ void Thread::sleep(long msec) {
 DWORD WINAPI MyThreadFunction(LPVOID lpParam) {
     try {
         Thread::Value* thisThread = (Thread::Value*) lpParam;
+        Thread::Value::current = thisThread;
         thisThread->run();
     } catch (Throwable& error) {
         error.printStackTrace();

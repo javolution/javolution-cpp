@@ -8,6 +8,7 @@
 #include "java/lang/Object.hpp"
 #include "java/lang/String.hpp"
 #include "java/lang/Runnable.hpp"
+#include "java/lang/ThreadLocal.hpp"
 
 namespace java {
 namespace lang {
@@ -30,6 +31,8 @@ public:
 		String name;
 		void* nativeThreadPtr;
 	public:
+		JAVOLUTION_DLL
+		static thread_local Thread current;
 
 		JAVOLUTION_DLL
 		Value(const Runnable& target = nullptr, const String& name = nullptr);
@@ -56,8 +59,15 @@ public:
 	 * Returns a thread having the specified target to be executed and the specified name.
 	 */
 	static Thread newInstance(const Runnable& target, const String& name = nullptr) {
-		String threadName = (name != nullptr) ? name : "Thread-" + ++threadNumber;
+		String threadName = (name != nullptr) ? name : "Thread-" + ++Thread::threadNumber;
 		return new Value(target, threadName);
+	}
+
+	/**
+	 * Returns a reference to the currently executing thread object.
+	 */
+	static Thread currentThread() {
+		return Thread::Value::current;
 	}
 
 	/**

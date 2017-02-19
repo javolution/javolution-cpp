@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include <cstring>
 #include "java/lang/Object.hpp"
 
 namespace java {
@@ -115,13 +116,14 @@ private:
         typedef BlockValue4 Outer;
     public:
 
-        static const size_t SIZE = Type::FastHeap::BLOCK_CAPACITY / sizeof(E);
+        static const size_t SIZE = Type::FastHeap::BLOCK_FREE_SIZE / sizeof(E);
         static const int SHIFT = (SIZE >= 256) ? 8 : (SIZE >= 128) ? 7 : (SIZE >= 64) ? 6 : (SIZE >= 32) ? 5 :
                                          (SIZE >= 16) ? 4 : (SIZE >= 8) ? 3 : 2;
         static const int MAX_CAPACITY = 1 << SHIFT;
         static const int MASK = MAX_CAPACITY - 1;
+        static const bool IS_FUNDAMENTAL = std::is_fundamental<E>::value;
 
-        E elements[1 << SHIFT];
+        E elements[MAX_CAPACITY];
 
         E& elementAt(int index) override {
             return elements[index];
@@ -132,13 +134,12 @@ private:
         }
 
         Value* setLength(int length) override {
-            static bool isFundamental = std::is_fundamental<E>::value;
             if (length > MAX_CAPACITY) {
                 Outer* outer = new Outer();
                 outer->blocks[0] = this;
                 return outer->setLength(length);
             }
-            if (!isFundamental) {
+            if (!IS_FUNDAMENTAL) {
                 E none {};
                 for (int i = length; i < MAX_CAPACITY;)
                     elements[i++] = none; // Ensures dereferencing of non-primitives types (e.g. Objects)
@@ -148,8 +149,12 @@ private:
 
         This* clone() const override {
             This* copy = new This();
-            for (int i=0; i < MAX_CAPACITY; ++i) {
-                copy->elements[i] = elements[i];
+            if (IS_FUNDAMENTAL) {
+            	std::memcpy(copy->elements, elements, MAX_CAPACITY * sizeof(E) );
+            } else {
+                for (int i=0; i < MAX_CAPACITY; ++i) {
+                    copy->elements[i] = elements[i];
+                }
             }
             return copy;
         }
