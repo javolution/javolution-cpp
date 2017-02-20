@@ -29,11 +29,10 @@ Java is fast, very fast, but Javolution C++, can make your Java code even faster
 - **Free** - JVM licensing for embedded systems can be problematic and expensive. It is not the case for Javolution which is free and always will be (MIT license). 
   
 For consistency and maintainability we follow the Java Style (http://geosoft.no/development/javastyle.html).
-The main difference with Java is that instances are usually created using factory methods (valueOf/newInstance).
 
 ```cpp
 String str = "Hello"; 
-StringBuilder sb = StringBuilder::newInstance(); 
+StringBuilder sb = new StringBuilder::Value(); 
 sb.append("Hell").append('o');
 Object obj = sb.toString();                       
 assert(obj.equals(str));
@@ -71,13 +70,17 @@ Parameters to constructors/functions are usually passed as 'const' references (c
 
 namespace org { namespace acme { // Package org::acme
 
-class Foo : public virtual Runnable { 
+class Foo : public virtual Runnable { // Pointer type.
 public:
-    class Value : public Object::Value, public virtual Runnable::Interface  {     
+    class Value : public Object::Value, public virtual Runnable::Interface  {  // Value type.
+ 
         Runnable action;
         String message;
+ 
     public:
-        Value(const Runnable& a, const String& m) : action(a), message(m) {}         
+    
+        Value(const Runnable& a = nullptr, const String& m = nullptr) 
+        : action(a), message(m) {}         
     
         virtual void setMessage(const String& msg) { 
             message = msg;
@@ -88,19 +91,14 @@ public:
             if (action != nullptr) action.run();
         }
     };
+    
     CTOR(Foo) // Foo constructors (for null and Value*).
         
-    static Foo newInstance(
-             const Runnable& action = nullptr,  // Default parameters values supported.
-             const String& message = nullptr) {
-        return new Value(action, message);
-    }
-
     void setMessage(const String& value) {  
         this_<Value>()->setMessage(value);
     }
     
-    void run() {  // Optional (inherited from Runnable), to avoid dynamic cast.
+    void run() {  // Optional (inherited from Runnable), here to avoid dynamic cast.
         this_<Value>()->run();
     }
 }; 
@@ -110,7 +108,7 @@ public:
 Here are some illustrative snippets of C++ source code
 
 ```cpp
-Foo foo = Foo::newInstance();
+Foo foo = new Foo::Value(); // Default parameters supported.
 foo.setMessage("Hello");
 foo.run(); // Prints "Hello"
 
@@ -167,9 +165,9 @@ In order to guarantee the worst case execution time, the size of the internal he
 ```cpp
 int main(int, char**) {
     
-    OSGi osgi = OSGi::newInstance();
+    OSGi osgi = new OSGi::Value();
     
-    JavolutionActivator javolution = JavolutionActivator::newInstance();
+    JavolutionActivator javolution = new JavolutionActivator::Value();
     javolution.setHeapSize(256 * 1024 * 1024); // 256 MBytes
     osgi.start(javolution);
     
