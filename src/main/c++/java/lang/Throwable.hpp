@@ -6,10 +6,9 @@
 #pragma once
 
 #include <exception>
-#include <booster/backtrace.hpp>
 #include "java/lang/String.hpp"
 
-#define LINE_INFO (*java::lang::StringBuilder::newInstance()).append("File: ").append((int)__FILE__).append(", Line: ").append((int)__LINE__).toString()
+#define LINE_INFO (String::valueOf("File: ") + __FILE__ + ", Line: " + __LINE__)
 
 namespace java {
 namespace lang {
@@ -22,7 +21,7 @@ namespace lang {
  *       Java - Throwable</a>
  * @version 7.0
  */
-class Throwable: public virtual Object::Interface, public booster::backtrace { // Value type.
+class Throwable: public virtual Object::Interface, public Type::Exception { // Value type.
 
 	String message;
 	String classname;
@@ -36,7 +35,6 @@ public:
 	/**
 	 * Prints this throwable and its backtrace to the standard error stream.
 	 */
-	JAVOLUTION_DLL
 	virtual void printStackTrace() const;
 
 	/**
@@ -49,13 +47,11 @@ public:
 	/**
 	 * Returns a short description of this throwable (classname + ": " + getMessage())
 	 */
-	JAVOLUTION_DLL
 	virtual String toString() const;
 
 	/**
 	 * Returns a null terminated character sequence that may be used to identify the exception (C++).
 	 */
-	JAVOLUTION_DLL
 	virtual const char* what() const throw ();
 };
 

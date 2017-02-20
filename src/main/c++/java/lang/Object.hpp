@@ -9,7 +9,6 @@
 #include "Javolution.hpp"
 #include "java/lang/Void.hpp"
 
-#define CTOR(CLASS) CLASS(Void = nullptr) {} CLASS(Value* value) : Object(value) {} // Object constructors pattern.
 using namespace java::lang; // Set default java::lang namespace (global setting).
 
 namespace java {
@@ -41,13 +40,11 @@ public:
     /**
      * Returns the runtime class of this object.
      */
-    JAVOLUTION_DLL
     virtual Class getClass() const;
 
     /**
      * Returns the string representation of this object.
      */
-    JAVOLUTION_DLL
     virtual String toString() const;
 
     /**
@@ -56,7 +53,6 @@ public:
      *
      * @throw UnsupportedOperationException if the class does not support synchronization (default).
      */
-    JAVOLUTION_DLL
     virtual Type::Mutex& monitor_() const;
 
 
@@ -81,8 +77,8 @@ friend class Object;
 
 public:
 
-    Object_Value() :
-            refCount(0) {
+    Object_Value() {
+        std::atomic_init(&refCount, 0);
     }
 
     /** Allocates new instances from FastHeap. */
@@ -103,13 +99,8 @@ public:
 // Standard Java exceptions.
 class Object_Exceptions {
 public:
-    JAVOLUTION_DLL
     static void throwNullPointerException();
-
-    JAVOLUTION_DLL
     static void throwArrayIndexOutOfBoundsException();
-
-    JAVOLUTION_DLL
     static void throwNegativeArraySizeException();
 };
 
@@ -122,7 +113,7 @@ public:
  */
 class Object : public virtual Object_Interface {
 
-    Object_Value* value; // The managed object.
+    Object_Value* valuePtr; // The managed object.
 
  public:
 
@@ -136,20 +127,20 @@ class Object : public virtual Object_Interface {
     typedef Object_Value Value;
 
     /** Default constructor */
-    Object(Void = nullptr) : value(nullptr) {
+    Object(Void = nullptr) : valuePtr(nullptr) {
     }
 
     /** Constructor for the specified value. */
-    Object(Value* value) : value(value) {
+    Object(Value* value) : valuePtr(value) {
         if (value != nullptr)
-            this->value->incRefCount();
+            value->incRefCount();
     }
 
     /** Copy constructor. */
     Object(const Object& that) :
-            value(that.value) {
-        if (value != nullptr)
-            value->incRefCount();
+            valuePtr(that.valuePtr) {
+        if (valuePtr != nullptr)
+            valuePtr->incRefCount();
     }
 
     /** Returns a new object instance. */
@@ -159,7 +150,7 @@ class Object : public virtual Object_Interface {
 
     /** Cast this object value to the specified type; returns nullptr if the cast is invalid.*/
     template<class T> T* cast_() const {
-        return dynamic_cast<T*>(value);
+        return dynamic_cast<T*>(valuePtr);
     }
 
     /**
@@ -168,9 +159,9 @@ class Object : public virtual Object_Interface {
      * @throw NullPointerException if this object value is null.
      */
     template<class T> T* this_() const {
-        if (value == nullptr)
+        if (valuePtr == nullptr)
             Object_Exceptions::throwNullPointerException();
-        return static_cast<T*>(value);
+        return static_cast<T*>(valuePtr);
     }
 
     /**
@@ -180,33 +171,31 @@ class Object : public virtual Object_Interface {
      * @throw NullPointerException if this object value is null.
      */
     template<class T> T* this_cast_() const {
-        if (value == nullptr)
+        if (valuePtr == nullptr)
             Object_Exceptions::throwNullPointerException();
-        return dynamic_cast<T*>(value);
+        return dynamic_cast<T*>(valuePtr);
     }
 
     bool equals(const Object& other) const override {
-        if (value == nullptr)
+        if (valuePtr == nullptr)
             Object_Exceptions::throwNullPointerException();
-        return value->equals(other);
+        return valuePtr->equals(other);
     }
 
     int hashCode() const override {
-        if (value == nullptr)
+        if (valuePtr == nullptr)
             Object_Exceptions::throwNullPointerException();
-        return value->hashCode();
+        return valuePtr->hashCode();
     }
 
-    JAVOLUTION_DLL
     Class getClass() const override;
 
-    JAVOLUTION_DLL
     String toString() const override;
 
     Type::Mutex& monitor_() const override {
-        if (value == nullptr)
+        if (valuePtr == nullptr)
             Object_Exceptions::throwNullPointerException();
-        return value->monitor_();
+        return valuePtr->monitor_();
     }
 
     //////////////////////////////////
@@ -224,37 +213,37 @@ class Object : public virtual Object_Interface {
     }
 
     Object& operator=(Void) {
-        if (value != nullptr)
-            if (value->decRefCount())
-                delete value;
-        value = nullptr;
+        if (valuePtr != nullptr)
+            if (valuePtr->decRefCount())
+                delete valuePtr;
+        valuePtr = nullptr;
         return *this;
     }
 
     ~Object() {
-        if (value != 0)
-            if (value->decRefCount())
-                delete value;
+        if (valuePtr != 0)
+            if (valuePtr->decRefCount())
+                delete valuePtr;
     }
 
     /** Returns the shared value managed by this object.*/
     Value* value_() const {
-        return value;
+        return valuePtr;
     }
 
     /** Replaces the value of this object without incrementing its reference count or decrementing the reference count
      *  of the previous value. This method is typically used to prevent cycles (instance referencing to itself or to
      *  one its container). */
     void value_(Value* newValue) {
-        value = newValue;
+        valuePtr = newValue;
     }
 
 private:
 
     void swap(Object& that) {
-        Value* tmp = value;
-        value = that.value;
-        that.value = tmp;
+        Value* tmp = valuePtr;
+        valuePtr = that.valuePtr;
+        that.valuePtr = tmp;
     }
 
 };
@@ -288,9 +277,7 @@ inline bool operator!=(const Object& obj1, const Object& obj2) {
 }
 
 // Stream operation.
-JAVOLUTION_DLL
 std::ostream& operator<<(std::ostream& os, const Object& that);
 
-JAVOLUTION_DLL
 std::wostream& operator<<(std::wostream& wos, const Object& that);
 

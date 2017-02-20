@@ -11,11 +11,8 @@
 #include <sstream>
 
 void Throwable::printStackTrace() const {
-    std::ostringstream res;
-    res.imbue(std::locale::classic());
-    res << toString() << std::endl;
-    res << booster::trace(*this);
-    System::err.println(String::valueOf(res.str()));
+    // TODO
+    System::err.println(*this);
 }
 
 String Throwable::toString() const {

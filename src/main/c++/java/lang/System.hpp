@@ -15,7 +15,6 @@ namespace lang {
 
 // TODO: Move to java.io.PrintStream
 class OutPrintStream: public Object {
-	JAVOLUTION_DLL
 	static const Class CLASS;
 public:
 
@@ -39,7 +38,6 @@ template<typename T> void println(T t) const {
 
 // TODO: Move to java.io.PrintStream
 class ErrPrintStream: public Object {
-	JAVOLUTION_DLL
 	static const Class CLASS;
 public:
 
@@ -76,11 +74,9 @@ class System {
 public:
 
 	/** Standard output stream. */
-	JAVOLUTION_DLL
 	static const OutPrintStream out;
 
 	/** Standard error stream. */
-	JAVOLUTION_DLL
 	static const ErrPrintStream err;
 
 	/**
