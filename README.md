@@ -133,30 +133,23 @@ System::out.println(list); //  [first, second, third, null]
 
 ### Usage
 
-The simplest way to use Javolution C++ is through Maven with the native plugin (http://www.mojohaus.org/maven-native/native-maven-plugin/) and the following dependencies in your pom.xml (for a pom.xml example you may look at the javolution-cpp-test repository).
-Three major platforms are supported: Windows (Visual C++), Linux (gcc) and Solaris (CC).
+The simplest way to use the Javolution C++ static library is through Maven with the native plugin (http://www.mojohaus.org/maven-native/native-maven-plugin/) with the following dependencies (for an example of pom.xml to build an executable check out the javolution-cpp-test project).
+Two popular platforms are supported: Windows (Visual C++) and Linux (gcc).
 
 ```
     <dependencies>
         <dependency>
             <groupId>org.javolution</groupId>
-            <artifactId>libjavolution</artifactId>
-            <version>1.0.0</version>
+            <artifactId>javolution</artifactId>
+            <version>7.0.0</version>
             <type>inczip</type>  <!-- Headers (.hpp) compilation dependency -->
         </dependency>
         <dependency>
             <groupId>org.javolution</groupId>
-            <artifactId>libjavolution</artifactId>
-            <version>1.0.0</version>
-            <type>${compile.dependency.type}</type> <!-- Linked library dependency (.lib on Windows) -->
-            <classifier>${compile.dependency.classifier}</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.javolution</groupId>
-            <artifactId>libjavolution</artifactId>
-            <version>1.0.0</version>
-            <type>${runtime.dependency.type}</type> <!-- Runtime dependency (.dll on Windows) -->
-            <classifier>${runtime.dependency.classifier}</classifier>
+            <artifactId>javolution</artifactId>
+            <version>7.0.0</version>
+            <type>lib</type> <!-- Static library dependency -->
+            <classifier>${native.classifier}</classifier> <!-- linux, win32, win64 -->
         </dependency>
 ```
 
