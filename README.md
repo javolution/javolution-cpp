@@ -133,8 +133,7 @@ System::out.println(list); //  [first, second, third, null]
 
 ### Usage
 
-The simplest way to use the Javolution C++ static library is through Maven with the native plugin (http://www.mojohaus.org/maven-native/native-maven-plugin/) with the following dependencies (for an example of pom.xml to build an executable check out the javolution-cpp-test project).
-Two popular platforms are supported: Windows (Visual C++) and Linux (gcc).
+The simplest way to use the Javolution C++ static library is through Maven with the native plugin (http://www.mojohaus.org/maven-native/native-maven-plugin/) with the following dependencies in your pom.xml (see javolution-cpp-test project for an example how to build an executable). Windows (Visual C++) and Linux (gcc) compilations will be supported with no change in your code (write once, run everywhere principle).
 
 ```
     <dependencies>
