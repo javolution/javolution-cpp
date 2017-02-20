@@ -12,7 +12,7 @@ Java is fast, very fast, but Javolution C++, can make your Java code even faster
     - With Javolution small immutable objects (such as Boolean, Char, Integer, Double) are allocated on the stack instead of the heap (they are manipulated by value). 
     - All Java parameterized classes (e.g. collections/maps) are true C++ templates (no syntactic sugar). 
     - Javolution does not need a garbage collector, memory management is done internally by smart pointers through reference counting.
-    - Javolution uses a lock-free / fixed-size memory allocator (Object::HEAP) which if correctly sized allows your application to run significantly faster (5-10x) without jitter.
+    - Javolution uses a lock-free / fixed-size memory allocator (Type::FastHeap) which if correctly sized allows your application to run significantly faster (5-10x) without jitter.
 
 - **Real-Time** - Since Javolution C++ is a port of Javolution Real-Time classes, it exhibits the same real-time characteristics (even better since there is no jitter caused by JIT compilation, class loading/initialization or heap allocations).
 
@@ -24,7 +24,7 @@ Java is fast, very fast, but Javolution C++, can make your Java code even faster
 
 - **Maven-Based** - Javolution C++ can be used through Maven (available from Maven central).
 
-- **Portable** - Any application based on Javolution C++ can be compiled without modification on Linux POSIX, Solaris and Visual C++ (as long as the compiler supports most common C++11 features).
+- **Portable** - Any application based on Javolution C++ can be compiled without modification on Linux POSIX and Visual C++ (as long as the compiler supports most common C++11 features).
 
 - **Free** - JVM licensing for embedded systems can be problematic and expensive. It is not the case for Javolution which is free and always will be (MIT license). 
   
@@ -123,7 +123,7 @@ bool equals(const Foo& that) const {
      return (message == nullptr) ? (that.message == nullptr) : message.equals(that.message);
 } 
 
-List<String> list = FastTable<String>::newInstance(); 
+List<String> list = FastTable<String>::newTable(); 
 list.add("first");                                  
 list.add("second");
 list.add("third");
