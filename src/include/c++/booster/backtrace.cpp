@@ -53,6 +53,7 @@
 
 #if defined(BOOSTER_MSVC)
 #include <stdlib.h>
+#pragma warning(disable: 4091) //  Warning in dbghelp.h
 #include <dbghelp.h>
 #endif
 

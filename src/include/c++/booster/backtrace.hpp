@@ -35,7 +35,7 @@ namespace booster {
             if(frames_no == 0)
                 return;
             frames_.resize(frames_no,0);
-            int size = stack_trace::trace(&frames_.front(),frames_no);
+            int size = stack_trace::trace(&frames_.front(),(int) frames_no);
             frames_.resize(size);
         }
 
@@ -72,14 +72,14 @@ namespace booster {
         {
             if(frames_.empty())
                 return std::string();
-            return stack_trace::get_symbols(&frames_.front(),frames_.size());
+            return stack_trace::get_symbols(&frames_.front(),(int) frames_.size());
         }
 
         void trace(std::ostream &out) const
         {
             if(frames_.empty())
                 return;
-            stack_trace::write_symbols(&frames_.front(),frames_.size(),out);
+            stack_trace::write_symbols(&frames_.front(),(int) frames_.size(),out);
         }
 
     private:
