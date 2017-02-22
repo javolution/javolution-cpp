@@ -7,6 +7,7 @@
 
 #include <exception>
 #include "java/lang/String.hpp"
+#include "booster/backtrace.hpp"
 
 #define LINE_INFO (String::valueOf("File: ") + __FILE__ + ", Line: " + __LINE__)
 
@@ -21,7 +22,7 @@ namespace lang {
  *       Java - Throwable</a>
  * @version 7.0
  */
-class Throwable: public virtual Object::Interface, public Type::Exception { // Value type.
+class Throwable: public booster::backtrace, public virtual Object::Interface  { // Value type.
 
 	String message;
 	String classname;
@@ -30,6 +31,10 @@ public:
 
 	Throwable(const String& message = nullptr, const String& classname = "java::lang::Throwable") :
 			message(message), classname(classname) {
+	   //     std::ostringstream res;
+	   //     res.imbue(std::locale::classic());
+	   //     res << _message << std::endl;
+	        std::cerr << booster::trace(*this) << std::endl << std::flush;;
 	}
 
 	/**
