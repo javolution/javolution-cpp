@@ -5,10 +5,8 @@
  */
 #pragma once
 
-#include "java/lang/Object.hpp"
 #include "java/lang/String.hpp"
 #include "java/lang/Runnable.hpp"
-#include "java/lang/ThreadLocal.hpp"
 
 namespace java {
 namespace lang {
