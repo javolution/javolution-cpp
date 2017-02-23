@@ -20,7 +20,8 @@ namespace lang {
  */
 class Thread: public virtual Runnable {
 
-	JAVOLUTION_DLL
+    static const Thread MAIN; // The main thread.
+
 	static Type::atomic_count threadNumber; // Autonumbering anonymous threads.
 
 public:
@@ -29,22 +30,16 @@ public:
 		String name;
 		void* nativeThreadPtr;
 	public:
-		JAVOLUTION_DLL
-		static thread_local Thread current;
+		static thread_local Thread::Value* current;
 
-		JAVOLUTION_DLL
 		Value(const Runnable& target = nullptr, const String& name = nullptr);
 
-		JAVOLUTION_DLL
 		virtual void start();
 
-		JAVOLUTION_DLL
 		virtual void join();
 
-		JAVOLUTION_DLL
 		virtual void run() override;
 
-		JAVOLUTION_DLL
 		~Value() override;
 
 		String getName() {
@@ -64,8 +59,9 @@ public:
 	/**
 	 * Returns a reference to the currently executing thread object.
 	 */
-	static Thread currentThread() {
-		return Thread::Value::current;
+	static const Thread currentThread() {
+	    Thread::Value* thread = Thread::Value::current;
+	    return thread != nullptr ? thread : Thread::MAIN;
 	}
 
 	/**
@@ -105,7 +101,6 @@ public:
 	 * milliseconds, subject to the precision and accuracy of system timers and schedulers. The thread
 	 * does not lose ownership of any monitors.
 	 */
-	JAVOLUTION_DLL
 	static void sleep(long millis);
 };
 

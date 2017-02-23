@@ -6,10 +6,10 @@
 #pragma once
 
 #include <exception>
-#include <booster/backtrace.hpp>
 #include "java/lang/String.hpp"
+#include "booster/backtrace.hpp"
 
-#define LINE_INFO (*java::lang::StringBuilder::newInstance()).append("File: ").append((int)__FILE__).append(", Line: ").append((int)__LINE__).toString()
+#define LINE_INFO (String::valueOf("File: ") + __FILE__ + ", Line: " + __LINE__)
 
 namespace java {
 namespace lang {
@@ -22,7 +22,7 @@ namespace lang {
  *       Java - Throwable</a>
  * @version 7.0
  */
-class Throwable: public virtual Object::Interface, public booster::backtrace { // Value type.
+class Throwable: public booster::backtrace, public virtual Object::Interface  { // Value type.
 
 	String message;
 	String classname;
@@ -31,12 +31,15 @@ public:
 
 	Throwable(const String& message = nullptr, const String& classname = "java::lang::Throwable") :
 			message(message), classname(classname) {
+	   //     std::ostringstream res;
+	   //     res.imbue(std::locale::classic());
+	   //     res << _message << std::endl;
+	        std::cerr << booster::trace(*this) << std::endl << std::flush;;
 	}
 
 	/**
 	 * Prints this throwable and its backtrace to the standard error stream.
 	 */
-	JAVOLUTION_DLL
 	virtual void printStackTrace() const;
 
 	/**
@@ -49,13 +52,11 @@ public:
 	/**
 	 * Returns a short description of this throwable (classname + ": " + getMessage())
 	 */
-	JAVOLUTION_DLL
 	virtual String toString() const;
 
 	/**
 	 * Returns a null terminated character sequence that may be used to identify the exception (C++).
 	 */
-	JAVOLUTION_DLL
 	virtual const char* what() const throw ();
 };
 

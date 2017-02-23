@@ -19,10 +19,10 @@
 namespace booster {
 
     namespace stack_trace {
-        BOOSTER_API int trace(void **addresses,int size);
-        BOOSTER_API void write_symbols(void *const *addresses,int size,std::ostream &);
-        BOOSTER_API std::string get_symbol(void *address);
-        BOOSTER_API std::string get_symbols(void * const *address,int size);
+        int trace(void **addresses,int size);
+        void write_symbols(void *const *addresses,int size,std::ostream &);
+        std::string get_symbol(void *address);
+        std::string get_symbols(void * const *address,int size);
     } // stack_trace
 
     class backtrace {
@@ -35,7 +35,7 @@ namespace booster {
             if(frames_no == 0)
                 return;
             frames_.resize(frames_no,0);
-            int size = stack_trace::trace(&frames_.front(),frames_no);
+            int size = stack_trace::trace(&frames_.front(),(int) frames_no);
             frames_.resize(size);
         }
 
@@ -72,92 +72,19 @@ namespace booster {
         {
             if(frames_.empty())
                 return std::string();
-            return stack_trace::get_symbols(&frames_.front(),frames_.size());
+            return stack_trace::get_symbols(&frames_.front(),(int) frames_.size());
         }
 
         void trace(std::ostream &out) const
         {
             if(frames_.empty())
                 return;
-            stack_trace::write_symbols(&frames_.front(),frames_.size(),out);
+            stack_trace::write_symbols(&frames_.front(),(int) frames_.size(),out);
         }
 
     private:
         std::vector<void *> frames_;
     };
-
-    /*
-    class exception : public std::exception, public backtrace {
-    public:
-    };
-
-    class bad_cast : public std::bad_cast, public backtrace {
-    public:
-    };
-
-    class runtime_error: public std::runtime_error, public backtrace {
-    public:
-        explicit runtime_error(std::string const &s) : std::runtime_error(s)
-        {
-        }
-    };
-
-    class range_error: public std::range_error, public backtrace {
-    public:
-        explicit range_error(std::string const &s) : std::range_error(s)
-        {
-        }
-    };
-
-    class overflow_error: public std::overflow_error, public backtrace {
-    public:
-        explicit overflow_error(std::string const &s) : std::overflow_error(s)
-        {
-        }
-    };
-
-    class underflow_error: public std::underflow_error, public backtrace {
-    public:
-        explicit underflow_error(std::string const &s) : std::underflow_error(s)
-        {
-        }
-    };
-
-    class logic_error: public std::logic_error, public backtrace {
-    public:
-        explicit logic_error(std::string const &s) : std::logic_error(s)
-        {
-        }
-    };
-
-    class domain_error: public std::domain_error, public backtrace {
-    public:
-        explicit domain_error(std::string const &s) : std::domain_error(s)
-        {
-        }
-    };
-
-    class length_error: public std::length_error, public backtrace {
-    public:
-        explicit length_error(std::string const &s) : std::length_error(s)
-        {
-        }
-    };
-
-    class invalid_argument : public std::invalid_argument, public backtrace {
-    public:
-        explicit invalid_argument(std::string const &s) : std::invalid_argument(s)
-        {
-        }
-    };
-
-    class out_of_range : public std::out_of_range, public backtrace {
-    public:
-        explicit out_of_range(std::string const &s) : std::out_of_range(s)
-        {
-        }
-    };
-    */
 
     namespace details {
         class trace_manip {

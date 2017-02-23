@@ -36,16 +36,12 @@ public:
 		bool immutable = false; // Becomes immutable after toString() is called since the array will be shared.
 	public:
 
-		JAVOLUTION_DLL
 		StringBuilder append(Type::wchar wc);
 
-		JAVOLUTION_DLL
 		StringBuilder append(const String& str);
 
-		JAVOLUTION_DLL
 		StringBuilder append(const char* chars);
 
-		JAVOLUTION_DLL
 		StringBuilder append(const Type::wchar* chars);
 
 		Type::wchar charAt(int index) const override {

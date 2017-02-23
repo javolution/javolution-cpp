@@ -7,7 +7,8 @@
 
 #include <cstdint>
 #include <atomic>
-#include "boost/detail/lightweight_mutex.hpp"
+#include <mutex>
+#include <exception>
 
 #if defined(_WIN32) || defined(_WIN64) || defined __CYGWIN__
 #define _WINDOWS
@@ -20,32 +21,8 @@
 #define _DEPRECATED(text) __attribute__ ((deprecated(#text)))
 #endif
 
-// Generic helper definitions for shared library support, ref. http://gcc.gnu.org/wiki/Visibility
-// For gcc compilations the option  -fvisibility=hidden and -fvisibility-inlines-hidden
-// should be used to export only symbols explicitly marked as *_DLL
-#if defined _WINDOWS
-#define HELPER_DLL_IMPORT __declspec(dllimport)
-#define HELPER_DLL_EXPORT __declspec(dllexport)
-#else
-#if __GNUC__ >= 4
-#define HELPER_DLL_IMPORT __attribute__ ((visibility("default")))
-#define HELPER_DLL_EXPORT __attribute__ ((visibility("default")))
-#else
-#define HELPER_DLL_IMPORT
-#define HELPER_DLL_EXPORT
-#endif
-#endif
-
-// Now we use the generic helper definitions above to define JAVOLUTION_DLL (components using the JAVOLUTION can do the same).
-#ifndef JAVOLUTION_DLL // Only if there is no user override (e.g. static build).
-#ifdef JAVOLUTION_DLL_EXPORT // The JAVOLUTION DLL is being built.
-#define JAVOLUTION_DLL HELPER_DLL_EXPORT
-#else // The JAVOLUTION DLL is being used.
-#define JAVOLUTION_DLL HELPER_DLL_IMPORT
-#endif
-#endif
-
-#define CTOR(CLASS) CLASS(Void = nullptr) {} CLASS(Value* value) : Object(value) {}
+#define CTOR(CLASS) CLASS(Void = nullptr) {} CLASS(Value* value) : Object(value) {} // Object constructors pattern.
+#define synchronized(obj) for(Type::Lock lock_(obj.monitor_()); lock_; lock_.setUnlock())
 
 namespace Type {
 
@@ -60,6 +37,8 @@ typedef std::int16_t int16;
 typedef std::int32_t int32; // Should be the same as 'int'
 typedef std::int64_t int64;
 typedef std::atomic_int atomic_count; // No Mutex on 32-bits hardware.
+typedef std::recursive_mutex Mutex;
+typedef std::exception Exception;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Define Lock-free heap of fixed-size blocks. Real-time systems should ensure that no heap allocation exceeding
@@ -73,7 +52,7 @@ class FastHeap {
     struct Block { // Capable of holding 16 pointers (size of 64/128 bytes on 32/64 bits systems) plus reference count.
         Type::atomic_count refCount;
         void* addresses[MAX_HANDLES];
-        Block() : refCount(0) {}
+        Block() {}
     };
 
     Type::atomic_count newCount; // Number of block allocated minus one.
@@ -92,13 +71,15 @@ class FastHeap {
     int maxUseCount = 0;
 
 public:
-    FastHeap() : newCount(-1), delCount(-1) {}
+    FastHeap() {
+        std::atomic_init(&newCount, -1);
+        std::atomic_init(&delCount, -1);
+    }
 
     /** The free block capacity in bytes (excludes reference count member). */
     static const size_t BLOCK_FREE_SIZE = MAX_HANDLES * sizeof(void*);
 
     /** The global instance. */
-    JAVOLUTION_DLL
     static FastHeap INSTANCE;
 
     /** The maximum number of CPUs accessing a fast heap instance simultaneously (32). */
@@ -108,7 +89,6 @@ public:
     static const size_t BLOCK_SIZE = sizeof(Block);
 
     /** Sets the number of blocks managed by this heap (should be a power of 2).*/
-    JAVOLUTION_DLL
     void setSize(int size);
 
     /** Returns the number of blocks managed by this heap (memory usage is: size * BLOCK_MEMORY). */
@@ -179,54 +159,34 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
-/// Define the synchronized keyword implemented using boost mutexes.
+/// Define the synchronized keyword implemented using mutex
 // See http://www.codeproject.com/KB/threads/cppsyncstm.aspx
 // The synchronized parameter should be an object having the monitor_()
 // method implemented (e.g. collection classes).
 // The synchronized macro is exception-safe, since it unlocks its mutex upon destruction.
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef _WINDOWS // Use boost lightweight mutex implementation.
-typedef boost::detail::lightweight_mutex Mutex;
-
-class ScopedLock : public boost::detail::lightweight_mutex::scoped_lock {
+class Lock {
+    Mutex &m_mutex;
+    bool m_locked;
 public:
-
-    explicit ScopedLock(Mutex& m) : boost::detail::lightweight_mutex::scoped_lock(m) {
-        isLocked = true;
+    Lock(Mutex &mutex) : m_mutex(mutex), m_locked(true)  {
+        mutex.lock();
     }
-    bool isLocked;
+
+    ~Lock() {
+        m_mutex.unlock();
+    }
+
+    operator bool () const {
+        return m_locked;
+    }
+
+    void setUnlock() {
+        m_locked = false;
+    }
 };
-#else  // We cannot use boost lightweight mutex because non-recursive.
-
-class ScopedLock;
-
-class Mutex {
-    friend class ScopedLock;
-public:
-    JAVOLUTION_DLL
-    Mutex();JAVOLUTION_DLL
-    ~Mutex();
-private:
-    pthread_mutex_t mutex;
-    pthread_mutexattr_t attr;
-};
-
-class ScopedLock {
-public:
-    JAVOLUTION_DLL
-    explicit ScopedLock(Mutex& m);
-
-    JAVOLUTION_DLL
-    ~ScopedLock();
-
-    bool isLocked;
-private:
-    pthread_mutex_t& mutex;
-};
-#endif
 
 } // End Type::
 
-#define synchronized(obj) for(Type::ScopedLock lock_(obj.monitor_()); lock_.isLocked; lock_.isLocked=false)
 

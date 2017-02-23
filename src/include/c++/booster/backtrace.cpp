@@ -53,6 +53,7 @@
 
 #if defined(BOOSTER_MSVC)
 #include <stdlib.h>
+#pragma warning(disable: 4091) //  Warning in dbghelp.h
 #include <dbghelp.h>
 #endif
 
@@ -257,7 +258,7 @@ namespace booster {
                 pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
                 pSymbol->MaxNameLen = MAX_SYM_NAME;
 
-                if (SymFromAddr(hProcess, dwAddress, &dwDisplacement, pSymbol))
+        if (SymFromAddr(hProcess, dwAddress, &dwDisplacement, pSymbol))
                 {
                     ss <<": " << pSymbol->Name << std::hex << " +0x" << dwDisplacement;
                 }

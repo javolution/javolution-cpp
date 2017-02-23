@@ -38,13 +38,13 @@ Type::Mutex& Object_Interface::monitor_() const {
 }
 
 Class Object::getClass() const {
-      if (value == nullptr) throw NullPointerException();
-      return value->getClass();
+      if (valuePtr == nullptr) throw NullPointerException();
+      return valuePtr->getClass();
 }
 
 String Object::toString() const {
-    if (value == nullptr) throw NullPointerException();
-    return value->toString();
+    if (valuePtr == nullptr) throw NullPointerException();
+    return valuePtr->toString();
 }
 
 void Object_Exceptions::throwNullPointerException()  {

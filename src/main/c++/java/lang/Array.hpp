@@ -121,7 +121,6 @@ private:
                                          (SIZE >= 16) ? 4 : (SIZE >= 8) ? 3 : 2;
         static const int MAX_CAPACITY = 1 << SHIFT;
         static const int MASK = MAX_CAPACITY - 1;
-        static const bool IS_FUNDAMENTAL = std::is_fundamental<E>::value;
 
         E elements[MAX_CAPACITY];
 
@@ -139,7 +138,8 @@ private:
                 outer->blocks[0] = this;
                 return outer->setLength(length);
             }
-            if (!IS_FUNDAMENTAL) {
+            bool isFundamental = std::is_fundamental<E>::value;
+            if (!isFundamental) {
                 E none {};
                 for (int i = length; i < MAX_CAPACITY;)
                     elements[i++] = none; // Ensures dereferencing of non-primitives types (e.g. Objects)
@@ -149,7 +149,8 @@ private:
 
         This* clone() const override {
             This* copy = new This();
-            if (IS_FUNDAMENTAL) {
+            bool isFundamental = std::is_fundamental<E>::value;
+            if (isFundamental) {
             	std::memcpy(copy->elements, elements, MAX_CAPACITY * sizeof(E) );
             } else {
                 for (int i=0; i < MAX_CAPACITY; ++i) {

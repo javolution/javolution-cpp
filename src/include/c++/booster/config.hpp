@@ -10,10 +10,6 @@
 #ifndef BOOSTER_CONFIG_HPP
 #define BOOSTER_CONFIG_HPP
 
-#include "Javolution.hpp"
-
-#define BOOSTER_API JAVOLUTION_DLL
-
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32)) && !defined(__CYGWIN__)
 #define BOOSTER_WIN_NATIVE
 #endif

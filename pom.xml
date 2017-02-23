@@ -1,189 +1,163 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- ======================================================================= The Javolution Project, http://javolution.org 
-    ======================================================================= -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <!-- ============================== -->
-    <!-- GitHub configuration -->
-    <!-- ============================== -->
-    <scm>
-        <url>https://github.com/javolution/javolution-cpp</url>
-        <connection>scm:git:git://github.com/javolution/javolution-cpp</connection>
-        <developerConnection>scm:git:git@github.com:javolution/javolution-cpp.git</developerConnection>
-    </scm>
-    <issueManagement>
-        <url>https://github.com/javolution/javolution-cpp/issues</url>
-        <system>GitHub Issues</system>
-    </issueManagement>
-    <!-- ==================================================== -->
-    <!-- Project description (including license) -->
-    <!-- ==================================================== -->
-    <groupId>org.javolution</groupId>
-    <artifactId>libjavolution</artifactId>
-    <packaging>${native.dll}</packaging>
-    <version>7.0.0-SNAPSHOT</version>
-    <name>Javolution C++</name>
-    <url>http://javolution.org</url>
-    <description>Javolution C++ (java-like) Mirror 
-        This library includes a port of java standard classes and interfaces (java.lang/java.util)
-        making it easy to convert standard Java code to C++. A port of OSGi and JUnit is also provided.
-        On Windows, the C++ module require Visual Studio to be installed (see link below).        
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<!-- ==================== -->
+	<!-- GitHub configuration -->
+	<!-- ==================== -->
+
+	<scm>
+		<url>https://github.com/javolution/javolution-cpp</url>
+		<connection>scm:git:git://github.com/javolution/javolution-cpp</connection>
+		<developerConnection>scm:git:git@github.com:javolution/javolution-cpp.git</developerConnection>
+	</scm>
+
+	<issueManagement>
+		<url>https://github.com/javolution/javolution-cpp/issues</url>
+		<system>GitHub Issues</system>
+	</issueManagement>
+
+	<!-- ======================================= -->
+	<!-- Project description (including license) -->
+	<!-- ======================================= -->
+
+	<groupId>org.javolution</groupId>
+	<artifactId>javolution</artifactId>
+	<version>7.0.0-SNAPSHOT</version>
+
+	<packaging>lib</packaging>
+	<name>Javolution C++</name>
+	<url>http://javolution.org</url>
+	<description>Javolution C++ Mirror Library. 
+        Includes a port of Java standard classes and interfaces making it easy to convert any Java code to C++11. 
+        Supports Linux and Windows platforms. On Windows, Visual Studio 2015 needs to be installed 
+        (free at https://www.visualstudio.com/vs/community/)
     </description>
-    <licenses>
-        <license>
-            <name>MIT License</name>
-            <url>https://github.com/javolution/javolution-cpp/blob/master/LICENSE</url>
-        </license>
-    </licenses>
-    <organization>
-        <name>Javolution</name>
-        <url>http://javolution.org</url>
-    </organization>
-    <inceptionYear>2005</inceptionYear>
-    <!-- ======================================================= -->
-    <!-- Properties setting -->
-    <!-- ======================================================= -->
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-    <!-- ======================================================= -->
-    <!-- Native compiler options (platform based) -->
-    <!-- ======================================================= -->
-    <profiles>
-        <profile>
-            <id>windows</id>
-            <activation>
-                <os>
-                    <family>windows</family>
-                </os>
-            </activation>
-            <properties>
-                <native.classifier>win32</native.classifier>
-                <native.dll>dll</native.dll> <!-- Default -->
-                <native.compilerConcurrency>1</native.compilerConcurrency>  <!-- Bug in Visual Studio 2013 for parallel compilations -->
-                <!-- Only maven dependencies to dynamic libraries are supported since we build either a dynamic library or 
-                    an executable. -->
-                <compile.dependency.type>lib</compile.dependency.type>
-                <compile.dependency.classifier /> <!-- No classifier for .lib secondary artifact of dll -->
-                <runtime.dependency.type>dll</runtime.dependency.type>
-                <runtime.dependency.classifier>win32</runtime.dependency.classifier>
-                <!-- Microsoft Visual Studio Community 2013 can be installed free of charge from: 
-                     https://www.visualstudio.com/en-us/news/vs2013-community-vs.aspx -->
-                <native.compilerProvider>msvc</native.compilerProvider>
-                <native.envFactoryName>org.codehaus.mojo.natives.msvc.MSVC2013x86EnvFactory</native.envFactoryName>
-                <native.compilerExecutable />
-                <native.linkerProvider>msvc</native.linkerProvider>
-                <native.linkerExecutable />
-                <native.linkerSecondaryOutputExtensions>lib</native.linkerSecondaryOutputExtensions>
-                <native.define>/D</native.define>
-                <!-- On windows the stack trace is only available for code compiled with optimization disabled -->
-                <native.dll.compilerOptions>/EHsc /TP /W4 /Od /Zi /Fd${project.artifactId} /MDd /DLL</native.dll.compilerOptions>
-                <native.dll.linkerOptions>/DEBUG /DLL</native.dll.linkerOptions>
-                <!-- On windows to build the javolution dll we link with DbgHelp.Lib to get backtrace working. -->
-                <native.javolution.linkerOptions>${project.basedir}\lib\windows\DbgHelp.Lib</native.javolution.linkerOptions>
-            </properties>
-        </profile>
-        <profile> <!-- On linux we have to include libdl -->
-            <id>linux</id>
-            <activation>
-                <os>
-                    <family>unix</family>
-                </os>
-            </activation>
-            <properties>
-                <native.classifier>linux</native.classifier>
-                <native.dll>so</native.dll> <!-- Default -->
-                <native.compilerConcurrency>16</native.compilerConcurrency>
-                <!-- Only maven dependencies to dynamic libraries are supported since we build either a dynamic library (default) 
-                    or an executable. -->
-                <compile.dependency.type>so</compile.dependency.type>
-                <compile.dependency.classifier>linux</compile.dependency.classifier>
-                <runtime.dependency.type>so</runtime.dependency.type>
-                <runtime.dependency.classifier>linux</runtime.dependency.classifier>
-                <native.envFactoryName />
-                <native.compilerProvider>generic</native.compilerProvider>
-                <native.compilerExecutable>g++</native.compilerExecutable>
-                <native.linkerProvider>generic</native.linkerProvider>
-                <native.linkerExecutable>g++</native.linkerExecutable>
-                <native.linkerSecondaryOutputExtensions />
-                <native.define>-D</native.define>
-                <native.dll.compilerOptions>-Wall -O2 -g -fPIC -std=c++11</native.dll.compilerOptions>
-                <native.dll.linkerOptions>-pthread -rdynamic -shared</native.dll.linkerOptions> <!-- Option -rdynamic to obtains backtrace -->
-                <!-- On linux to build javolution we link with the debug library to get backtrace working. -->
-                <native.javolution.linkerOptions>-ldl</native.javolution.linkerOptions>
-            </properties>
-        </profile>
-    </profiles>
-    <build>
-        <plugins>
-            <!-- ======================================== -->
-            <!-- Native Plugin Configuration (DLL) -->
-            <!-- ======================================== -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>native-maven-plugin</artifactId>
-                <version>1.0-alpha-8</version>
-                <extensions>true</extensions>
-                <configuration> <!-- Default configuration for a dynamic library -->
-                    <classifier>${native.classifier}</classifier>
-                    <workingDirectory>${project.build.directory}/${native.classifier}</workingDirectory>
-                    <compilerOutputDirectory>${project.build.directory}/${native.classifier}/objs</compilerOutputDirectory>
-                    <linkerOutputDirectory>${project.build.directory}/${native.classifier}</linkerOutputDirectory>
-                    <externalLibDirectory>${project.build.directory}/${native.classifier}</externalLibDirectory>
-                    <envFactoryName>${native.envFactoryName}</envFactoryName>
-                    <numberOfConcurrentCompilation>${native.compilerConcurrency}</numberOfConcurrentCompilation>
-                    <compilerProvider>${native.compilerProvider}</compilerProvider>
-                    <compilerExecutable>${native.compilerExecutable}</compilerExecutable>
-                    <linkerProvider>${native.linkerProvider}</linkerProvider>
-                    <linkerExecutable>${native.linkerExecutable}</linkerExecutable>
-                    <linkerStartOptions>
-                        <linkerStartOption>${native.dll.linkerOptions}</linkerStartOption>
-                    </linkerStartOptions>
-                    <linkerEndOptions>
-                        <linkerEndOption>${native.javolution.linkerOptions}</linkerEndOption>
-                    </linkerEndOptions>
-                    <linkerSecondaryOutputExtensions>${native.linkerSecondaryOutputExtensions}</linkerSecondaryOutputExtensions>
-                    <!-- ========================= -->
-                    <!-- Project Specific Settings -->
-                    <!-- ========================= -->
-                    <compilerStartOptions>
-                        <compilerStartOption>${native.dll.compilerOptions}</compilerStartOption>
-                        <compilerStartOption>${native.define}JAVOLUTION_DLL_EXPORT</compilerStartOption>
-                        <compilerStartOption>${native.define}JAVOLUTION_VERSION=\"${project.version}-${native.classifier}\"</compilerStartOption>
-                    </compilerStartOptions>
-                    <sources>
-                        <source>
-                            <directory>${project.basedir}/src/include/c++</directory>
-                            <includes>
-                                <include>**/*.cpp</include>
-                            </includes>
-                        </source>
-                        <source>
-                            <directory>${project.basedir}/src/main/c++</directory>
-                            <includes>
-                                <include>**/*.cpp</include>
-                            </includes>
-                        </source>
-                        <source>
-                            <directory>${project.basedir}/src/include/c++</directory>
-                            <deployable>true</deployable>
-                        </source>
-                        <source>
-                            <directory>${project.basedir}/src/main/c++</directory>
-                            <deployable>true</deployable>
-                        </source>
-                    </sources>
-                </configuration>
-            </plugin>
-            <!-- ======================================================= -->
-            <!-- Deployement Configuration -->
-            <!-- ======================================================= -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
-            </plugin>
-        </plugins>
-    </build>
+
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>https://github.com/javolution/javolution-cpp/blob/master/LICENSE</url>
+		</license>
+	</licenses>
+
+	<build>
+		<plugins>
+
+			<!-- ================================= -->
+			<!-- Native Plugin Configuration (LIB) -->
+			<!-- ================================= -->
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>native-maven-plugin</artifactId>
+				<version>1.0-alpha-8</version>
+				<extensions>true</extensions>
+				<dependencies>
+					<dependency> <!-- Provides MSVC 2015 environment on Windows -->
+						<groupId>org.javolution</groupId>
+						<artifactId>javolution</artifactId>
+						<version>${project.version}</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<classifier>${native.classifier}</classifier>
+					<workingDirectory>${project.build.directory}/${native.classifier}</workingDirectory>
+					<compilerOutputDirectory>${project.build.directory}/${native.classifier}/objs</compilerOutputDirectory>
+					<linkerOutputDirectory>${project.build.directory}/${native.classifier}</linkerOutputDirectory>
+					<compilerProvider>${native.compilerProvider}</compilerProvider>
+					<envFactoryName>${native.envFactoryName}</envFactoryName>
+					<compilerExecutable>${native.compilerExecutable}</compilerExecutable>
+					<numberOfConcurrentCompilation>${native.numberOfConcurrentCompilation}</numberOfConcurrentCompilation>
+					<compilerStartOptions>
+						<compilerStartOption>${native.compilerStartOption}</compilerStartOption>
+					</compilerStartOptions>
+					<linkerProvider>${native.linkerProvider}</linkerProvider>
+					<linkerExecutable>${native.linkerExecutable}</linkerExecutable>
+					<linkerStartOptions>
+						<linkerStartOption>${native.linkerStartOption}</linkerStartOption>
+					</linkerStartOptions>
+
+					<!-- ========================= -->
+					<!-- Project Specific Settings -->
+					<!-- ========================= -->
+
+					<sources>
+						<source>
+							<directory>${project.basedir}/src/include/c++</directory>
+							<includes>
+								<include>**/*.cpp</include>
+							</includes>
+						</source>
+						<source>
+							<directory>${project.basedir}/src/main/c++</directory>
+							<includes>
+								<include>**/*.cpp</include>
+							</includes>
+						</source>
+						<source>
+							<directory>${project.basedir}/src/include/c++</directory>
+							<deployable>true</deployable>
+						</source>
+						<source>
+							<directory>${project.basedir}/src/main/c++</directory>
+							<deployable>true</deployable>
+						</source>
+					</sources>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+
+	<!-- ======================================= -->
+	<!-- Properties setting (platform dependent) -->
+	<!-- ======================================= -->
+
+	<profiles>
+		<profile>
+			<id>windows</id>
+			<activation>
+				<os>
+					<family>windows</family>
+				</os>
+			</activation>
+			<properties>
+				<native.classifier>win64</native.classifier>
+				<native.compilerProvider>msvc</native.compilerProvider>
+				<native.envFactoryName>org.javolution.maven.MSVC2015x64EnvFactory</native.envFactoryName>
+				<native.compilerExecutable />
+				<native.numberOfConcurrentCompilation>1</native.numberOfConcurrentCompilation>  
+				<native.compilerStartOption>/EHsc /TP /W4 /O2 /Zi /Fd${project.artifactId} /MT</native.compilerStartOption>
+				<native.linkerProvider>msvc</native.linkerProvider>
+				<native.linkerExecutable>lib</native.linkerExecutable>
+				<native.linkerStartOption>${project.basedir}/src/lib/windows/DbgHelp.Lib</native.linkerStartOption>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>linux</id>
+			<activation>
+				<os>
+					<family>unix</family>
+				</os>
+			</activation>
+			<properties>
+				<native.classifier>linux</native.classifier>
+				<native.compilerProvider>generic</native.compilerProvider>
+				<native.compilerExecutable>g++</native.compilerExecutable>
+				<native.numberOfConcurrentCompilation>16</native.numberOfConcurrentCompilation>
+				<native.compilerStartOption>-Wall -O2 -g -fPIC -std=c++11</native.compilerStartOption>
+				<native.linkerProvider>generic</native.linkerProvider>
+				<native.linkerExecutable>g++</native.linkerExecutable>
+				<native.linkerStartOption>-pthread -rdynamic -shared -fPIC </native.linkerStartOption>
+			</properties>
+		</profile>
+	</profiles>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
 </project>

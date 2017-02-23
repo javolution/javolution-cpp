@@ -12,7 +12,7 @@ Java is fast, very fast, but Javolution C++, can make your Java code even faster
     - With Javolution small immutable objects (such as Boolean, Char, Integer, Double) are allocated on the stack instead of the heap (they are manipulated by value). 
     - All Java parameterized classes (e.g. collections/maps) are true C++ templates (no syntactic sugar). 
     - Javolution does not need a garbage collector, memory management is done internally by smart pointers through reference counting.
-    - Javolution uses a lock-free / fixed-size memory allocator (Object::HEAP) which if correctly sized allows your application to run significantly faster (5-10x) without jitter.
+    - Javolution uses a lock-free / fixed-size memory allocator (Type::FastHeap) which if correctly sized allows your application to run significantly faster (5-10x) without jitter.
 
 - **Real-Time** - Since Javolution C++ is a port of Javolution Real-Time classes, it exhibits the same real-time characteristics (even better since there is no jitter caused by JIT compilation, class loading/initialization or heap allocations).
 
@@ -24,16 +24,15 @@ Java is fast, very fast, but Javolution C++, can make your Java code even faster
 
 - **Maven-Based** - Javolution C++ can be used through Maven (available from Maven central).
 
-- **Portable** - Any application based on Javolution C++ can be compiled without modification on Linux POSIX, Solaris and Visual C++ (as long as the compiler supports most common C++11 features).
+- **Portable** - Any application based on Javolution C++ can be compiled without modification on Linux POSIX and Visual C++ (as long as the compiler supports most common C++11 features).
 
 - **Free** - JVM licensing for embedded systems can be problematic and expensive. It is not the case for Javolution which is free and always will be (MIT license). 
   
 For consistency and maintainability we follow the Java Style (http://geosoft.no/development/javastyle.html).
-The main difference with Java is that instances are usually created using factory methods (valueOf/newInstance).
 
 ```cpp
 String str = "Hello"; 
-StringBuilder sb = StringBuilder::newInstance(); 
+StringBuilder sb = new StringBuilder::Value(); 
 sb.append("Hell").append('o');
 Object obj = sb.toString();                       
 assert(obj.equals(str));
@@ -71,13 +70,17 @@ Parameters to constructors/functions are usually passed as 'const' references (c
 
 namespace org { namespace acme { // Package org::acme
 
-class Foo : public virtual Runnable { 
+class Foo : public virtual Runnable { // Pointer type.
 public:
-    class Value : public Object::Value, public virtual Runnable::Interface  {     
+    class Value : public Object::Value, public virtual Runnable::Interface  {  // Value type.
+ 
         Runnable action;
         String message;
+ 
     public:
-        Value(const Runnable& a, const String& m) : action(a), message(m) {}         
+    
+        Value(const Runnable& a = nullptr, const String& m = nullptr) 
+        : action(a), message(m) {}         
     
         virtual void setMessage(const String& msg) { 
             message = msg;
@@ -88,19 +91,14 @@ public:
             if (action != nullptr) action.run();
         }
     };
+    
     CTOR(Foo) // Foo constructors (for null and Value*).
         
-    static Foo newInstance(
-             const Runnable& action = nullptr,  // Default parameters values supported.
-             const String& message = nullptr) {
-        return new Value(action, message);
-    }
-
     void setMessage(const String& value) {  
         this_<Value>()->setMessage(value);
     }
     
-    void run() {  // Optional (inherited from Runnable), to avoid dynamic cast.
+    void run() {  // Optional (inherited from Runnable), here to avoid dynamic cast.
         this_<Value>()->run();
     }
 }; 
@@ -110,7 +108,7 @@ public:
 Here are some illustrative snippets of C++ source code
 
 ```cpp
-Foo foo = Foo::newInstance();
+Foo foo = new Foo::Value(); // Default parameters supported.
 foo.setMessage("Hello");
 foo.run(); // Prints "Hello"
 
@@ -125,7 +123,7 @@ bool equals(const Foo& that) const {
      return (message == nullptr) ? (that.message == nullptr) : message.equals(that.message);
 } 
 
-List<String> list = FastTable<String>::newInstance(); 
+List<String> list = FastTable<String>::newTable(); 
 list.add("first");                                  
 list.add("second");
 list.add("third");
@@ -135,30 +133,21 @@ System::out.println(list); //  [first, second, third, null]
 
 ### Usage
 
-The simplest way to use Javolution C++ is through Maven with the native plugin (http://www.mojohaus.org/maven-native/native-maven-plugin/) and the following dependencies in your pom.xml (for a pom.xml example you may look at the javolution-cpp-test repository).
-Three major platforms are supported: Windows (Visual C++), Linux (gcc) and Solaris (CC).
+The simplest way to use the Javolution C++ static library is through Maven with the native plugin (http://www.mojohaus.org/maven-native/native-maven-plugin/) with the following dependencies in your pom.xml (see javolution-cpp-test project for an example how to build an executable). Windows (Visual C++) and Linux (gcc) compilations will be supported with no change in your code (write once, run everywhere principle).
 
 ```
-    <dependencies>
         <dependency>
             <groupId>org.javolution</groupId>
-            <artifactId>libjavolution</artifactId>
-            <version>1.0.0</version>
+            <artifactId>javolution</artifactId>
+            <version>7.0.0</version>
             <type>inczip</type>  <!-- Headers (.hpp) compilation dependency -->
         </dependency>
         <dependency>
             <groupId>org.javolution</groupId>
-            <artifactId>libjavolution</artifactId>
-            <version>1.0.0</version>
-            <type>${compile.dependency.type}</type> <!-- Linked library dependency (.lib on Windows) -->
-            <classifier>${compile.dependency.classifier}</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.javolution</groupId>
-            <artifactId>libjavolution</artifactId>
-            <version>1.0.0</version>
-            <type>${runtime.dependency.type}</type> <!-- Runtime dependency (.dll on Windows) -->
-            <classifier>${runtime.dependency.classifier}</classifier>
+            <artifactId>javolution</artifactId>
+            <version>7.0.0</version>
+            <type>lib</type> <!-- Static library dependency -->
+            <classifier>${native.classifier}</classifier> <!-- linux, win32, win64 -->
         </dependency>
 ```
 
@@ -167,9 +156,9 @@ In order to guarantee the worst case execution time, the size of the internal he
 ```cpp
 int main(int, char**) {
     
-    OSGi osgi = OSGi::newInstance();
+    OSGi osgi = new OSGi::Value();
     
-    JavolutionActivator javolution = JavolutionActivator::newInstance();
+    JavolutionActivator javolution = new JavolutionActivator::Value();
     javolution.setHeapSize(256 * 1024 * 1024); // 256 MBytes
     osgi.start(javolution);
     

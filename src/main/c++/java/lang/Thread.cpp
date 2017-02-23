@@ -10,8 +10,9 @@
 #include "java/lang/Error.hpp"
 #include "java/lang/System.hpp"
 
-Type::atomic_count Thread::threadNumber(0);
-thread_local Thread Thread::Value::current = Thread::newInstance(nullptr, "Thread-Main");
+const Thread Thread::MAIN = new Thread::Value(nullptr, "Thread-Main");
+Type::atomic_count Thread::threadNumber;
+thread_local Thread::Value* Thread::Value::current = nullptr;
 
 void Thread::Value::run() {
     if (target != nullptr) target.run();

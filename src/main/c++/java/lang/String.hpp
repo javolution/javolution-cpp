@@ -40,31 +40,22 @@ public:
 		}
 	public:
 
-		JAVOLUTION_DLL
 		String substring(int beginIndex, int endIndex) const;
 
-		JAVOLUTION_DLL
 		String concat(const String& that) const;
 
-		JAVOLUTION_DLL
 		bool startsWith(const String& prefix, int offset) const;
 
-		JAVOLUTION_DLL
 		bool endsWith(const String& suffix) const;
 
-		JAVOLUTION_DLL
 		bool equals(const Object& obj) const override;
 
-		JAVOLUTION_DLL
 		bool equals(const String& that) const;
 
-		JAVOLUTION_DLL
 		int hashCode() const override;
 
-		JAVOLUTION_DLL
 		std::wstring toWString() const;
 
-		JAVOLUTION_DLL
 		std::string toUTF8() const;
 
 		Type::wchar charAt(int index) const override {
@@ -102,74 +93,62 @@ public:
 	 * Returns the string holding the specified wide characters
 	 * (null terminated).
 	 */
-	JAVOLUTION_DLL
 	static String valueOf(const Type::wchar* wchars);
 
 	/**
 	 * Returns the string holding the specified C++ wide string.
 	 */
-	JAVOLUTION_DLL
 	static String valueOf(const std::wstring& wstr);
 
 	/**
 	 * Returns the string holding the specified UTF-8 simple characters
 	 * (null terminated).
 	 */
-	JAVOLUTION_DLL
 	static String valueOf(const char* chars);
 
 	/**
 	 * Returns the string holding the specified UTF-8 C++ string.
 	 */
-	JAVOLUTION_DLL
 	static String valueOf(const std::string& str);
 
 	/**
 	 * Returns the string holding the specified wide character.
 	 */
-	JAVOLUTION_DLL
 	static String valueOf(Type::wchar value);
 
 	/**
 	 * Returns the string holding the specified ascii character.
 	 */
-	JAVOLUTION_DLL
 	static String valueOf(char value);
 
 	/**
 	 * Returns the string holding the decimal representation of the specified int value.
 	 */
-	JAVOLUTION_DLL
 	static String valueOf(int value);
 
 	/**
 	 * Returns the string holding the decimal representation of the specified long value.
 	 */
-	JAVOLUTION_DLL
 	static String valueOf(long value);
 
 	/**
 	 * Returns the string holding the decimal representation of the specified long long value (at least 64 bits).
 	 */
-	JAVOLUTION_DLL
 	static String valueOf(long long value);
 
 	/**
 	 * Returns the string holding the decimal representation of the specified 32 bits floating point value.
 	 */
-	JAVOLUTION_DLL
 	static String valueOf(float value);
 
 	/**
 	 * Returns the string holding the decimal representation of the specified 64 bits floating point value.
 	 */
-	JAVOLUTION_DLL
 	static String valueOf(double value);
 
 	/**
 	 * Returns the string holding the representation of the specified boolean value.
 	 */
-	JAVOLUTION_DLL
 	static String valueOf(bool value);
 
 	/**
