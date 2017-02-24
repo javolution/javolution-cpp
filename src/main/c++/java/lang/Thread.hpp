@@ -5,7 +5,6 @@
  */
 #pragma once
 
-#include "java/lang/Object.hpp"
 #include "java/lang/String.hpp"
 #include "java/lang/Runnable.hpp"
 
