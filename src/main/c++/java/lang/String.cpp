@@ -169,7 +169,7 @@ std::string String::Value::toUTF8() const {
             buffer[j++] = (char) (0xe0 | ((w >> 12) & 0x0f));
             buffer[j++] = (char) (0x80 | ((w >> 6) & 0x3f));
             buffer[j++] = (char) (0x80 | (w & 0x3f));
-#ifndef _WINDOWS
+#ifndef JAVOLUTION_MSVC
         } else if (w <= 0x10ffff) { // On windows wchar_t is 16 bits!
             buffer[j++] = (char) (0xf0 | ((w >> 18) & 0x07));
             buffer[j++] = (char) (0x80 | ((w >> 12) & 0x3f));

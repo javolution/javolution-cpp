@@ -21,88 +21,87 @@ namespace lang {
  */
 class Thread: public virtual Runnable {
 
-    static const Thread MAIN; // The main thread.
-
+	static const Thread MAIN; // The main thread.
 	static Type::atomic_count threadNumber; // Autonumbering anonymous threads.
 
 public:
+
+	/** Thread Value base class. */
 	class Value: public Object::Value, public virtual Runnable::Interface {
 		Runnable target;
 		String name;
 		void* nativeThreadPtr;
 	public:
-		static thread_local Thread::Value* current;
 
+		/**
+		* Creates a thread having the specified target to be executed and the specified name.
+		*/
 		Value(const Runnable& target = nullptr, const String& name = nullptr);
 
+		/**
+		* Causes this thread to begin execution of the <code>run</code> method of
+		* this thread. It is never legal to start a thread more than once.
+		* In particular, a thread may not be restarted once it has completed
+		* execution.
+		*/
 		virtual void start();
 
+		/**
+		* Waits for this thread to die.
+		*/
 		virtual void join();
 
+		/**
+		* If this thread was constructed using a separate Runnable run object, then that Runnable object's run method is
+		* called; otherwise, this method does nothing and returns.
+		*/
 		virtual void run() override;
 
-		~Value() override;
-
+		/**
+		* Returns this thread's name.
+		*/
 		String getName() {
 			return name;
 		}
 
-	};CTOR(Thread)
+		~Value() override;
 
-	/**
-	 * Returns a thread having the specified target to be executed and the specified name.
-	 */
-	static Thread newInstance(const Runnable& target, const String& name = nullptr) {
-		String threadName = (name != nullptr) ? name : "Thread-" + ++Thread::threadNumber;
-		return new Value(target, threadName);
-	}
+	};CTOR(Thread)
 
 	/**
 	 * Returns a reference to the currently executing thread object.
 	 */
 	static const Thread currentThread() {
-	    Thread::Value* thread = Thread::Value::current;
-	    return thread != nullptr ? thread : Thread::MAIN;
+	    return Thread::current != nullptr ? Thread::current : Thread::MAIN;
 	}
 
 	/**
-	 * Returns this thread's name.
-	 */
+	* Causes the currently executing thread to sleep (temporarily cease execution) for the specified number of
+	* milliseconds, subject to the precision and accuracy of system timers and schedulers. The thread
+	* does not lose ownership of any monitors.
+	* @throw IllegalArgumentException - if the value of millis is negative
+	*/
+	static void sleep(long millis);
+
+	// Convenience methods.
+
 	String getName() const {
 		return this_<Value>()->getName();
 	}
 
-	/**
-	 * Causes this thread to begin execution of the <code>run</code> method of
-	 * this thread. It is never legal to start a thread more than once.
-	 * In particular, a thread may not be restarted once it has completed
-	 * execution.
-	 */
 	void start() {
 		this_<Value>()->start();
 	}
 
-	/**
-	 * Waits for this thread to die.
-	 */
 	void join() {
 		this_<Value>()->join();
 	}
 
-	/**
-	 * If this thread was constructed using a separate Runnable run object, then that Runnable object's run method is
-	 * called; otherwise, this method does nothing and returns.
-	 */
 	void run() {
 		this_<Value>()->run();
 	}
 
-	/**
-	 * Causes the currently executing thread to sleep (temporarily cease execution) for the specified number of
-	 * milliseconds, subject to the precision and accuracy of system timers and schedulers. The thread
-	 * does not lose ownership of any monitors.
-	 */
-	static void sleep(long millis);
+	static thread_local Thread current; // Set by thread functions. 
 };
 
 }

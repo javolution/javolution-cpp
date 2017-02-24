@@ -10,15 +10,9 @@
 #include <mutex>
 #include <exception>
 
-#if defined(_WIN32) || defined(_WIN64) || defined __CYGWIN__
-#define _WINDOWS
-#define _DEPRECATED(text) __declspec(deprecated(#text))
-#pragma warning(disable: 4290) //  Visual C++ does not implement checked exceptions (throw declaration ignored).
-#endif
-
-#if defined(__linux)
-#define _LINUX
-#define _DEPRECATED(text) __attribute__ ((deprecated(#text)))
+// For code specific to Windows (Visual C++ compiler)
+#if defined(_WIN32) || defined(_WIN64) || defined _WINDOWS
+#define JAVOLUTION_MSVC
 #endif
 
 #define CTOR(CLASS) CLASS(Void = nullptr) {} CLASS(Value* value) : Object(value) {} // Object constructors pattern.

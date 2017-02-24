@@ -133,11 +133,8 @@ private:
         }
 
         Value* setLength(int length) override {
-            if (length > MAX_CAPACITY) {
-                Outer* outer = new Outer();
-                outer->blocks[0] = this;
-                return outer->setLength(length);
-            }
+            if (length > MAX_CAPACITY) 
+                return (new Outer(this))->setLength(length);
             bool isFundamental = std::is_fundamental<E>::value;
             if (!isFundamental) {
                 E none {};
@@ -173,6 +170,9 @@ private:
 
         Object blocks[16];
 
+		This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+		This(Inner* block0) { blocks[0] = block0; }
+
         E& elementAt(int index) override {
             return (blocks[index >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);
         }
@@ -182,14 +182,12 @@ private:
         }
 
         Value* setLength(int length) override {
-            if (length <= Inner::MAX_CAPACITY)
-                return (blocks[0].this_<Inner>())->setLength(length);
             for (int i = 0; i < 16; ++i) {
                 int indexMin = i << Inner::SHIFT; // Included
                 int indexMax = (i + 1) << Inner::SHIFT; // Excluded.
                 if (indexMin < length) {
-                    if (blocks[i] == nullptr)
-                        blocks[i] = new Inner();
+					if (blocks[i] == nullptr) 
+						blocks[i] = new Inner();
                     if (indexMax > length)
                         blocks[i].this_<Inner>()->setLength(length & Inner::MASK);
                 } else { // indexMin >= length,
@@ -198,11 +196,9 @@ private:
                     blocks[i] = nullptr;
                 }
             }
-            if (length <= MAX_CAPACITY)
-                return this;
-            Outer* outer = new Outer();
-            outer->blocks[0] = this;
-            return outer->setLength(length);
+			if (length <= Inner::MAX_CAPACITY)
+				return (blocks[0].this_<Inner>())->setLength(length);
+			return (length <= MAX_CAPACITY) ? this : (new Outer(this))->setLength(length);
         }
 
         This* clone() const override {
@@ -226,7 +222,10 @@ private:
 
          Object blocks[16];
 
-         E& elementAt(int index) override {
+		 This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+		 This(Inner* block0) { blocks[0] = block0; }
+		 
+		 E& elementAt(int index) override {
              return (blocks[index >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);
          }
 
@@ -235,15 +234,13 @@ private:
          }
 
          Value* setLength(int length) override {
-             if (length <= Inner::MAX_CAPACITY)
-                 return (blocks[0].this_<Inner>())->setLength(length);
              for (int i = 0; i < 16; ++i) {
                  int indexMin = i << Inner::SHIFT; // Included
                  int indexMax = (i + 1) << Inner::SHIFT; // Excluded.
                  if (indexMin < length) {
-                     if (blocks[i] == nullptr)
-                         blocks[i] = new Inner();
-                     if (indexMax > length)
+					 if (blocks[i] == nullptr)
+						 blocks[i] = new Inner();
+					 if (indexMax > length)
                          blocks[i].this_<Inner>()->setLength(length & Inner::MASK);
                  } else { // indexMin >= length,
                      if (blocks[i] == nullptr)
@@ -251,12 +248,10 @@ private:
                      blocks[i] = nullptr;
                  }
              }
-             if (length <= MAX_CAPACITY)
-                 return this;
-             Outer* outer = new Outer();
-             outer->blocks[0] = this;
-             return outer->setLength(length);
-         }
+			 if (length <= Inner::MAX_CAPACITY)
+				 return (blocks[0].this_<Inner>())->setLength(length);
+			 return (length <= MAX_CAPACITY) ? this : (new Outer(this))->setLength(length);
+	     }
 
          This* clone() const override {
              This* copy = new This();
@@ -279,7 +274,10 @@ private:
 
          Object blocks[16];
 
-         E& elementAt(int index) override {
+		 This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+		 This(Inner* block0) { blocks[0] = block0; }
+		 
+		 E& elementAt(int index) override {
              return (blocks[index >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);
          }
 
@@ -288,15 +286,13 @@ private:
          }
 
          Value* setLength(int length) override {
-             if (length <= Inner::MAX_CAPACITY)
-                 return (blocks[0].this_<Inner>())->setLength(length);
              for (int i = 0; i < 16; ++i) {
                  int indexMin = i << Inner::SHIFT; // Included
                  int indexMax = (i + 1) << Inner::SHIFT; // Excluded.
                  if (indexMin < length) {
-                     if (blocks[i] == nullptr)
-                         blocks[i] = new Inner();
-                     if (indexMax > length)
+					 if (blocks[i] == nullptr)
+						 blocks[i] = new Inner();
+					 if (indexMax > length)
                          blocks[i].this_<Inner>()->setLength(length & Inner::MASK);
                  } else { // indexMin >= length,
                      if (blocks[i] == nullptr)
@@ -304,11 +300,9 @@ private:
                      blocks[i] = nullptr;
                  }
              }
-             if (length <= MAX_CAPACITY)
-                 return this;
-             Outer* outer = new Outer();
-             outer->blocks[0] = this;
-             return outer->setLength(length);
+			 if (length <= Inner::MAX_CAPACITY)
+				 return (blocks[0].this_<Inner>())->setLength(length);
+			 return (length <= MAX_CAPACITY) ? this : (new Outer(this))->setLength(length);
          }
 
          This* clone() const override {
@@ -332,7 +326,10 @@ private:
 
          Object blocks[16];
 
-         E& elementAt(int index) override {
+		 This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+		 This(Inner* block0) { blocks[0] = block0; }
+		 
+		 E& elementAt(int index) override {
              return (blocks[index >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);
          }
 
@@ -341,15 +338,13 @@ private:
          }
 
          Value* setLength(int length) override {
-             if (length <= Inner::MAX_CAPACITY)
-                 return (blocks[0].this_<Inner>())->setLength(length);
              for (int i = 0; i < 16; ++i) {
                  int indexMin = i << Inner::SHIFT; // Included
                  int indexMax = (i + 1) << Inner::SHIFT; // Excluded.
                  if (indexMin < length) {
-                     if (blocks[i] == nullptr)
-                         blocks[i] = new Inner();
-                     if (indexMax > length)
+					 if (blocks[i] == nullptr)
+						 blocks[i] = new Inner();
+					 if (indexMax > length)
                          blocks[i].this_<Inner>()->setLength(length & Inner::MASK);
                  } else { // indexMin >= length,
                      if (blocks[i] == nullptr)
@@ -357,11 +352,9 @@ private:
                      blocks[i] = nullptr;
                  }
              }
-             if (length <= MAX_CAPACITY)
-                 return this;
-             Outer* outer = new Outer();
-             outer->blocks[0] = this;
-             return outer->setLength(length);
+			 if (length <= Inner::MAX_CAPACITY)
+				 return (blocks[0].this_<Inner>())->setLength(length);
+			 return (length <= MAX_CAPACITY) ? this : (new Outer(this))->setLength(length);
          }
 
          This* clone() const override {
@@ -385,7 +378,10 @@ private:
 
          Object blocks[16];
 
-         E& elementAt(int index) override {
+		 This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+		 This(Inner* block0) { blocks[0] = block0; }
+		 
+		 E& elementAt(int index) override {
              return (blocks[index >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);
          }
 
@@ -394,15 +390,13 @@ private:
          }
 
          Value* setLength(int length) override {
-             if (length <= Inner::MAX_CAPACITY)
-                 return (blocks[0].this_<Inner>())->setLength(length);
              for (int i = 0; i < 16; ++i) {
                  int indexMin = i << Inner::SHIFT; // Included
                  int indexMax = (i + 1) << Inner::SHIFT; // Excluded.
                  if (indexMin < length) {
-                     if (blocks[i] == nullptr)
-                         blocks[i] = new Inner();
-                     if (indexMax > length)
+					 if (blocks[i] == nullptr)
+						 blocks[i] = new Inner();
+					 if (indexMax > length)
                          blocks[i].this_<Inner>()->setLength(length & Inner::MASK);
                  } else { // indexMin >= length,
                      if (blocks[i] == nullptr)
@@ -410,11 +404,9 @@ private:
                      blocks[i] = nullptr;
                  }
              }
-             if (length <= MAX_CAPACITY)
-                 return this;
-             Outer* outer = new Outer();
-             outer->blocks[0] = this;
-             return outer->setLength(length);
+			 if (length <= Inner::MAX_CAPACITY)
+				 return (blocks[0].this_<Inner>())->setLength(length);
+			 return (length <= MAX_CAPACITY) ? this : (new Outer(this))->setLength(length);
          }
 
          This* clone() const override {
@@ -438,7 +430,10 @@ private:
 
          Object blocks[16];
 
-         E& elementAt(int index) override {
+		 This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+		 This(Inner* block0) { blocks[0] = block0; }
+		 
+		 E& elementAt(int index) override {
              return (blocks[index >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);
          }
 
@@ -447,15 +442,13 @@ private:
          }
 
          Value* setLength(int length) override {
-             if (length <= Inner::MAX_CAPACITY)
-                 return (blocks[0].this_<Inner>())->setLength(length);
              for (int i = 0; i < 16; ++i) {
                  int indexMin = i << Inner::SHIFT; // Included
                  int indexMax = (i + 1) << Inner::SHIFT; // Excluded.
                  if (indexMin < length) {
-                     if (blocks[i] == nullptr)
-                         blocks[i] = new Inner();
-                     if (indexMax > length)
+					 if (blocks[i] == nullptr)
+						 blocks[i] = new Inner();
+					 if (indexMax > length)
                          blocks[i].this_<Inner>()->setLength(length & Inner::MASK);
                  } else { // indexMin >= length,
                      if (blocks[i] == nullptr)
@@ -463,11 +456,9 @@ private:
                      blocks[i] = nullptr;
                  }
              }
-             if (length <= MAX_CAPACITY)
-                 return this;
-             Outer* outer = new Outer();
-             outer->blocks[0] = this;
-             return outer->setLength(length);
+			 if (length <= Inner::MAX_CAPACITY)
+				 return (blocks[0].this_<Inner>())->setLength(length);
+			 return (length <= MAX_CAPACITY) ? this : (new Outer(this))->setLength(length);
          }
 
          This* clone() const override {
@@ -492,7 +483,10 @@ private:
 
          Object blocks[16];
 
-         E& elementAt(int index) override {
+		 This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+		 This(Inner* block0) { blocks[0] = block0; }
+		 
+		 E& elementAt(int index) override {
              return (blocks[index >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);
          }
 
@@ -501,15 +495,13 @@ private:
          }
 
          Value* setLength(int length) override {
-             if (length <= Inner::MAX_CAPACITY)
-                 return (blocks[0].this_<Inner>())->setLength(length);
              for (Type::int64 i = 0; i < 16; ++i) {
             	 Type::int64 indexMin = i << Inner::SHIFT; // Included
             	 Type::int64 indexMax = (i + 1) << Inner::SHIFT; // Excluded.
                  if (indexMin < length) {
-                     if (blocks[i] == nullptr)
-                         blocks[i] = new Inner();
-                     if (indexMax > length)
+					 if (blocks[i] == nullptr)
+						 blocks[i] = new Inner();
+					 if (indexMax > length)
                          blocks[i].this_<Inner>()->setLength(length & Inner::MASK);
                  } else { // indexMin >= length,
                      if (blocks[i] == nullptr)
@@ -517,11 +509,9 @@ private:
                      blocks[i] = nullptr;
                  }
              }
-             if (length <= MAX_CAPACITY)
-                 return this;
-             Outer* outer = new Outer();
-             outer->blocks[0] = this;
-             return outer->setLength(length);
+			 if (length <= Inner::MAX_CAPACITY)
+				 return (blocks[0].this_<Inner>())->setLength(length);
+			 return (length <= MAX_CAPACITY) ? this : (new Outer(this))->setLength(length);
          }
 
          This* clone() const override {
@@ -544,7 +534,10 @@ private:
 
          Object blocks[16];
 
-         E& elementAt(int index) override {
+		 This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+		 This(Inner* block0) { blocks[0] = block0; }
+		 
+		 E& elementAt(int index) override {
              return (blocks[((Type::int64)index) >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);
          }
 
@@ -553,15 +546,13 @@ private:
          }
 
          Value* setLength(int length) override {
-             if (length <= Inner::MAX_CAPACITY)
-                 return (blocks[0].this_<Inner>())->setLength(length);
              for (Type::int64 i = 0; i < 16; ++i) {
             	 Type::int64 indexMin = i << Inner::SHIFT; // Included
             	 Type::int64 indexMax = (i + 1) << Inner::SHIFT; // Excluded.
                  if (indexMin < length) {
-                     if (blocks[i] == nullptr)
-                         blocks[i] = new Inner();
-                     if (indexMax > length)
+					 if (blocks[i] == nullptr)
+						 blocks[i] = new Inner();
+					 if (indexMax > length)
                          blocks[i].this_<Inner>()->setLength(length & Inner::MASK);
                  } else { // indexMin >= length,
                      if (blocks[i] == nullptr)
@@ -569,7 +560,9 @@ private:
                      blocks[i] = nullptr;
                  }
              }
-             return this;
+			 if (length <= Inner::MAX_CAPACITY)
+				 return (blocks[0].this_<Inner>())->setLength(length);
+			 return this;
          }
 
          This* clone() const override {

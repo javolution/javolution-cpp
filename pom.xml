@@ -26,7 +26,7 @@
 	<artifactId>javolution</artifactId>
 	<version>7.0.0-SNAPSHOT</version>
 
-	<packaging>lib</packaging>
+	<packaging>${native.packaging}</packaging>
 	<name>Javolution C++</name>
 	<url>http://javolution.org</url>
 	<description>Javolution C++ Mirror Library. 
@@ -124,6 +124,7 @@
 				</os>
 			</activation>
 			<properties>
+                <native.packaging>lib</native.packaging>
 				<native.classifier>win64</native.classifier>
 				<native.compilerProvider>msvc</native.compilerProvider>
 				<native.envFactoryName>org.javolution.maven.MSVC2015x64EnvFactory</native.envFactoryName>
@@ -132,7 +133,7 @@
 				<native.compilerStartOption>/EHsc /TP /W4 /O2 /Zi /Fd${project.artifactId} /MT</native.compilerStartOption>
 				<native.linkerProvider>msvc</native.linkerProvider>
 				<native.linkerExecutable>lib</native.linkerExecutable>
-				<native.linkerStartOption>${project.basedir}/src/lib/windows/DbgHelp.Lib</native.linkerStartOption>
+				<native.linkerStartOption>DbgHelp.Lib</native.linkerStartOption>
 			</properties>
 		</profile>
 
@@ -144,14 +145,15 @@
 				</os>
 			</activation>
 			<properties>
+                <native.packaging>a</native.packaging>
 				<native.classifier>linux</native.classifier>
 				<native.compilerProvider>generic</native.compilerProvider>
 				<native.compilerExecutable>g++</native.compilerExecutable>
 				<native.numberOfConcurrentCompilation>16</native.numberOfConcurrentCompilation>
-				<native.compilerStartOption>-Wall -O2 -g -fPIC -std=c++11</native.compilerStartOption>
+				<native.compilerStartOption>-Wall -O2 -g -std=c++11</native.compilerStartOption>
 				<native.linkerProvider>generic</native.linkerProvider>
-				<native.linkerExecutable>g++</native.linkerExecutable>
-				<native.linkerStartOption>-pthread -rdynamic -shared -fPIC </native.linkerStartOption>
+				<native.linkerExecutable>ar</native.linkerExecutable>
+				<native.linkerStartOption>rcs</native.linkerStartOption>
 			</properties>
 		</profile>
 	</profiles>

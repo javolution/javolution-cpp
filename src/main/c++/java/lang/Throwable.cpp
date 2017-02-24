@@ -6,19 +6,12 @@
 
 #include "java/lang/Throwable.hpp"
 #include "java/lang/System.hpp"
-#include "java/lang/Class.hpp"
-#include <ostream>
 #include <sstream>
 
 void Throwable::printStackTrace() const {
-    // TODO
-    System::err.println(*this);
-}
-
-String Throwable::toString() const {
-    return (message != nullptr) ? classname + ": " + message : classname;
-}
-
-const char* Throwable::what() const throw() { // Standard C++ exception contract.
-    return toString().toUTF8().c_str();
+	System::err.println(*this);
+	std::ostringstream res;
+	res.imbue(std::locale::classic());
+	res << booster::trace(*this) << std::endl;
+	System::err.println(String::valueOf(res.str()));
 }
