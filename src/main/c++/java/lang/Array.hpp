@@ -170,8 +170,8 @@ private:
 
         Object blocks[16];
 
-		This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
-		This(Inner* block0) { blocks[0] = block0; }
+        BlockValue4() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+        BlockValue4(Inner* block0) { blocks[0] = block0; }
 
         E& elementAt(int index) override {
             return (blocks[index >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);
@@ -222,8 +222,8 @@ private:
 
          Object blocks[16];
 
-		 This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
-		 This(Inner* block0) { blocks[0] = block0; }
+         BlockValue8() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+         BlockValue8(Inner* block0) { blocks[0] = block0; }
 		 
 		 E& elementAt(int index) override {
              return (blocks[index >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);
@@ -274,8 +274,8 @@ private:
 
          Object blocks[16];
 
-		 This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
-		 This(Inner* block0) { blocks[0] = block0; }
+         BlockValue12() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+         BlockValue12(Inner* block0) { blocks[0] = block0; }
 		 
 		 E& elementAt(int index) override {
              return (blocks[index >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);
@@ -326,8 +326,8 @@ private:
 
          Object blocks[16];
 
-		 This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
-		 This(Inner* block0) { blocks[0] = block0; }
+         BlockValue16() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+         BlockValue16(Inner* block0) { blocks[0] = block0; }
 		 
 		 E& elementAt(int index) override {
              return (blocks[index >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);
@@ -378,8 +378,8 @@ private:
 
          Object blocks[16];
 
-		 This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
-		 This(Inner* block0) { blocks[0] = block0; }
+         BlockValue20() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+         BlockValue20(Inner* block0) { blocks[0] = block0; }
 		 
 		 E& elementAt(int index) override {
              return (blocks[index >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);
@@ -430,8 +430,8 @@ private:
 
          Object blocks[16];
 
-		 This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
-		 This(Inner* block0) { blocks[0] = block0; }
+         BlockValue24() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+         BlockValue24(Inner* block0) { blocks[0] = block0; }
 		 
 		 E& elementAt(int index) override {
              return (blocks[index >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);
@@ -483,8 +483,8 @@ private:
 
          Object blocks[16];
 
-		 This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
-		 This(Inner* block0) { blocks[0] = block0; }
+         BlockValue28() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+         BlockValue28(Inner* block0) { blocks[0] = block0; }
 		 
 		 E& elementAt(int index) override {
              return (blocks[index >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);
@@ -534,8 +534,8 @@ private:
 
          Object blocks[16];
 
-		 This() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
-		 This(Inner* block0) { blocks[0] = block0; }
+         BlockValue32() { for (int i = 0; i < 16; ++i) blocks[i] = new Inner(); }
+         BlockValue32(Inner* block0) { blocks[0] = block0; }
 		 
 		 E& elementAt(int index) override {
              return (blocks[((Type::int64)index) >> Inner::SHIFT].this_<Inner>())->elementAt(index & Inner::MASK);

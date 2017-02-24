@@ -13,7 +13,7 @@
 
 const Thread Thread::MAIN = new Thread::Value(nullptr, "Thread-Main");
 Type::atomic_count Thread::threadNumber;
-thread_local Thread Thread::current = nullptr;
+thread_local Thread::Value* Thread::Value::current = nullptr;
 
 void Thread::Value::run() {
     if (target != nullptr) target.run();
@@ -25,7 +25,7 @@ void Thread::Value::run() {
 DWORD WINAPI MyThreadFunction(LPVOID lpParam) {
 	try {
 		Thread::Value* thisThread = (Thread::Value*) lpParam;
-		Thread::current = thisThread;
+		Thread::Value::current = thisThread;
 		thisThread->run();
 	}
 	catch (Throwable& error) {
@@ -60,9 +60,9 @@ Thread::Value::Value(const Runnable& target, const String& threadName) :
 Thread::Value::~Value() {
 }
 
-void Thread::sleep(long millis) {
-	if (millis < 0) throw IllegalArgumentException("negative time");
-	Sleep((DWORD)millis); // Windows::Thread method.
+void Thread::sleep(long msec) {
+	if (msec < 0) throw IllegalArgumentException("negative time");
+	Sleep((DWORD)msec); // Windows::Thread method.
 }
 
 #else
@@ -75,7 +75,7 @@ extern "C" {
 	void * MyThreadFunction(void* threadPtr) {
 		try {
 			Thread::Value* thisThread = ((Thread::Value*) threadPtr);
-			Thread::current = thisThread;
+			Thread::Value::current = thisThread;
 			thisThread->run();
 		}
 		catch (Throwable& error) {
@@ -102,7 +102,7 @@ void Thread::Value::join() {
 		throw Error("Thread_Type::join() internal error");
 }
 
-Thread::Value::Value(const Runnable& target, const String& name) :
+Thread::Value::Value(const Runnable& target, const String& threadName) :
 	target(target) {
 	name = (threadName != nullptr) ? threadName : String::valueOf("Thread-") + ++threadNumber;
 	nativeThreadPtr = new pthread_t();
@@ -114,7 +114,7 @@ Thread::Value::~Value() {
 }
 
 void Thread::sleep(long msec) {
-	if (millis < 0) throw IllegalArgumentException("negative time");
+	if (msec < 0) throw IllegalArgumentException("negative time");
 	enum {
 		NANOSEC_PER_MSEC = 1000000
 	};

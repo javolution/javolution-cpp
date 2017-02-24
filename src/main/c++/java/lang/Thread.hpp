@@ -31,6 +31,7 @@ public:
 		String name;
 		void* nativeThreadPtr;
 	public:
+		static thread_local Value* current;
 
 		/**
 		* Creates a thread having the specified target to be executed and the specified name.
@@ -71,16 +72,17 @@ public:
 	 * Returns a reference to the currently executing thread object.
 	 */
 	static const Thread currentThread() {
-	    return Thread::current != nullptr ? Thread::current : Thread::MAIN;
+	    return Thread::Value::current != nullptr ? Thread::Value::current : Thread::MAIN;
 	}
 
 	/**
 	* Causes the currently executing thread to sleep (temporarily cease execution) for the specified number of
 	* milliseconds, subject to the precision and accuracy of system timers and schedulers. The thread
 	* does not lose ownership of any monitors.
-	* @throw IllegalArgumentException - if the value of millis is negative
+	*
+	* @throw IllegalArgumentException if the value of msec is negative
 	*/
-	static void sleep(long millis);
+	static void sleep(long msec);
 
 	// Convenience methods.
 
@@ -100,7 +102,6 @@ public:
 		this_<Value>()->run();
 	}
 
-	static thread_local Thread current; // Set by thread functions. 
 };
 
 }
