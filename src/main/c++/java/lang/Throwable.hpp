@@ -6,10 +6,8 @@
 #pragma once
 
 #include <exception>
-#include "java/lang/String.hpp"
 #include "booster/backtrace.hpp"
-
-#define LINE_INFO (String::valueOf("File: ") + __FILE__ + ", Line: " + __LINE__)
+#include "java/lang/String.hpp"
 
 namespace java {
 namespace lang {
@@ -22,43 +20,51 @@ namespace lang {
  *       Java - Throwable</a>
  * @version 7.0
  */
-class Throwable: public booster::backtrace, public std::exception, public virtual Object::Interface  { // Value type.
-
-	String message;
-	String classname;
-
+class Throwable: public booster::backtrace, public std::exception, public virtual Object {
 public:
 
-	/** Creates a Throwable with specified message. */
-	Throwable(const String& message = nullptr, const String& classname = "java::lang::Throwable") :
-			message(message), classname(classname) {
-	}
+    class Value: public Object::Value {
+    friend class Throwable;
+        String message;
+    public:
+        /**
+         * Returns the detail message of this exception or nullptr if none.
+         */
+        virtual String getMessage() const {
+            return message;
+        }
 
-	/**
-	 * Returns the detail message of this exception or nullptr if none.
-	 */
-	virtual String getMessage() const {
-		return message;
-	}
+        /**
+         * Returns a short description of this throwable (classname + ": " + getMessage())
+         */
+        virtual String toString() const override;
 
-	/**
-	 * Returns a short description of this throwable (classname + ": " + getMessage())
-	 */
-	virtual String toString() const {
-		return (message != nullptr) ? classname + ": " + message : classname;
-	}
+    };
 
-	/**
-	 * Returns a null terminated character sequence that may be used to identify the exception (C++).
-	 */
-	virtual const char* what() const throw () {
-		return toString().toUTF8().c_str();
-	}
+    /** Creates a throwable exception with specified optional message. */
+    Throwable(const String& message = nullptr, Value* value = new Value()) :
+            Object(value) {
+        value->message = message;
+    }
 
-	/**
-	* Prints this throwable and its backtrace to the standard error stream.
-	*/
-	virtual void printStackTrace() const;
+    /**
+     * Prints this throwable and its backtrace to the standard error stream.
+     */
+    void printStackTrace() const;
+
+    /**
+     * Returns a null terminated character sequence that may be used to identify the exception (C++).
+     */
+    const char* what() const throw () {
+        return toString().toUTF8().c_str();
+    }
+
+    // Exported Value methods.
+
+    String getMessage() const {
+        return this_<Value>()->getMessage();
+    }
+
 };
 
 }

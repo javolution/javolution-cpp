@@ -20,8 +20,12 @@ namespace lang {
  */
 class Exception: public Throwable {
 public:
-    Exception(const String& message = nullptr, const String& classname = "java::lang::Exception") :
-            Throwable(message, classname) {
+    class Value: public Throwable::Value {
+    };
+
+    /** Creates an exception with the specified optional message.*/
+    Exception(const String& message = nullptr, Value* value = new Value()) :
+            Throwable(message, value) {
     }
 };
 

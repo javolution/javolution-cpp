@@ -19,10 +19,14 @@ namespace lang {
  */
 class NegativeArraySizeException: public RuntimeException {
 public:
-    NegativeArraySizeException(const String& message = nullptr,
-            const String& classname = "java::lang::NegativeArraySizeException") :
-            RuntimeException(message, classname) {
+    class Value: public RuntimeException::Value {
+    };
+
+    /** Creates a negative array size exception with the specified optional message.*/
+    NegativeArraySizeException(const String& message = nullptr, Value* value = new Value()) :
+            RuntimeException(message, value) {
     }
 };
+
 }
 }

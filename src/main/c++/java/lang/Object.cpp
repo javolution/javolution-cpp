@@ -24,12 +24,15 @@ Class Object_Interface::getClass() const {
     if (name.startsWith("class ")) {
     	name = name.substring(6);
     }
+    if (name.endsWith("::Value")) {
+        name = name.substring(0, name.length() - 7);
+    }
     return Class::forName(name);
 }
 
 String Object_Interface::toString() const {
 	std::size_t address = reinterpret_cast<std::size_t>(this);
-    StringBuilder sb = StringBuilder::newInstance();
+    StringBuilder sb = new StringBuilder::Value();
     return sb.append("Object#").append((long long)address).toString();
 }
 

@@ -39,10 +39,9 @@ public:
 		Value(const Runnable& target = nullptr, const String& name = nullptr);
 
 		/**
-		* Causes this thread to begin execution of the <code>run</code> method of
-		* this thread. It is never legal to start a thread more than once.
-		* In particular, a thread may not be restarted once it has completed
-		* execution.
+		* Causes this thread to begin execution of the <code>run</code> method of this thread.
+		* It is never legal to start a thread more than once.
+		* In particular, a thread may not be restarted once it has completed execution.
 		*/
 		virtual void start();
 
@@ -66,7 +65,9 @@ public:
 
 		~Value() override;
 
-	};CTOR(Thread)
+	};
+
+	CTOR(Thread, Value)
 
 	/**
 	 * Returns a reference to the currently executing thread object.

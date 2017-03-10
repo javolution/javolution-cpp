@@ -5,16 +5,17 @@
  */
 #pragma once
 
+#include <limits>
 #include "java/lang/Number.hpp"
+#include "java/lang/Comparable.hpp"
 #include "java/lang/String.hpp"
 
 namespace java {
 namespace lang {
+class Double_Heap;
 
 /**
- * This class represents a 64 bits float value. Unlike java.lang.Float
- * an exception is raised if a conversion to a primitive type would result
- * in a truncation.
+ * This class represents a 64 bits float value.
  *
  * Autoboxing and comparisons with <code>double</code> type are supported.
  * For example: <pre><code>
@@ -24,26 +25,66 @@ namespace lang {
  *
  * @version 7.0
  */
-class Double final : public Number::Interface {
+class Double : public Number::Abstract, public virtual Comparable<Double>::Interface {
 
     double value;
 
 public:
+    /** Since Double is a value-type (stack allocated), define an handle type on heap allocated Double. */
+    typedef Double_Heap Heap;
+
+
+    /** A constant holding the positive infinity of type {@code double}. */
+    static constexpr double POSITIVE_INFINITY = std::numeric_limits<double>::infinity();
+
+    /** A constant holding the negative infinity of type {@code double}. */
+    static constexpr double NEGATIVE_INFINITY = -POSITIVE_INFINITY;
+
+    /** A constant holding a Not-a-Number (NaN) value of type {@code double}. */
+    static constexpr double NaN = std::numeric_limits<float>::quiet_NaN();
 
     /** Autoboxing constructor. */
     Double(double value) :
             value(value) {
     }
 
-    /**
-     * Returns a double having the specified value.
-     */
+    /** Returns a double having the specified value. */
     static Double valueOf(double value) {
         return Double(value);
     }
 
+    /** Indicates if the specified number is a Not-a-Number (NaN) value. */
+    static bool isNaN(double d) {
+        return (d != d);
+    }
+
+    /** Indicates if the specified number is infinitely large in magnitude. */
+    static bool isInfinite(double d) {
+        return (d == POSITIVE_INFINITY) || (d == NEGATIVE_INFINITY);
+    }
+
+    /** Compares the two specified {@code double} values.*/
+    static int compare(double d1, double d2) {
+        if (d1 < d2)
+            return -1;
+        if (d1 > d2)
+            return 1;
+        Type::int64 l1 = *((Type::int64*) &d1);
+        Type::int64 l2 = *((Type::int64*) &d2);
+        if (l1 == l2)
+            return 0;
+        return (l1 < l2) ? -1 : 1;
+    }
+
     /**
-     * Compares this double with the one specified.
+     * Compares this double with the one specified for order.
+     */
+    int compareTo(const Double& that) const override {
+        return Double::compare(value, that.value);
+    }
+
+    /**
+     * Compares this double with the one specified for equality.
      */
     bool equals(const Double& that) const {
         return value == that.value;
@@ -73,8 +114,10 @@ public:
         return String::valueOf(value);
     }
 
-    bool equals(const Object&) const override {
-        return false; // Not related.
+    bool equals(const Object& other) const override {
+        if (this == other) return true;
+        Double* that = other.cast_<Double>();
+        return equals(*that);
     }
 
     int hashCode() const override {
@@ -105,6 +148,35 @@ public:
 
     operator double() const { // Deboxing.
         return value;
+    }
+
+};
+
+class Double_Heap final : public virtual Number, public virtual Comparable<Double> {
+public:
+    class Value final : public Object::Value, public virtual Double {
+    public:
+
+        Value(double d) : Double(d) {}
+
+        String toString() const override {
+              return Double::toString();
+        }
+
+        bool equals(const Object& other) const override {
+              return Double::equals(other);
+        }
+
+        int hashCode() const override {
+              return Double::hashCode();
+        }
+    };
+
+    CTOR(Double_Heap, Value)
+
+    /** Returns a new heap allocated 64-bits float having the specified value. */
+    static Double_Heap newInstance(double d) {
+        return new Value(d);
     }
 
 };

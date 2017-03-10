@@ -11,6 +11,9 @@
 
 using namespace java::lang; // Set default java::lang namespace (global setting).
 
+/** Macro to define default constructors for objects handles. */
+#define CTOR(HANDLE, VALUE) HANDLE(Void = nullptr) {} HANDLE(VALUE* value) : Object(value) {}
+
 namespace java {
 namespace lang {
 
@@ -19,13 +22,13 @@ class Class;
 class String;
 
 /**
- * <p> Holds the methods to be implemented by every class and interfaces (explicit virtual inheritance).</p>
+ * <p> Holds the methods to be implemented by all classes and interfaces (through virtual inheritance).</p>
  */
 class Object_Interface {
 public:
 
     /**
-     * Indicates whether some other object is "equal to" this one.
+     * Indicates whether some other object value is "equal to" this one.
      */
     virtual bool equals(const Object& other) const;
 
@@ -97,7 +100,7 @@ public:
 };
 
 // Standard Java exceptions.
-class Object_Exceptions {
+class Object_Exceptions : public virtual Object_Interface {
 public:
     static void throwNullPointerException();
     static void throwArrayIndexOutOfBoundsException();
@@ -105,10 +108,14 @@ public:
 };
 
 /**
- * The root class for all "Java-Like" objects or interfaces (through virtual inheritance).
+ * The root class for all "Java-Like" objects handles (through virtual inheritance).
+ *
+ * <p> Note: Object and its derived classes are smart pointers (intrusive pointers), they will invoke the delete on
+ *           their values automatically once their reference counts reach zero.
  *
  * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html">Java - Object</a>
  * @see  <a href="http://en.wikipedia.org/wiki/Comparison_of_Java_and_C%2B%2B">Comparison of Java and C++</a>
+ * @see  <a href="http://umich.edu/~eecs381/handouts/C++11_smart_ptrs.pdf>Using C++11’s Smart Pointers</a>
  * @version 7.0
  */
 class Object : public virtual Object_Interface {
@@ -126,7 +133,7 @@ class Object : public virtual Object_Interface {
     /** Equivalent to java::lang::Object_Value */
     typedef Object_Value Value;
 
-    /** Default constructor */
+    /** Default constructor (null value). */
     Object(Void = nullptr) : valuePtr(nullptr) {
     }
 
@@ -136,6 +143,12 @@ class Object : public virtual Object_Interface {
             value->incRefCount();
     }
 
+    /** Constructor for the specified interface.*/
+    Object(Interface* interface) : valuePtr(dynamic_cast<Value*>(interface)) {
+        if (valuePtr != nullptr)
+            valuePtr->incRefCount();
+    }
+
     /** Copy constructor. */
     Object(const Object& that) :
             valuePtr(that.valuePtr) {
@@ -143,12 +156,7 @@ class Object : public virtual Object_Interface {
             valuePtr->incRefCount();
     }
 
-    /** Returns a new object instance. */
-    static Object newInstance() {
-        return new Value();
-    }
-
-    /** Cast this object value to the specified type; returns nullptr if the cast is invalid.*/
+    /** Cast this object value to the specified type; returns nullptr if the cast is invalid. */
     template<class T> T* cast_() const {
         return dynamic_cast<T*>(valuePtr);
     }
@@ -173,13 +181,13 @@ class Object : public virtual Object_Interface {
     template<class T> T* this_cast_() const {
         if (valuePtr == nullptr)
             Object_Exceptions::throwNullPointerException();
-        return dynamic_cast<T*>(valuePtr);
+        return  dynamic_cast<T*>(valuePtr);
     }
 
     bool equals(const Object& other) const override {
         if (valuePtr == nullptr)
             Object_Exceptions::throwNullPointerException();
-        return valuePtr->equals(other);
+        return valuePtr == other.valuePtr;
     }
 
     int hashCode() const override {
@@ -188,9 +196,9 @@ class Object : public virtual Object_Interface {
         return valuePtr->hashCode();
     }
 
-    Class getClass() const override;
+    Class getClass() const override ;
 
-    String toString() const override;
+    String toString() const override ;
 
     Type::Mutex& monitor_() const override {
         if (valuePtr == nullptr)
@@ -236,6 +244,20 @@ class Object : public virtual Object_Interface {
      *  one its container). */
     void value_(Value* newValue) {
         valuePtr = newValue;
+    }
+
+    ////////////////////////////////
+    // C++ Pointer Type Operators //
+    ////////////////////////////////
+
+    Value& operator*() const {
+        if (valuePtr == nullptr) Object_Exceptions::throwNullPointerException();
+        return *valuePtr;
+    }
+
+    Value* operator->() const {
+        if (valuePtr == nullptr) Object_Exceptions::throwNullPointerException();
+        return valuePtr;
     }
 
 private:

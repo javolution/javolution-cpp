@@ -6,17 +6,18 @@
 #pragma once
 
 #include "java/lang/String.hpp"
+#include "java/lang/IllegalArgumentException.hpp"
 #include "java/lang/ArithmeticException.hpp"
 
 namespace java {
 namespace lang {
+class Character_Heap;
 
 /**
- * This class wraps the value of the primitive type <code>wchar</code>
- * in an object.
+ * This class wraps the value of the primitive type <code>wchar</code> in an object.
  *
- * Autoboxing and direct comparisons with <code>char</code> (ASCII) and
- * <code>wchar</code> are supported. For example: <pre><code>
+ * Autoboxing and direct comparisons with <code>char</code> (ASCII) and <code>wchar</code> are supported.
+ * For example: <pre><code>
  *      Character b = 'x';
  *      ...
  *      if (b >= L'µ') { ... }
@@ -26,13 +27,25 @@ namespace lang {
  *       Java - Character</a>
  * @version 7.0
  */
-class Character final : public Object::Interface { // Value-Type.
+class Character : public virtual Object::Interface { // Value-Type.
 
     Type::wchar value;
 
 public:
+    /** Since Character is a value-type (stack allocated), define an handle type on heap allocated Character. */
+    typedef Character_Heap Heap;
 
-    /** Autoboxing constructor. */
+    /**
+     * Autoboxing constructor from ascii character.
+     * @throw IllegalArgumentException if the specified character is not ascii.
+     */
+    Character(char value) :
+            value(value) {
+        if (value > 127)
+            throw IllegalArgumentException("not an ascii character (consider using Type::wchar)");
+    }
+
+    /** Autoboxing constructor from wide character. */
     Character(Type::wchar value) :
             value(value) {
     }
@@ -60,8 +73,7 @@ public:
 
     /**
      * Returns the ASCII character value for this character.
-     * @throw ArithmeticException if this character cannot be represented
-     *        as an ascii character.
+     * @throw ArithmeticException if this character cannot be represented as an ascii character.
      */
     unsigned char asciiValue() const {
         if (value > 127)
@@ -77,8 +89,10 @@ public:
         return String::valueOf(value);
     }
 
-    bool equals(const Object&) const override {
-        return false; // Not related.
+    bool equals(const Object& other) const override {
+        if (this == other) return true;
+        Character* that = other.cast_<Character>();
+        return equals(*that);
     }
 
     int hashCode() const override {
@@ -115,6 +129,40 @@ public:
         return asciiValue();
     }
 
+};
+
+class Character_Heap final : public virtual Object {
+public:
+    class Value final : public Object::Value, public virtual Character {
+    public:
+
+        Value(char c) : Character(c) {}
+        Value(Type::wchar c) : Character(c) {}
+
+        String toString() const override {
+              return Character::toString();
+        }
+
+        bool equals(const Object& other) const override {
+              return Character::equals(other);
+        }
+
+        int hashCode() const override {
+              return Character::hashCode();
+        }
+    };
+
+    CTOR(Character_Heap, Value)
+
+    /** Returns a new heap allocated character having the specified character value. */
+    static Character_Heap newInstance(char c) {
+        return new Value(c);
+    }
+
+    /** Returns a new heap allocated character having the specified wide-character value. */
+    static Character_Heap newInstance(Type::wchar c) {
+        return new Value(c);
+    }
 };
 
 }

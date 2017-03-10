@@ -21,14 +21,19 @@ class Runnable: public virtual Object {
 public:
     class Interface: public virtual Object::Interface {
     public:
-        virtual void run() = 0;
-    };
-    Runnable(Void = nullptr) {}
 
-    /**
-     * When an object implementing interface Runnable is used to create a thread, starting the thread causes
-     * the object's run method to be called in that separately executing thread.
-     */
+        /**
+         * When an object implementing interface Runnable is used to create a thread, starting the thread causes
+         * the object's run method to be called in that separately executing thread.
+         */
+        virtual void run() = 0;
+
+    };
+
+    CTOR(Runnable, Interface)
+
+    // Exported Interface methods.
+
     void run() {
         this_cast_<Interface>()->run();
     }

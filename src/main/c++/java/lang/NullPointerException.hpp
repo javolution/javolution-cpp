@@ -19,9 +19,12 @@ namespace lang {
  */
 class NullPointerException: public RuntimeException {
 public:
-    NullPointerException(const String message = nullptr,
-            const String& classname = "java::lang::NullPointerException") :
-            RuntimeException(message, classname) {
+    class Value: public RuntimeException::Value {
+    };
+
+    /** Creates a null pointer exception with the specified optional message.*/
+    NullPointerException(const String message = nullptr, Value* value = new Value()) :
+            RuntimeException(message, value) {
     }
 };
 

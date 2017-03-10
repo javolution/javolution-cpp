@@ -20,9 +20,12 @@ namespace lang {
  */
 class IndexOutOfBoundsException: public RuntimeException {
 public:
-    IndexOutOfBoundsException(const String& message = nullptr,
-            const String& classname = "java::lang::IndexOutOfBoundsException") :
-            RuntimeException(message, classname) {
+    class Value: public RuntimeException::Value {
+    };
+
+    /** Creates an index out of bounds exception with the specified optional message.*/
+    IndexOutOfBoundsException(const String& message = nullptr, Value* value = new Value()) :
+            RuntimeException(message, value) {
     }
 };
 

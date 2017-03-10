@@ -65,12 +65,9 @@ public:
 			return new String::Value(self->wchars); // Share the same array.
 		}
 
-	};CTOR(StringBuilder)
+	};
 
-	/** Constructs a new empty string builder. */
-	static StringBuilder newInstance() {
-		return new Value();
-	}
+	CTOR(StringBuilder, Value)
 
 	/**
 	 * Appends the textual representation of the specified object.

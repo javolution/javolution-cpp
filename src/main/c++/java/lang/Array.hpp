@@ -27,8 +27,6 @@ class System;
  */
 template<typename E> class Array final : public virtual Object {
 friend class System;
-    Array(Value* value, int length) : Object(value), length(length) {}
-public:
     class Value: public Object::Value {
     public:
         virtual E& elementAt(int index) = 0;
@@ -36,10 +34,24 @@ public:
         virtual Value* setLength(int length) = 0;
         virtual Value* clone() const = 0;
     };
-    Array(Void = nullptr) {}
+    Array(Value* value, int length) : Object(value), length(length) {}
+public:
+    Array(Void = nullptr) {} // Null array.
+
+
+    /** Consumer function which can be used to iterate over array elements (see <code>forEach</code>). */
+    typedef std::function<void(E)> Consumer;
+
+
+    /** Performs an action for each element of this array.
+     *  For example: <code>names.forEach([](const String& name) { System::out.println(name);})</code> */
+    void forEach(const Consumer& action) {
+        Value* array = this_<Value>();
+        for (int i=0; i < length; i++) action(array->elementAt(i)); // TBD: Use recursions...
+    }
 
     /** The length property of the array which can be set (for non-const arrays) without
-     *  modifying the capacity of the array.To adjust the capacity to the length, the method
+     *  modifying the capacity of the array. To adjust the capacity to the length, the method
      *  setLength should be used. */
     int length;
 
@@ -97,10 +109,6 @@ public:
     }
 
 private:
-
-    Value* value() const {
-    	return this_<Value>();
-    }
 
     class BlockValue4;
     class BlockValue8;

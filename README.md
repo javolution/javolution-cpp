@@ -32,14 +32,14 @@ For consistency and maintainability we follow the Java Style (http://geosoft.no/
 
 ```cpp
 String str = "Hello"; 
-StringBuilder sb = new StringBuilder::Value(); 
+StringBuilder sb = new StringBuilder::Value(); // Operator 'new' is performed on Value type. 
 sb.append("Hell").append('o');
 Object obj = sb.toString();                       
 assert(obj.equals(str));
 assert(str.equals(obj));
 
 E get(int i) {
-    if (i >= length) throw IndexOutOfRangeException(); // Throws by value, but caught by reference (&).
+    if (i >= length) throw IndexOutOfRangeException(); // Throws by value (no 'new'), but caught by reference (&).
     return data[i];
 }
 
@@ -51,13 +51,14 @@ void Thread::run() {
     }
 }
 
-class Runnable : public virtual Object { // Java-like type (sub-type of Object).
+class Runnable : public virtual Object { // Java-like type (handle).
 public:
     class Interface : public virtual Object::Interface { // The actual interface (abstract)
     public:
         virtual void run() = 0;    
     }; 
-    Runnable(Void = nullptr) {} // Default constructor (null) 
+    CTOR(Runnable, Interface)
+    // Exported Interface methods (to support . notation)
     void run() { this_cast_<Interface>()->run(); } // Default implementation (dynamic cast)
 };
 ``` 
@@ -70,17 +71,17 @@ Parameters to constructors/functions are usually passed as 'const' references (c
 
 namespace org { namespace acme { // Package org::acme
 
-class Foo : public virtual Runnable { // Pointer type.
+class Foo : public virtual Runnable { // Pointer types.
 public:
-    class Value : public Object::Value, public virtual Runnable::Interface  {  // Value type.
+    class Value : public Object::Value, public virtual Runnable::Interface  {  // Value types.
  
         Runnable action;
         String message;
  
     public:
     
-        Value(const Runnable& a = nullptr, const String& m = nullptr) 
-        : action(a), message(m) {}         
+        Value(const Runnable& action = nullptr, const String& message = nullptr) 
+        : action(action), message(message) {}         
     
         virtual void setMessage(const String& msg) { 
             message = msg;
@@ -92,7 +93,9 @@ public:
         }
     };
     
-    CTOR(Foo) // Foo constructors (for null and Value*).
+    CTOR(Foo, Value) // Foo constructors (from nullptr and Value*)
+        
+    // Exported Value methods.
         
     void setMessage(const String& value) {  
         this_<Value>()->setMessage(value);
@@ -114,7 +117,7 @@ foo.run(); // Prints "Hello"
 
 bool equals(const Object& other) const override {
     if (this == other) return true;
-    Foo that = other.cast_<Foo::Value>(); // null if invalid cast.
+    Foo that = other.cast_<Foo::Value>(); // null if invalid cast (C++)
     return equals(that);
 }
 

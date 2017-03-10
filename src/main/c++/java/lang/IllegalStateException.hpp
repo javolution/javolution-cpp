@@ -7,21 +7,26 @@
 
 #include "java/lang/RuntimeException.hpp"
 
-namespace java { namespace lang {
+namespace java {
+namespace lang {
 
 /**
- * Thrown to signal that a method has been invoked at an illegal or
- * inappropriate time.
+ * Thrown to signal that a method has been invoked at an illegal or inappropriate time.
  *
  * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/IllegalStateException.html">
  *       Java - IllegalStateException</a>
  * @version 7.0
  */
-class IllegalStateException : public RuntimeException {
+class IllegalStateException: public RuntimeException {
 public:
-	IllegalStateException(const String message = nullptr,
-            const String& classname = "java::lang::IllegalStateException") :
-			RuntimeException(message, classname) {
-	}
+    class Value: public RuntimeException::Value {
+    };
+
+    /** Creates an illegal state exception with the specified optional message.*/
+    IllegalStateException(const String message = nullptr, Value* value = new Value()) :
+            RuntimeException(message, value) {
+    }
 };
-}}
+
+}
+}

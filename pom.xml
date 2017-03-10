@@ -41,81 +41,21 @@
 			<url>https://github.com/javolution/javolution-cpp/blob/master/LICENSE</url>
 		</license>
 	</licenses>
-
-	<build>
+	<reporting>
 		<plugins>
-
-			<!-- ================================= -->
-			<!-- Native Plugin Configuration (LIB) -->
-			<!-- ================================= -->
-
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>native-maven-plugin</artifactId>
-				<version>1.0-alpha-8</version>
-				<extensions>true</extensions>
-				<dependencies>
-					<dependency> <!-- Provides MSVC 2015 environment on Windows -->
-						<groupId>org.javolution</groupId>
-						<artifactId>javolution</artifactId>
-						<version>${project.version}</version>
-					</dependency>
-				</dependencies>
-				<configuration>
-					<classifier>${native.classifier}</classifier>
-					<workingDirectory>${project.build.directory}/${native.classifier}</workingDirectory>
-					<compilerOutputDirectory>${project.build.directory}/${native.classifier}/objs</compilerOutputDirectory>
-					<linkerOutputDirectory>${project.build.directory}/${native.classifier}</linkerOutputDirectory>
-					<compilerProvider>${native.compilerProvider}</compilerProvider>
-					<envFactoryName>${native.envFactoryName}</envFactoryName>
-					<compilerExecutable>${native.compilerExecutable}</compilerExecutable>
-					<numberOfConcurrentCompilation>${native.numberOfConcurrentCompilation}</numberOfConcurrentCompilation>
-					<compilerStartOptions>
-						<compilerStartOption>${native.compilerStartOption}</compilerStartOption>
-					</compilerStartOptions>
-					<linkerProvider>${native.linkerProvider}</linkerProvider>
-					<linkerExecutable>${native.linkerExecutable}</linkerExecutable>
-					<linkerStartOptions>
-						<linkerStartOption>${native.linkerStartOption}</linkerStartOption>
-					</linkerStartOptions>
-
-					<!-- ========================= -->
-					<!-- Project Specific Settings -->
-					<!-- ========================= -->
-
-					<sources>
-						<source>
-							<directory>${project.basedir}/src/include/c++</directory>
-							<includes>
-								<include>**/*.cpp</include>
-							</includes>
-						</source>
-						<source>
-							<directory>${project.basedir}/src/main/c++</directory>
-							<includes>
-								<include>**/*.cpp</include>
-							</includes>
-						</source>
-						<source>
-							<directory>${project.basedir}/src/include/c++</directory>
-							<deployable>true</deployable>
-						</source>
-						<source>
-							<directory>${project.basedir}/src/main/c++</directory>
-							<deployable>true</deployable>
-						</source>
-					</sources>
-				</configuration>
+				<groupId>com.soebes.maven.plugins</groupId>
+				<artifactId>doxygen-maven-plugin</artifactId>
+				<version>1.1.0</version>
 			</plugin>
-
 		</plugins>
-	</build>
-
-	<!-- ======================================= -->
-	<!-- Properties setting (platform dependent) -->
-	<!-- ======================================= -->
+	</reporting>
 
 	<profiles>
+
+		<!-- =================================== -->
+		<!-- Windows Plugin Configuration (MSVC) -->
+		<!-- =================================== -->
 		<profile>
 			<id>windows</id>
 			<activation>
@@ -123,20 +63,62 @@
 					<family>windows</family>
 				</os>
 			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+						<version>1.0-alpha-8</version>
+						<extensions>true</extensions>
+						<dependencies>
+							<dependency> <!-- Provides MSVC 2015 environment on Windows -->
+								<groupId>org.javolution</groupId>
+								<artifactId>javolution</artifactId>
+								<version>${project.version}</version>
+							</dependency>
+						</dependencies>
+						<configuration>
+							<classifier>${native.classifier}</classifier>
+							<workingDirectory>${project.build.directory}/${native.classifier}</workingDirectory>
+							<compilerOutputDirectory>${project.build.directory}/${native.classifier}/objs</compilerOutputDirectory>
+							<linkerOutputDirectory>${project.build.directory}/${native.classifier}</linkerOutputDirectory>
+							<compilerProvider>msvc</compilerProvider>
+							<envFactoryName>org.javolution.maven.MSVC2015x64EnvFactory</envFactoryName>
+							<compilerStartOptions>
+								<compilerStartOption>/EHsc /TP /W4 /O2 /Zi
+									/Fd${project.artifactId} /MT</compilerStartOption>
+							</compilerStartOptions>
+							<linkerProvider>msvc</linkerProvider>
+							<linkerExecutable>lib</linkerExecutable>
+							<linkerStartOptions>
+								<linkerStartOption>DbgHelp.Lib</linkerStartOption>
+							</linkerStartOptions>
+                            <linkerEndOption>/DEBUG</linkerEndOption>
+							<sources>
+								<source>
+									<directory>${project.basedir}/src/main/c++</directory>
+									<includes>
+										<include>**/*.cpp</include>
+									</includes>
+								</source>
+								<source>
+									<directory>${project.basedir}/src/main/c++</directory>
+									<deployable>true</deployable>
+								</source>
+							</sources>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 			<properties>
-                <native.packaging>lib</native.packaging>
-				<native.classifier>win64</native.classifier>
-				<native.compilerProvider>msvc</native.compilerProvider>
-				<native.envFactoryName>org.javolution.maven.MSVC2015x64EnvFactory</native.envFactoryName>
-				<native.compilerExecutable />
-				<native.numberOfConcurrentCompilation>1</native.numberOfConcurrentCompilation>  
-				<native.compilerStartOption>/EHsc /TP /W4 /O2 /Zi /Fd${project.artifactId} /MT</native.compilerStartOption>
-				<native.linkerProvider>msvc</native.linkerProvider>
-				<native.linkerExecutable>lib</native.linkerExecutable>
-				<native.linkerStartOption>DbgHelp.Lib</native.linkerStartOption>
+				<native.packaging>lib</native.packaging>
+                <native.classifier>win64</native.classifier>
 			</properties>
 		</profile>
 
+		<!-- ================================= -->
+		<!-- Linux Plugin Configuration (gcc) -->
+		<!-- ================================= -->
 		<profile>
 			<id>linux</id>
 			<activation>
@@ -144,16 +126,50 @@
 					<family>unix</family>
 				</os>
 			</activation>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>native-maven-plugin</artifactId>
+						<version>1.0-alpha-8</version>
+						<extensions>true</extensions>
+						<configuration>
+							<classifier>${native.classifier}</classifier>
+							<workingDirectory>${project.build.directory}/${native.classifier}</workingDirectory>
+							<compilerOutputDirectory>${project.build.directory}/${native.classifier}/objs</compilerOutputDirectory>
+							<linkerOutputDirectory>${project.build.directory}/${native.classifier}</linkerOutputDirectory>
+							<compilerProvider>generic</compilerProvider>
+							<compilerExecutable>g++</compilerExecutable>
+							<numberOfConcurrentCompilation>16</numberOfConcurrentCompilation>
+							<compilerStartOptions>
+								<compilerStartOption>-Wall -O2 -g -std=c++11</compilerStartOption>
+							</compilerStartOptions>
+							<linkerProvider>generic</linkerProvider>
+							<linkerExecutable>ar</linkerExecutable>
+							<linkerStartOptions>
+								<linkerStartOption>rcs</linkerStartOption>
+							</linkerStartOptions>
+							<sources>
+								<source>
+									<directory>${project.basedir}/src/main/c++</directory>
+									<includes>
+										<include>**/*.cpp</include>
+									</includes>
+								</source>
+								<source>
+									<directory>${project.basedir}/src/main/c++</directory>
+									<deployable>true</deployable>
+								</source>
+							</sources>
+						</configuration>
+					</plugin>
+
+				</plugins>
+			</build>
 			<properties>
-                <native.packaging>a</native.packaging>
-				<native.classifier>linux</native.classifier>
-				<native.compilerProvider>generic</native.compilerProvider>
-				<native.compilerExecutable>g++</native.compilerExecutable>
-				<native.numberOfConcurrentCompilation>16</native.numberOfConcurrentCompilation>
-				<native.compilerStartOption>-Wall -O2 -g -std=c++11</native.compilerStartOption>
-				<native.linkerProvider>generic</native.linkerProvider>
-				<native.linkerExecutable>ar</native.linkerExecutable>
-				<native.linkerStartOption>rcs</native.linkerStartOption>
+				<native.packaging>a</native.packaging>
+                <native.classifier>linux</native.classifier>
 			</properties>
 		</profile>
 	</profiles>

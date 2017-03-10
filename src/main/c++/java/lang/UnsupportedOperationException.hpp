@@ -20,9 +20,12 @@ namespace lang {
 
 class UnsupportedOperationException: public RuntimeException {
 public:
-    UnsupportedOperationException(const String& message = nullptr,
-            const String& classname = "java::lang::UnsupportedOperationException") :
-            RuntimeException(message, classname) {
+    class Value: public RuntimeException::Value {
+    };
+
+    /** Creates an unsupported operation exception with the specified optional message.*/
+    UnsupportedOperationException(const String& message = nullptr, Value* value = new Value()) :
+            RuntimeException(message, value) {
     }
 };
 

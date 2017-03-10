@@ -20,8 +20,12 @@ namespace lang {
 
 class SecurityException: public RuntimeException {
 public:
-    SecurityException(const String& message = nullptr, const String& classname = "java::lang::SecurityException") :
-            RuntimeException(message, classname) {
+    class Value: public RuntimeException::Value {
+    };
+
+    /** Creates a security exception with the specified optional message.*/
+    SecurityException(const String& message = nullptr, Value* value = new Value()) :
+            RuntimeException(message, value) {
     }
 };
 

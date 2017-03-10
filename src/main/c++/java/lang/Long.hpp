@@ -6,15 +6,15 @@
 #pragma once
 
 #include "java/lang/Number.hpp"
+#include "java/lang/Comparable.hpp"
 #include "java/lang/String.hpp"
 
 namespace java {
 namespace lang {
+class Long_Heap;
 
 /**
- * This class represents a 64 bits Long value. Unlike java.lang.Long
- * an exception is raised if a conversion to a primitive type would result
- * in a truncation.
+ * This class represents a 64 bits Long value.
  *
  * Autoboxing and direct comparisons with <code>long</code> type
  * is supported. For example: <pre><code>
@@ -25,7 +25,7 @@ namespace lang {
  *
  * @version 7.0
  */
-class Long final : public Number::Interface {
+class Long : public Number::Abstract, public virtual Comparable<Long>::Interface {
 
     /**
      * Holds the 64 bits Long value.
@@ -33,6 +33,9 @@ class Long final : public Number::Interface {
     Type::int64 value;
 
 public:
+    /** Since Long is a value-type (stack allocated), define an handle type on heap allocated Long. */
+    typedef Long_Heap Heap;
+
 
     /** A constant holding the maximum value (<code>2^63 - 1</code>). **/
     static const Long MAX_VALUE;
@@ -53,7 +56,21 @@ public:
     }
 
     /**
-     * Compares this Long with the one specified.
+     * Compares two {@code long} values numerically.
+     */
+    static int compare(Type::int64 x, Type::int64 y) {
+        return (x < y) ? -1 : ((x == y) ? 0 : 1);
+    }
+
+    /**
+     * Compares this Long with the one specified for order.
+     */
+    int compareTo(const Long& that) const override {
+        return compare(value, that.value);
+    }
+
+    /**
+     * Compares this Long with the one specified for equality.
      */
     bool equals(const Long& that) const {
         return value == that.value;
@@ -83,8 +100,10 @@ public:
         return String::valueOf(value);
     }
 
-    bool equals(const Object&) const override {
-        return false; // Not related.
+    bool equals(const Object& other) const override {
+        if (this == other) return true;
+        Long* that = other.cast_<Long>();
+        return equals(*that);
     }
 
     int hashCode() const override {
@@ -116,6 +135,35 @@ public:
     operator Type::int64() const { // Deboxing.
         return value;
     }
+};
+
+class Long_Heap final : public virtual Number, public virtual Comparable<Long> {
+public:
+    class Value final : public Object::Value, public virtual Long {
+    public:
+
+        Value(Type::int64 i) : Long(i) {}
+
+        String toString() const override {
+              return Long::toString();
+        }
+
+        bool equals(const Object& other) const override {
+              return Long::equals(other);
+        }
+
+        int hashCode() const override {
+              return Long::hashCode();
+        }
+    };
+
+    CTOR(Long_Heap, Value)
+
+    /** Returns a new heap allocated 64-bits integer having the specified value. */
+    static Long_Heap newInstance(Type::int64 i) {
+        return new Value(i);
+    }
+
 };
 
 }

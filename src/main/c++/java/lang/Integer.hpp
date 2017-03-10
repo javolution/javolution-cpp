@@ -6,10 +6,12 @@
 #pragma once
 
 #include "java/lang/Number.hpp"
+#include "java/lang/Comparable.hpp"
 #include "java/lang/String.hpp"
 
 namespace java {
 namespace lang {
+class Integer_Heap;
 
 /**
  * This class represents a 32 bits integer value.
@@ -23,7 +25,7 @@ namespace lang {
  *
  * @version 7.0
  */
-class Integer final : public Number::Interface {
+class Integer : public Number::Abstract, public virtual Comparable<Integer>::Interface {
 
     /**
      * Holds the 32 bits integer value.
@@ -31,6 +33,8 @@ class Integer final : public Number::Interface {
     Type::int32 value;
 
 public:
+    /** Since Integer is a value-type (stack allocated), define an handle type on heap allocated Integer. */
+    typedef Integer_Heap Heap;
 
     /** A constant holding the maximum value (<code>2^31 - 1</code>). **/
     static const Integer MAX_VALUE;
@@ -46,12 +50,26 @@ public:
     /**
      * Returns a Integer having the specified value.
      */
-    static Integer valueOf(int value) {
+    static Integer valueOf(Type::int32 value) {
         return Integer(value);
     }
 
     /**
-     * Compares this integer with the one specified.
+     * Compares two {@code int} values numerically.
+     */
+    static int compare(Type::int32 x, Type::int32 y) {
+        return (x < y) ? -1 : ((x == y) ? 0 : 1);
+    }
+
+    /**
+     * Compares this integer with the one specified for order.
+     */
+    int compareTo(const Integer& that) const override {
+        return compare(value, that.value);
+    }
+
+    /**
+     * Compares this integer with the one specified for equality.
      */
     bool equals(const Integer& that) const {
         return value == that.value;
@@ -81,8 +99,10 @@ public:
         return String::valueOf(value);
     }
 
-    bool equals(const Object&) const override {
-        return false; // Not related.
+    bool equals(const Object& other) const override {
+        if (this == other) return true;
+        Integer* that = other.cast_<Integer>();
+        return equals(*that);
     }
 
     int hashCode() const override {
@@ -113,6 +133,35 @@ public:
 
     operator Type::int32() const { // Deboxing.
         return value;
+    }
+
+};
+
+class Integer_Heap final : public virtual Number, public virtual Comparable<Integer> {
+public:
+    class Value final : public Object::Value, public virtual Integer {
+    public:
+
+        Value(Type::int32 i) : Integer(i) {}
+
+        String toString() const override {
+              return Integer::toString();
+        }
+
+        bool equals(const Object& other) const override {
+              return Integer::equals(other);
+        }
+
+        int hashCode() const override {
+              return Integer::hashCode();
+        }
+    };
+
+    CTOR(Integer_Heap, Value)
+
+    /** Returns a new heap allocated 32-bits integer having the specified value. */
+    static Integer_Heap newInstance(Type::int32 i) {
+        return new Value(i);
     }
 
 };

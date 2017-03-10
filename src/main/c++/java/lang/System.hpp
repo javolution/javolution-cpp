@@ -93,8 +93,8 @@ public:
 			throw IndexOutOfBoundsException(
 					String::valueOf("srcPos: ") + srcPos + ", dstPos: " + dstPos + ", length: " + length);
 		typedef typename Array<E>::Value Array_Value;
-		Array_Value * srcValue = src.value();
-		Array_Value * dstValue = dst.value();
+		Array_Value * srcValue = src.this_<Array_Value>();
+		Array_Value * dstValue = dst.this_<Array_Value>();
 		for (int i = 0; i < length; ++i) {
 			dstValue->elementAt(dstPos + i) = srcValue->elementAt(srcPos + i);
 		}

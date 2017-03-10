@@ -19,8 +19,12 @@ namespace lang {
  */
 class Error: public Throwable {
 public:
-    Error(const String& message = nullptr, const String& classname = "java::lang::Error") :
-            Throwable(message, classname) {
+    class Value: public Throwable::Value {
+    };
+
+    /** Creates an error with the specified optional message.*/
+    Error(const String& message = nullptr, Value* value = new Value()) :
+            Throwable(message, value) {
     }
 };
 

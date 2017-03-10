@@ -11,62 +11,62 @@
 #include "java/lang/System.hpp"
 
 String String::valueOf(const Type::wchar* value) {
-    StringBuilder sb = StringBuilder::newInstance();
+    StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
 
 String String::valueOf(const std::wstring& value) {
-    StringBuilder sb = StringBuilder::newInstance();
+    StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
 
 String String::valueOf(const char* value) {
-    StringBuilder sb = StringBuilder::newInstance();
+    StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
 
 String String::valueOf(const std::string& value) {
-    StringBuilder sb = StringBuilder::newInstance();
+    StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
 
 String String::valueOf(Type::wchar value) {
-    StringBuilder sb = StringBuilder::newInstance();
+    StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
 
 String String::valueOf(char value) {
-    StringBuilder sb = StringBuilder::newInstance();
+    StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
 
 String String::valueOf(int value) {
-    StringBuilder sb = StringBuilder::newInstance();
+    StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
 
 String String::valueOf(long value) {
-    StringBuilder sb = StringBuilder::newInstance();
+    StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
 
 String String::valueOf(long long value) {
-    StringBuilder sb = StringBuilder::newInstance();
+    StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
 
 String String::valueOf(float value) {
-    StringBuilder sb = StringBuilder::newInstance();
+    StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
 
 String String::valueOf(double value) {
-    StringBuilder sb = StringBuilder::newInstance();
+    StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
 
 String String::valueOf(bool value) {
-    StringBuilder sb = StringBuilder::newInstance();
+    StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
 

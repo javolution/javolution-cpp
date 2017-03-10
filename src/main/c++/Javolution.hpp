@@ -13,10 +13,8 @@
 // For code specific to Windows (Visual C++ compiler)
 #if defined(_WIN32) || defined(_WIN64) || defined _WINDOWS
 #define JAVOLUTION_MSVC
+#pragma warning( disable : 4290 )  // Visual C++ Ignores Exception Specifications (throw)
 #endif
-
-#define CTOR(CLASS) CLASS(Void = nullptr) {} CLASS(Value* value) : Object(value) {} // Object constructors pattern.
-#define synchronized(obj) for(Type::Lock lock_(obj.monitor_()); lock_; lock_.setUnlock())
 
 namespace Type {
 
@@ -153,11 +151,19 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
-/// Define the synchronized keyword implemented using mutex
+// Define the synchronized keyword implemented using mutex
 // See http://www.codeproject.com/KB/threads/cppsyncstm.aspx
-// The synchronized parameter should be an object having the monitor_()
+// The synchronized parameter should be a pointer on object having the monitor_()
 // method implemented (e.g. collection classes).
 // The synchronized macro is exception-safe, since it unlocks its mutex upon destruction.
+//
+// Example:
+// void TestResult::Value::addError(const Test& test, const Throwable& e) {
+//     synchronized (this) {
+//         ... // Synchronized block.
+//     }
+// }
+//
 ///////////////////////////////////////////////////////////////////////////////////////
 
 class Lock {
@@ -182,5 +188,8 @@ public:
 };
 
 } // End Type::
+
+#define synchronized(obj) for(Type::Lock lock_(obj->monitor_()); lock_; lock_.setUnlock())
+
 
 

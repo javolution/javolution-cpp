@@ -19,9 +19,14 @@ namespace lang {
  */
 class ArithmeticException: public RuntimeException {
 public:
-    ArithmeticException(const String& message = nullptr, const String& classname = "java::lang::ArithmeticException") :
-            RuntimeException(message, classname) {
+    class Value: public RuntimeException::Value {
+    };
+
+    /** Creates an arithmetic exception with the specified optional message.*/
+    ArithmeticException(const String& message = nullptr, Value* value = new Value()) :
+            RuntimeException(message, value) {
     }
+
 };
 
 }

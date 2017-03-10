@@ -32,6 +32,7 @@ class StringBuilder;
  */
 class String final : public virtual CharSequence {
 public:
+
 	class Value final : public Object::Value, public virtual CharSequence::Interface {
 		friend class StringBuilder;
 		Array<Type::wchar> wchars;
@@ -73,7 +74,9 @@ public:
 		String toString() const override {
 			return new Value(wchars);
 		}
-	};CTOR(String)
+	};
+
+	CTOR(String, Value)
 
 	/**
 	 * Returns the string representing the specified object ("null" if (obj == nullptr)).

@@ -26,34 +26,36 @@ namespace lang {
  *
  * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Class.html">
  *       Java - Class</a>
- * @version 1.1
+ * @version 7.0
  */
 class Class final : public virtual Object {
 public:
+
 	class Value: public Object::Value {
-		friend class Class;
 		String name;
 		Type::Mutex monitor;
-		Value(const String& name) :
-				name(name) {
-		}
 	public:
+        Value(const String& name) :
+                name(name) {
+        }
 
+	    /** Returns the class name of this instance (for example "java::lang::String"). */
 		String getName() const {
 			return name;
 		}
+
+        /** Indicates if this class and the one specified are the same. */
+        bool equals(const Class& that) const {
+            if (that == nullptr)
+                return false;
+            return name.equals(that.getName());
+        }
 
 		bool equals(const Object& other) const override {
 			if (this == other)
 				return true;
 			Class that = other.cast_<Value>();
 			return equals(that);
-		}
-
-		bool equals(const Class& that) const {
-			if (that == nullptr)
-				return false;
-			return name.equals(that.getName());
 		}
 
 		int hashCode() const override {
@@ -68,17 +70,24 @@ public:
 			return const_cast<Type::Mutex&>(monitor);
 		}
 
-	};CTOR(Class)
+	};
 
-	/** Returns the class having the specified name. */
+	CTOR(Class, Value)
+
+	/** Returns the class having the specified name (e.g. <code>Class::forName("java::lang::String")</code>). */
 	static Class forName(const String& name) {
 		return new Value(name);
 	}
 
-	/** Returns the class name of this instance (for example "java::lang::Boolean"). */
+	// Exported Value methods.
+
 	String getName() const {
 		return this_<Value>()->getName();
 	}
+
+    bool equals(const Class& that) const {
+        return this_<Value>()->equals(that);
+    }
 
 };
 
