@@ -18,13 +18,11 @@ namespace framework {
 class AssertionFailedError: public AssertionError {
 public:
 
-    class Value: public AssertionError::Value {
-    };
-
     /** Creates an assertion failed error with the specified optional message.*/
-    AssertionFailedError(const String& message = nullptr, Value* value = new Value()) :
-            AssertionError(message, value) {
+    AssertionFailedError(const String& message = nullptr) :
+            AssertionError(message) {
     }
+
 };
 
 }

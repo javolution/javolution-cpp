@@ -19,12 +19,10 @@ namespace lang {
  */
 class AssertionError: public Error {
 public:
-    class Value: public Error::Value {
-    };
 
     /** Creates an assertion error with the specified optional message.*/
-    AssertionError(const String& message = nullptr, Value* value = new Value()) :
-            Error(message, value) {
+    AssertionError(const String& message = nullptr) :
+            Error(message) {
     }
 };
 

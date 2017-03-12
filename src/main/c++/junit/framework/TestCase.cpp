@@ -23,22 +23,15 @@ void TestCase::Value::run(TestResult& result) {
     result.run(test);
 }
 
-void TestCase::Value::runBare() throw(Throwable) {
-    Throwable exception = nullptr;
+void TestCase::Value::runBare() throw (Throwable) {
     setUp();
     try {
         runTest();
     } catch (Throwable& running) {
-        exception = running;
-    }
-    try {
         tearDown();
-    } catch (Throwable& tearingDown) {
-        if (exception == nullptr)
-            exception = tearingDown;
+        throw; // re-throw
     }
-    if (exception != nullptr)
-        throw exception;
+    tearDown();
 }
 
 TestResult TestCase::run() {

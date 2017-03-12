@@ -20,13 +20,12 @@ namespace lang {
  */
 class RuntimeException: public Exception {
 public:
-    class Value: public Exception::Value {
-    };
 
     /** Creates a runtime exception with the specified optional message.*/
-    RuntimeException(const String& message = nullptr, Value* value = new Value()) :
-            Exception(message, value) {
+    RuntimeException(const String& message = nullptr) :
+            Exception(message) {
     }
+
 };
 
 }

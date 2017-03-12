@@ -10,10 +10,13 @@
 #include "junit/framework/Assert.hpp"
 #include "junit/framework/Test.hpp"
 
-/** Macro to add a test method to a TestSuite. */
-#define ADD_TEST(TEST, TEST_SUITE) \
-    struct TEST : Value { void runTest() throw (Throwable) { TEST(); } }; \
-    TEST_SUITE.addTest(new TEST())
+/** Macro to define a test class for the specified method. */
+#define TEST(TEST_METHOD) class TEST_METHOD : public Value { \
+public: \
+    void runTest() throw (Throwable) { \
+          Value::TEST_METHOD(); \
+    } \
+};
 
 namespace junit {
 namespace framework {
@@ -56,17 +59,17 @@ namespace framework {
  *
  * Once the methods are defined you can run each method separately .
  * <pre>
- * struct testAdd : Value { void runTest() throw (Throwable) { testAdd(); } };
+ * TEST(testAdd)
  * TestCase test = new testAdd();
  * test.run();
  * </pre>
  *
- * Usually, the tests are collected into a TestSuite.
+ * Or you can collect them in a TestSuite.
  * <pre>
  * static TestSuite suite() {
  *    TestSuite tests = new TestSuite::Value("MathTest");
- *    ADD_TEST(testAdd, tests);
- *    ADD_TEST(testDivideByZero, tests);
+ *    tests.addTest(new testAdd());
+ *    tests.addTest(new testDivideByZero());
  *    return tests;
  * }
  * </pre>

@@ -20,13 +20,12 @@ namespace lang {
 
 class SecurityException: public RuntimeException {
 public:
-    class Value: public RuntimeException::Value {
-    };
 
     /** Creates a security exception with the specified optional message.*/
-    SecurityException(const String& message = nullptr, Value* value = new Value()) :
-            RuntimeException(message, value) {
+    SecurityException(const String& message = nullptr) :
+            RuntimeException(message) {
     }
+
 };
 
 }

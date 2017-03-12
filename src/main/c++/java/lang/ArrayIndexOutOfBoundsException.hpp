@@ -20,12 +20,10 @@ namespace lang {
  */
 class ArrayIndexOutOfBoundsException: public IndexOutOfBoundsException {
 public:
-    class Value: public IndexOutOfBoundsException::Value {
-    };
 
     /** Creates an array index out of bounds exception with the specified optional message.*/
-    ArrayIndexOutOfBoundsException(const String& message = nullptr, Value* value = new Value()) :
-            IndexOutOfBoundsException(message, value) {
+    ArrayIndexOutOfBoundsException(const String& message = nullptr) :
+            IndexOutOfBoundsException(message) {
     }
 
 };

@@ -20,32 +20,26 @@ namespace lang {
  *       Java - Throwable</a>
  * @version 7.0
  */
-class Throwable: public booster::backtrace, public std::exception, public virtual Object {
+class Throwable: public booster::backtrace, public std::exception, public virtual Object::Interface { // Value-type.
+    String message;
 public:
 
-    class Value: public Object::Value {
-    friend class Throwable;
-        String message;
-    public:
-        /**
-         * Returns the detail message of this exception or nullptr if none.
-         */
-        virtual String getMessage() const {
-            return message;
-        }
-
-        /**
-         * Returns a short description of this throwable (classname + ": " + getMessage())
-         */
-        virtual String toString() const override;
-
-    };
-
     /** Creates a throwable exception with specified optional message. */
-    Throwable(const String& message = nullptr, Value* value = new Value()) :
-            Object(value) {
-        value->message = message;
+    Throwable(const String& message = nullptr) :
+            message(message) {
     }
+
+    /**
+     * Returns the detail message of this exception or nullptr if none.
+     */
+    virtual String getMessage() const {
+        return message;
+    }
+
+    /**
+     * Returns a short description of this throwable (classname + ": " + getMessage())
+     */
+    virtual String toString() const override;
 
     /**
      * Prints this throwable and its backtrace to the standard error stream.
@@ -57,12 +51,6 @@ public:
      */
     const char* what() const throw () {
         return toString().toUTF8().c_str();
-    }
-
-    // Exported Value methods.
-
-    String getMessage() const {
-        return this_<Value>()->getMessage();
     }
 
 };

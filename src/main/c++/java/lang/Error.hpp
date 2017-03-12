@@ -19,13 +19,12 @@ namespace lang {
  */
 class Error: public Throwable {
 public:
-    class Value: public Throwable::Value {
-    };
 
     /** Creates an error with the specified optional message.*/
-    Error(const String& message = nullptr, Value* value = new Value()) :
-            Throwable(message, value) {
+    Error(const String& message = nullptr) :
+            Throwable(message) {
     }
+
 };
 
 }

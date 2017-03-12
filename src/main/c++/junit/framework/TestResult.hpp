@@ -124,7 +124,8 @@ public:
         }
 
         /**
-         * Prints the test result summary (counters). Returns <code>0</code> only if no error or failure.
+         * Prints the test result summary (counters) to System::out.
+         * Returns <code>0</code> only if no error or failure.
          */
         virtual int  printSummary() const;
 

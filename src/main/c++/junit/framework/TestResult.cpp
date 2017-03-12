@@ -16,7 +16,6 @@ void TestResult::Value::run(TestCase& test) {
         test.runBare();
     } catch (AssertionFailedError& e) {
         System::err.println(String::valueOf("Assertion Failed in Test: ") + test.getName());
-        e.printStackTrace();
         addFailure(test, e);
     } catch (Throwable& e) {
         System::err.println(String::valueOf("Unexpected Error in Test: ") + test.getName());
@@ -77,7 +76,7 @@ int TestResult::Value::printSummary() const {
         System::out.println("SUCCESS !");
         return 0;
     } else {
-        System::err.println("FAILURE !");
+        System::out.println("FAILURE !");
         return -1;
     }
 }

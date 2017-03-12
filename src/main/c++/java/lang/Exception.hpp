@@ -20,12 +20,10 @@ namespace lang {
  */
 class Exception: public Throwable {
 public:
-    class Value: public Throwable::Value {
-    };
 
     /** Creates an exception with the specified optional message.*/
-    Exception(const String& message = nullptr, Value* value = new Value()) :
-            Throwable(message, value) {
+    Exception(const String& message = nullptr) :
+            Throwable(message) {
     }
 };
 

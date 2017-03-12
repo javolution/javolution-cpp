@@ -93,7 +93,6 @@
 							<linkerStartOptions>
 								<linkerStartOption>DbgHelp.Lib</linkerStartOption>
 							</linkerStartOptions>
-                            <linkerEndOption>/DEBUG</linkerEndOption>
 							<sources>
 								<source>
 									<directory>${project.basedir}/src/main/c++</directory>

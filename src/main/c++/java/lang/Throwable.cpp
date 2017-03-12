@@ -11,7 +11,7 @@
 #include "java/lang/StringBuilder.hpp"
 #include "java/lang/Thread.hpp"
 
-String Throwable::Value::toString() const {
+String Throwable::toString() const {
    String classname = getClass().getName();
    return (message != nullptr) ? classname + ": " + message : classname;
 }

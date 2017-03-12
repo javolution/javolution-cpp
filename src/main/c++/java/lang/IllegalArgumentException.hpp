@@ -19,12 +19,10 @@ namespace lang {
  */
 class IllegalArgumentException: public RuntimeException {
 public:
-    class Value: public RuntimeException::Value {
-    };
 
     /** Creates an illegal argument exception with the specified optional message.*/
-    IllegalArgumentException(const String message = nullptr, Value* value = new Value()) :
-            RuntimeException(message, value) {
+    IllegalArgumentException(const String message = nullptr) :
+            RuntimeException(message) {
     }
 };
 

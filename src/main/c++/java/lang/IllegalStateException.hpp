@@ -19,12 +19,10 @@ namespace lang {
  */
 class IllegalStateException: public RuntimeException {
 public:
-    class Value: public RuntimeException::Value {
-    };
 
     /** Creates an illegal state exception with the specified optional message.*/
-    IllegalStateException(const String message = nullptr, Value* value = new Value()) :
-            RuntimeException(message, value) {
+    IllegalStateException(const String message = nullptr) :
+            RuntimeException(message) {
     }
 };
 
