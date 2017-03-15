@@ -4,6 +4,7 @@
  * All rights reserved.
  */
 
+#include <typeinfo> // Used for Object::getClass() (C++ Reflection)
 #include "java/lang/Object.hpp"
 #include "java/lang/String.hpp"
 #include "java/lang/StringBuilder.hpp"
@@ -12,12 +13,13 @@
 #include "java/lang/NullPointerException.hpp"
 #include "java/lang/ArrayIndexOutOfBoundsException.hpp"
 #include "java/lang/NegativeArraySizeException.hpp"
-#include <typeinfo> // Used for Object::getClass() (C++ Reflection)
 
 
 ///////////////////////
 // Object_Interface //
 ///////////////////////
+
+#ifdef JAVOLUTION_MSVC
 
 Class Object_Interface::getClass() const {
     String name = String::valueOf(typeid(*this).name());
@@ -29,6 +31,27 @@ Class Object_Interface::getClass() const {
     }
     return Class::forName(name);
 }
+
+#else // Demangle
+
+#include <cstdlib>
+#include <memory>
+#include <cxxabi.h>
+
+Class Object_Interface::getClass() const {
+	int status = -1;
+	std::unique_ptr<char, void(*)(void*)> res {
+	        abi::__cxa_demangle(typeid(*this).name(), NULL, NULL, &status),
+	        std::free
+	    };
+	if (status != 0) throw Throwable(String::valueOf("abi::__cxa_demangle failed (") + status + ")");
+    String name = res.get();
+    if (name.endsWith("::Value")) {
+        name = name.substring(0, name.length() - 7);
+    }
+    return Class::forName(name);
+}
+#endif
 
 String Object_Interface::toString() const {
 	std::size_t address = reinterpret_cast<std::size_t>(this);

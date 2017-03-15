@@ -65,11 +65,11 @@ public:
             return -1;
         if (d1 > d2)
             return 1;
-        Type::int64 l1 = *((Type::int64*) &d1);
-        Type::int64 l2 = *((Type::int64*) &d2);
-        if (l1 == l2)
+        Type::int64* p1 = reinterpret_cast<Type::int64*>(&d1);
+        Type::int64* p2 = reinterpret_cast<Type::int64*>(&d2);
+        if (*p1 == *p2)
             return 0;
-        return (l1 < l2) ? -1 : 1;
+        return (*p1 < *p2) ? -1 : 1;
     }
 
     /**

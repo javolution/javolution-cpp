@@ -92,17 +92,13 @@ public:
 				|| (dstPos + length > dst.length))
 			throw IndexOutOfBoundsException(
 					String::valueOf("srcPos: ") + srcPos + ", dstPos: " + dstPos + ", length: " + length);
-		typedef typename Array<E>::Value Array_Value;
-		Array_Value * srcValue = src.this_<Array_Value>();
-		Array_Value * dstValue = dst.this_<Array_Value>();
 		for (int i = 0; i < length; ++i) {
-			dstValue->elementAt(dstPos + i) = srcValue->elementAt(srcPos + i);
+			dst[dstPos + i] = src[srcPos + i]; // TODO: Use forEach(lambda)
 		}
 	}
 
-
-    /** Returns the current time in milliseconds (the difference, measured in milliseconds, between the current time and
-     *  midnight, January 1, 1970 UTC). */
+	/** Returns the current time in milliseconds (the difference, measured in milliseconds, between the current time and
+	 *  midnight, January 1, 1970 UTC). */
 	static Type::int64 currentTimeMillis();
 
 };

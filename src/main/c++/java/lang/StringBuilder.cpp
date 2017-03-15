@@ -4,6 +4,7 @@
  * All rights reserved.
  */
 
+#include <locale>
 #include <codecvt>
 #include "java/lang/StringBuilder.hpp"
 #include "java/lang/System.hpp"

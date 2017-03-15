@@ -65,13 +65,14 @@ public:
     }
 
     /** Compares the two specified {@code float} values.*/
-    static int compare(float f1, double f2) {
+    static int compare(float f1, float f2) {
         if (f1 < f2) return -1;
         if (f1 > f2) return 1;
-        Type::int32 i1 = *((Type::int32*)&f1);
-        Type::int32 i2 = *((Type::int32*)&f2);
-        if (i1 == i2) return 0;
-        return (i1 < i2) ? -1 : 1;
+        Type::int32* p1 = reinterpret_cast<Type::int32*>(&f1);
+        Type::int32* p2 = reinterpret_cast<Type::int32*>(&f2);
+        if (*p1 == *p2)
+            return 0;
+        return (*p1 < *p2) ? -1 : 1;
     }
 
     /**

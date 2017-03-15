@@ -26,7 +26,7 @@
 	<artifactId>javolution</artifactId>
 	<version>7.0.0-SNAPSHOT</version>
 
-	<packaging>${native.packaging}</packaging>
+	<packaging>lib</packaging>
 	<name>Javolution C++</name>
 	<url>http://javolution.org</url>
 	<description>Javolution C++ Mirror Library. 
@@ -110,7 +110,6 @@
 				</plugins>
 			</build>
 			<properties>
-				<native.packaging>lib</native.packaging>
                 <native.classifier>win64</native.classifier>
 			</properties>
 		</profile>
@@ -167,7 +166,6 @@
 				</plugins>
 			</build>
 			<properties>
-				<native.packaging>a</native.packaging>
                 <native.classifier>linux</native.classifier>
 			</properties>
 		</profile>
