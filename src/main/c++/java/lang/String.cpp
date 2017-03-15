@@ -4,38 +4,34 @@
  * All rights reserved.
  */
 
+#include <codecvt>
 #include "java/lang/String.hpp"
 #include "java/lang/StringBuilder.hpp"
 #include "java/lang/IndexOutOfBoundsException.hpp"
 #include "java/lang/UnsupportedOperationException.hpp"
 #include "java/lang/System.hpp"
 
-String String::valueOf(const Type::wchar* value) {
-    StringBuilder sb = new StringBuilder::Value();
-    return sb.append(value).toString();
-}
-
-String String::valueOf(const std::wstring& value) {
-    StringBuilder sb = new StringBuilder::Value();
-    return sb.append(value).toString();
-}
-
 String String::valueOf(const char* value) {
     StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
 
-String String::valueOf(const std::string& value) {
+String String::valueOf(const Type::uchar* value) {
     StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
 
-String String::valueOf(Type::wchar value) {
+String String::valueOf(const Type::u8string& value) {
     StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
 
 String String::valueOf(char value) {
+    StringBuilder sb = new StringBuilder::Value();
+    return sb.append(value).toString();
+}
+
+String String::valueOf(Type::uchar value) {
     StringBuilder sb = new StringBuilder::Value();
     return sb.append(value).toString();
 }
@@ -74,15 +70,15 @@ String String::Value::substring(int beginIndex, int endIndex) const {
     if ((beginIndex < 0) || (endIndex > length()) || (beginIndex > endIndex))
         throw IndexOutOfBoundsException();
     int length = endIndex - beginIndex;
-    Array<Type::wchar> tmp = Array<Type::wchar>::newInstance(length);
-    System::arraycopy(wchars, beginIndex, tmp, 0, length);
+    Array<Type::uchar> tmp = Array<Type::uchar>::newInstance(length);
+    System::arraycopy(uchars, beginIndex, tmp, 0, length);
     return String(new Value(tmp));
 }
 
 String String::Value::concat(const String& that) const {
-    Array<Type::wchar> tmp = wchars.clone();
+    Array<Type::uchar> tmp = uchars.clone();
     tmp.setLength(length() + that.length());
-    System::arraycopy(that.this_<Value>()->wchars, 0, tmp, length(), that.length());
+    System::arraycopy(that.this_<Value>()->uchars, 0, tmp, length(), that.length());
     return String(new Value(tmp));
 }
 
@@ -135,50 +131,23 @@ int String::Value::hashCode() const {
     return h;
 }
 
-std::wstring String::Value::toWString() const {
+Type::u8string String::Value::toUTF8() const {
     static const int BUFFER_LENGTH = 1024;
     int len = length();
     if (len > BUFFER_LENGTH) { // Possible buffer overflow, split the work.
         int half = len / 2;
-        return substring(0, half).toWString() + substring(half, len).toWString();
-    }
-    Type::wchar buffer[BUFFER_LENGTH];
-    for (int i = 0; i < len; ++i)
-        buffer[i] = charAt(i);
-    return std::wstring(buffer, len);
-}
-
-std::string String::Value::toUTF8() const {
-    static const int BUFFER_LENGTH = 1024;
-    int len = length();
-    if (len * 4 > BUFFER_LENGTH) { // Possible buffer overflow, split the work.
-        int half = len / 2;
         return substring(0, half).toUTF8() + substring(half, len).toUTF8();
     }
-    char buffer[BUFFER_LENGTH];
-    for (int i = 0, j = 0;;) {
-        if (i >= len)
-            return std::string(buffer, j); // Done.
-        Type::wchar w = charAt(i++);
-        if (w <= 0x7f) {
-            buffer[j++] = (char) w;
-        } else if (w <= 0x7ff) {
-            buffer[j++] = (char) (0xc0 | ((w >> 6) & 0x1f));
-            buffer[j++] = (char) (0x80 | (w & 0x3f));
-        } else if (w <= 0xffff) {
-            buffer[j++] = (char) (0xe0 | ((w >> 12) & 0x0f));
-            buffer[j++] = (char) (0x80 | ((w >> 6) & 0x3f));
-            buffer[j++] = (char) (0x80 | (w & 0x3f));
-#ifndef JAVOLUTION_MSVC
-        } else if (w <= 0x10ffff) { // On windows wchar_t is 16 bits!
-            buffer[j++] = (char) (0xf0 | ((w >> 18) & 0x07));
-            buffer[j++] = (char) (0x80 | ((w >> 12) & 0x3f));
-            buffer[j++] = (char) (0x80 | ((w >> 6) & 0x3f));
-            buffer[j++] = (char) (0x80 | (w & 0x3f));
+    Type::uchar buffer[BUFFER_LENGTH];
+    for (int i = 0; i < len; ++i) buffer[i] = charAt(i); // TODO : Replace with Array::forEach
+    std::u16string u16(buffer, len);
+#ifdef JAVOLUTION_MSVC
+    // https://connect.microsoft.com/VisualStudio/feedback/details/1403302/unresolved-external-when-using-codecvt-utf8
+    std::wstring_convert<std::codecvt_utf8_utf16<int16_t>, int16_t> convert;
+    auto p = reinterpret_cast<const int16_t *>(u16.data());
+    return convert.to_bytes(p, p + u16.size());
+#else
+    return std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.to_bytes(u16);
 #endif
-        } else {
-            throw UnsupportedOperationException("Unsupported Wide Character");
-        }
-    }
 }
 

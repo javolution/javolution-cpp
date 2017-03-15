@@ -123,12 +123,6 @@ public:
             return failureCount() == 0 && errorCount() == 0;
         }
 
-        /**
-         * Prints the test result summary (counters) to System::out.
-         * Returns <code>0</code> only if no error or failure.
-         */
-        virtual int  printSummary() const;
-
         Type::Mutex& monitor_() const override {
              return const_cast<Type::Mutex&>(monitor);
         }
@@ -184,10 +178,6 @@ public:
 
     bool wasSuccessful() const {
         return this_<Value>()->wasSuccessful();
-    }
-
-    int printSummary() const {
-        return this_<Value>()->printSummary();
     }
 
 };

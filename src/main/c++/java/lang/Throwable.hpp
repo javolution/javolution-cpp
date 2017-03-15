@@ -37,9 +37,22 @@ public:
     }
 
     /**
+     * Creates a localized description of this throwable.
+     * Subclasses may override this method in order to produce a locale-specific message.
+     */
+    virtual String getLocalizedMessage() const {
+        return getMessage();
+    }
+
+    /**
      * Returns a short description of this throwable (classname + ": " + getMessage())
      */
     virtual String toString() const override;
+
+    /**
+     * Returns the stack trace information of this throwable.
+     */
+    String getStackTrace() const;
 
     /**
      * Prints this throwable and its backtrace to the standard error stream.

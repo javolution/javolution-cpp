@@ -30,24 +30,26 @@ namespace lang {
 class StringBuilder final : public virtual CharSequence {
 public:
 	class Value final : public Object::Value, public virtual CharSequence::Interface {
-		static const int WCHARS_INC = 32; // Smooth length increment.
-		Array<Type::wchar> wchars = Array<Type::wchar>::newInstance();
+		static const int CHARS_INC = 32; // Smooth length increment.
+		Array<Type::uchar> uchars = Array<Type::uchar>::newInstance();
 		int count = 0;
 		bool immutable = false; // Becomes immutable after toString() is called since the array will be shared.
 	public:
 
-		StringBuilder append(Type::wchar wc);
+		StringBuilder append(Type::uchar uc);
 
 		StringBuilder append(const String& str);
 
 		StringBuilder append(const char* chars);
 
-		StringBuilder append(const Type::wchar* chars);
+		StringBuilder append(const Type::uchar* chars);
 
-		Type::wchar charAt(int index) const override {
+        StringBuilder append(const Type::u8string& str);
+
+		Type::uchar charAt(int index) const override {
 			if (index >= count)
 				throw IndexOutOfBoundsException();
-			return wchars[index];
+			return uchars[index];
 		}
 
 		int length() const override {
@@ -60,9 +62,9 @@ public:
 
 		String toString() const override {
 			Value* self = const_cast<Value*>(this); // Removes constness.
-			self->wchars.length = count; // Ok, small reduction adjustment (no need to call setLength).
+			self->uchars.length = count; // Ok, small reduction adjustment (no need to call setLength).
 			self->immutable = true;
-			return new String::Value(self->wchars); // Share the same array.
+			return new String::Value(self->uchars); // Share the same array.
 		}
 
 	};
@@ -87,7 +89,7 @@ public:
 	 * Appends the specified int value.
 	 */
 	StringBuilder append(int value) {
-		std::wostringstream out;
+		std::ostringstream out;
 		out << value;
 		return append(out.str());
 	}
@@ -96,7 +98,7 @@ public:
 	 * Appends the specified long value.
 	 */
 	StringBuilder append(long value) {
-		std::wostringstream out;
+		std::ostringstream out;
 		out << value;
 		return append(out.str());
 	}
@@ -105,7 +107,7 @@ public:
 	 * Appends the specified long long value (at least 64 bits).
 	 */
 	StringBuilder append(long long value) {
-		std::wostringstream out;
+		std::ostringstream out;
 		out << value;
 		return append(out.str());
 	}
@@ -114,7 +116,7 @@ public:
 	 * Appends the specified 32 bits float value.
 	 */
 	StringBuilder append(float value) {
-		std::wostringstream out;
+		std::ostringstream out;
 		out << value;
 		return append(out.str());
 	}
@@ -123,55 +125,50 @@ public:
 	 * Appends the specified 64 bits float value.
 	 */
 	StringBuilder append(double value) {
-		std::wostringstream out;
+		std::ostringstream out;
 		out << value;
 		return append(out.str());
 	}
 
 	/**
-	 * Appends the specified C++ UTF-8 simple characters (null terminated).
+	 * Appends the specified C++ ASCII characters (null terminated).
+	 *
+	 * @throws IllegalArgumentException if any character is not ASCII.
 	 */
 	StringBuilder append(const char* chars) {
 		return this_<Value>()->append(chars);
 	}
 
+    /**
+     * Appends the specified UTF-8 characters (string).
+     */
+    StringBuilder append(const Type::u8string& str) {
+        return this_<Value>()->append(str);
+    }
+
 	/**
-	 * Appends the specified C++ wide characters (null terminated).
+	 * Appends the specified Unicode (UTF-16) characters (null terminated).
 	 */
-	StringBuilder append(const Type::wchar* chars) {
+	StringBuilder append(const Type::uchar* chars) {
 		return this_<Value>()->append(chars);
-	}
-
-	/**
-	 * Appends the specified C++ wide string.
-	 */
-	StringBuilder append(const std::wstring& wstr) {
-		return append(wstr.c_str());
-	}
-
-	/**
-	 * Appends the specified C++ string (UTF-8).
-	 */
-	StringBuilder append(const std::string& str) {
-		return append(str.c_str());
 	}
 
 	/**
 	 * Appends the specified ASCII character.
 	 *
-	 * @throw IllegalArgumentException if the specified value is not ASCII
+	 * @throw IllegalArgumentException if the specified value is not ASCII.
 	 */
 	StringBuilder append(char ascii) {
 		if (ascii > 127)
 			throw IllegalArgumentException("Non-ASCII Character");
-		return append((Type::wchar) ascii);
+		return append((Type::uchar) ascii);
 	}
 
 	/**
-	 * Appends the specified wide character.
+	 * Appends the specified Unicode character (UTF-16), e.g. <code>sb.append(u'€');</code>
 	 */
-	StringBuilder append(Type::wchar wc) {
-		return this_<Value>()->append(wc);
+	StringBuilder append(Type::uchar uc) {
+		return this_<Value>()->append(uc);
 	}
 
 	/**
@@ -185,7 +182,7 @@ public:
 	// CharSequence //
 	//////////////////
 
-	Type::wchar charAt(int index) const {
+	Type::uchar charAt(int index) const {
 		return this_<Value>()->charAt(index);
 	}
 

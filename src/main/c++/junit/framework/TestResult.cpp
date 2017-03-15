@@ -15,11 +15,8 @@ void TestResult::Value::run(TestCase& test) {
     try {
         test.runBare();
     } catch (AssertionFailedError& e) {
-        System::err.println(String::valueOf("Assertion Failed in Test: ") + test.getName());
         addFailure(test, e);
     } catch (Throwable& e) {
-        System::err.println(String::valueOf("Unexpected Error in Test: ") + test.getName());
-        e.printStackTrace();
         addError(test, e);
     }
     endTest(test);
@@ -65,19 +62,6 @@ void TestResult::Value::startTest(const Test& test) {
     }
     for (int i = 0; i < fListeners.length; i++) {
         fListeners[i].startTest(test);
-    }
-}
-
-int TestResult::Value::printSummary() const {
-    System::out.println(String::valueOf("Number of test cases run: ") + fRunTests);
-    System::out.println(String::valueOf("Number of error(s) : ") + errorCount());
-    System::out.println(String::valueOf("Number of failure(s) : ") + failureCount());
-    if (wasSuccessful()) {
-        System::out.println("SUCCESS !");
-        return 0;
-    } else {
-        System::out.println("FAILURE !");
-        return -1;
     }
 }
 

@@ -11,29 +11,26 @@
 
 namespace java {
 namespace lang {
-class Character_Heap;
 
 /**
- * This class wraps the value of the primitive type <code>wchar</code> in an object.
+ * This class wraps the value of the primitive type <code>Type::uchar</code> (Unicode UTF-16 character) in an object.
  *
- * Autoboxing and direct comparisons with <code>char</code> (ASCII) and <code>wchar</code> are supported.
+ * Autoboxing and direct comparisons with <code>char</code> (ASCII) and <code>Type::uchar</code> are supported.
  * For example: <pre><code>
  *      Character b = 'x';
  *      ...
- *      if (b >= L'µ') { ... }
+ *      if (b >= u'µ') { ... }
  * </code></pre>
  *
  * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Character.html">
  *       Java - Character</a>
  * @version 7.0
  */
-class Character : public virtual Object::Interface { // Value-Type.
+class Character final : public virtual Object::Interface { // Value-Type.
 
-    Type::wchar value;
+    Type::uchar value;
 
 public:
-    /** Since Character is a value-type (stack allocated), define an handle type on heap allocated Character. */
-    typedef Character_Heap Heap;
 
     /**
      * Autoboxing constructor from ascii character.
@@ -42,25 +39,25 @@ public:
     Character(char value) :
             value(value) {
         if (value > 127)
-            throw IllegalArgumentException("not an ascii character (consider using Type::wchar)");
+            throw IllegalArgumentException("Not an ASCII character (consider using Type::uchar)");
     }
 
     /** Autoboxing constructor from wide character. */
-    Character(Type::wchar value) :
+    Character(Type::uchar value) :
             value(value) {
     }
 
     /**
      * Returns a character having the specified value.
      */
-    static Character valueOf(Type::wchar value) {
+    static Character valueOf(Type::uchar value) {
         return Character(value);
     }
 
     /**
      * Returns the primitive character value for this Character object.
      */
-    Type::wchar charValue() const {
+    Type::uchar charValue() const {
         return value;
     }
 
@@ -77,7 +74,7 @@ public:
      */
     unsigned char asciiValue() const {
         if (value > 127)
-            throw ArithmeticException("wchar to ascii overflow");
+            throw ArithmeticException("Not an ASCII character");
         return (char) value;
     }
 
@@ -121,7 +118,7 @@ public:
         return value != that.value;
     }
 
-    operator Type::wchar() const { // Deboxing.
+    operator Type::uchar() const { // Deboxing.
         return value;
     }
 
@@ -129,40 +126,6 @@ public:
         return asciiValue();
     }
 
-};
-
-class Character_Heap final : public virtual Object {
-public:
-    class Value final : public Object::Value, public virtual Character {
-    public:
-
-        Value(char c) : Character(c) {}
-        Value(Type::wchar c) : Character(c) {}
-
-        String toString() const override {
-              return Character::toString();
-        }
-
-        bool equals(const Object& other) const override {
-              return Character::equals(other);
-        }
-
-        int hashCode() const override {
-              return Character::hashCode();
-        }
-    };
-
-    CTOR(Character_Heap, Value)
-
-    /** Returns a new heap allocated character having the specified character value. */
-    static Character_Heap newInstance(char c) {
-        return new Value(c);
-    }
-
-    /** Returns a new heap allocated character having the specified wide-character value. */
-    static Character_Heap newInstance(Type::wchar c) {
-        return new Value(c);
-    }
 };
 
 }

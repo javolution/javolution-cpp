@@ -13,7 +13,18 @@
 
 String Throwable::toString() const {
    String classname = getClass().getName();
-   return (message != nullptr) ? classname + ": " + message : classname;
+   String s = getClass().getName();
+   String msg = getLocalizedMessage();
+   return (msg != nullptr) ? classname + ": " + msg : classname;
+}
+
+String Throwable::getStackTrace() const {
+    StringBuilder sb = new StringBuilder::Value();
+    std::ostringstream res;
+    res.imbue(std::locale::classic());
+    res << booster::trace(*this);
+    sb.append(res.str());
+    return sb.toString();
 }
 
 void Throwable::printStackTrace() const {
@@ -21,9 +32,6 @@ void Throwable::printStackTrace() const {
     sb.append("Exception in thread ").append('"').append(Thread::currentThread().getName()).append("\" ");
     sb.append(toString());
     sb.append('\n');
-	std::ostringstream res;
-	res.imbue(std::locale::classic());
-	res << booster::trace(*this) << std::endl;
-	sb.append(res.str());
-	System::err.println(sb);
+    sb.append(getStackTrace());
+    System::err.println(sb);
 }

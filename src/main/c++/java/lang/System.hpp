@@ -20,18 +20,18 @@ public:
 
 	void println() const {
 		synchronized(CLASS){
-		std::wcout << std::endl << std::flush;
+		std::cout << std::endl << std::flush;
 	}
 }
 
 template<typename T> void print(T t) const {
 	synchronized(CLASS) {
-		std::wcout << String::valueOf(t).toWString() << std::flush;
+		std::cout << String::valueOf(t).toUTF8() << std::flush;
 	}
 }
 template<typename T> void println(T t) const {
 	synchronized(CLASS) {
-		std::wcout << String::valueOf(t).toWString() << std::endl << std::flush;
+		std::cout << String::valueOf(t).toUTF8() << std::endl << std::flush;
 	}
 }
 };
@@ -43,17 +43,17 @@ public:
 
 	void println() const {
 		synchronized(CLASS){
-		std::wcerr << std::endl << std::flush;
+		std::cerr << std::endl << std::flush;
 	}
 }
 template<typename T> void print(T t) const {
 	synchronized(CLASS) {
-		std::wcerr << String::valueOf(t).toWString() << std::flush;
+		std::cerr << String::valueOf(t).toUTF8() << std::flush;
 	}
 }
 template<typename T> void println(T t) const {
 	synchronized(CLASS) {
-		std::wcerr << String::valueOf(t).toWString() << std::endl << std::flush;
+		std::cerr << String::valueOf(t).toUTF8() << std::endl << std::flush;
 	}
 }
 };
@@ -73,10 +73,10 @@ class System {
 
 public:
 
-	/** Standard output stream. */
+	/** Standard output stream (UTF-8 encoding). */
 	static const OutPrintStream out;
 
-	/** Standard error stream. */
+	/** Standard error stream (UTF-8 encoding). */
 	static const ErrPrintStream err;
 
 	/**
@@ -99,6 +99,11 @@ public:
 			dstValue->elementAt(dstPos + i) = srcValue->elementAt(srcPos + i);
 		}
 	}
+
+
+    /** Returns the current time in milliseconds (the difference, measured in milliseconds, between the current time and
+     *  midnight, January 1, 1970 UTC). */
+	static Type::int64 currentTimeMillis();
 
 };
 

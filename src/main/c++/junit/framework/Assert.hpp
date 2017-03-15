@@ -123,7 +123,7 @@ public:
     static void assertEquals(const String& message, double expected, double actual, double delta) {
         if (Double::compare(expected, actual) == 0) return;
         if (!(Math::abs(expected - actual) <= delta)) {
-            failNotEquals(message, Double::Heap::newInstance(expected), Double::Heap::newInstance(actual));
+            failNotEquals(message, Double::valueOf(expected), Double::valueOf(actual));
         }
     }
 
@@ -142,7 +142,7 @@ public:
     static void assertEquals(const String& message, float expected, float actual, float delta) {
         if (Float::compare(expected, actual) == 0) return;
         if (!(Math::abs(expected - actual) <= delta)) {
-            failNotEquals(message, Float::Heap::newInstance(expected), Float::Heap::newInstance(actual));
+            failNotEquals(message, Float::valueOf(expected), Float::valueOf(actual));
         }
     }
 
@@ -158,7 +158,8 @@ public:
      * Asserts that two longs are equal. If they are not an AssertionFailedError is thrown with the given message.
      */
     static void assertEquals(const String& message, long expected, long actual) {
-        assertEquals(message, Long::Heap::newInstance(expected), Long::Heap::newInstance(actual));
+        if (Long::valueOf(expected).equals(actual)) return;
+        failNotEquals(message, Long::valueOf(expected), Long::valueOf(actual));
     }
 
     /**
@@ -172,7 +173,8 @@ public:
      * Asserts that two bools are equal. If they are not an AssertionFailedError is thrown with the given message.
      */
     static void assertEquals(const String& message, bool expected, bool actual) {
-        assertEquals(message, Boolean::Heap::newInstance(expected), Boolean::Heap::newInstance(actual));
+        if (Boolean::valueOf(expected).equals(actual)) return;
+        failNotEquals(message, Boolean::valueOf(expected), Boolean::valueOf(actual));
     }
 
     /**
@@ -186,7 +188,8 @@ public:
      * Asserts that two chars are equal. If they are not an AssertionFailedError is thrown with the given message.
      */
     static void assertEquals(const String& message, char expected, char actual) {
-        assertEquals(message, Character::Heap::newInstance(expected), Character::Heap::newInstance(actual));
+        if (Character::valueOf(expected).equals(actual)) return;
+        failNotEquals(message, Character::valueOf(expected), Character::valueOf(actual));
     }
 
     /**
@@ -197,17 +200,18 @@ public:
     }
 
     /**
-     * Asserts that two wide chars are equal. If they are not an AssertionFailedError
+     * Asserts that two characters are equal. If they are not an AssertionFailedError
      * is thrown with the given message.
      */
-    static void assertEquals(const String& message, Type::wchar expected, Type::wchar actual) {
-        assertEquals(message, Character::Heap::newInstance(expected), Character::Heap::newInstance(actual));
+    static void assertEquals(const String& message, Type::uchar expected, Type::uchar actual) {
+        if (Character::valueOf(expected).equals(actual)) return;
+        failNotEquals(message, Character::valueOf(expected), Character::valueOf(actual));
     }
 
     /**
      * Asserts that two wide chars are equal.
      */
-    static void assertEquals(Type::wchar expected, Type::wchar actual) {
+    static void assertEquals(Type::uchar expected, Type::uchar actual) {
         assertEquals(nullptr, expected, actual);
     }
 
@@ -215,7 +219,8 @@ public:
      * Asserts that two ints are equal. If they are not an AssertionFailedError is thrown with the given message.
      */
     static void assertEquals(const String& message, int expected, int actual) {
-        assertEquals(message, Integer::Heap::newInstance(expected), Integer::Heap::newInstance(actual));
+        if (Integer::valueOf(expected).equals(actual)) return;
+        failNotEquals(message, Integer::valueOf(expected), Integer::valueOf(actual));
     }
 
     /**
@@ -312,6 +317,15 @@ public:
             formatted = message + " ";
         }
         return formatted + "expected:<" + expected + "> but was:<" + actual + ">";
+    }
+
+    static void failNotEquals(const String& message, const Object::Interface& expected, const Object::Interface& actual) {
+        String formatted = "";
+        if (message != nullptr && message.length() > 0) {
+            formatted = message + " ";
+        }
+        formatted = formatted + "expected:<" + expected.toString() + "> but was:<" + actual.toString() + ">";
+        fail(formatted);
     }
 
 };

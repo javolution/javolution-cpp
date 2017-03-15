@@ -12,7 +12,6 @@
 
 namespace java {
 namespace lang {
-class Double_Heap;
 
 /**
  * This class represents a 64 bits float value.
@@ -25,14 +24,11 @@ class Double_Heap;
  *
  * @version 7.0
  */
-class Double : public Number::Abstract, public virtual Comparable<Double>::Interface {
+class Double final : public Number::Abstract, public virtual Comparable<Double>::Interface {
 
     double value;
 
 public:
-    /** Since Double is a value-type (stack allocated), define an handle type on heap allocated Double. */
-    typedef Double_Heap Heap;
-
 
     /** A constant holding the positive infinity of type {@code double}. */
     static constexpr double POSITIVE_INFINITY = std::numeric_limits<double>::infinity();
@@ -148,35 +144,6 @@ public:
 
     operator double() const { // Deboxing.
         return value;
-    }
-
-};
-
-class Double_Heap final : public virtual Number, public virtual Comparable<Double> {
-public:
-    class Value final : public Object::Value, public virtual Double {
-    public:
-
-        Value(double d) : Double(d) {}
-
-        String toString() const override {
-              return Double::toString();
-        }
-
-        bool equals(const Object& other) const override {
-              return Double::equals(other);
-        }
-
-        int hashCode() const override {
-              return Double::hashCode();
-        }
-    };
-
-    CTOR(Double_Heap, Value)
-
-    /** Returns a new heap allocated 64-bits float having the specified value. */
-    static Double_Heap newInstance(double d) {
-        return new Value(d);
     }
 
 };

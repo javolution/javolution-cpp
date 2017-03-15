@@ -66,7 +66,3 @@ std::ostream& operator<<(std::ostream& os, const Object& that) {
     return (that != nullptr) ? os << that.toString().toUTF8() : os << "null";
 }
 
-std::wostream& operator<<(std::wostream& wos, const Object& that) {
-    return (that != nullptr) ? wos << that.toString().toWString() : wos << "null";
-}
-

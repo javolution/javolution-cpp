@@ -10,8 +10,6 @@
 namespace java {
 namespace lang {
 
-class Boolean_Heap;
-
 /**
  * This value-type represents the primitive <code>bool</code>
  *
@@ -26,14 +24,11 @@ class Boolean_Heap;
  *       Java - Boolean</a>
  * @version 7.0
  */
-class Boolean : public virtual Object::Interface { // Value-Type.
+class Boolean final : public virtual Object::Interface { // Value-Type.
 
     bool value;
 
 public:
-
-    /** Since Boolean is a value-type (stack allocated), define an handle type on heap allocated Boolean. */
-    typedef Boolean_Heap Heap;
 
     /** The Boolean object corresponding to the primitive value <code>true</code>. */
     static const Boolean TRUE;
@@ -109,34 +104,6 @@ public:
 
     operator bool() const { // Deboxing.
         return value;
-    }
-
-};
-
-class Boolean_Heap final : public virtual Object {
-public:
-    class Value final : public Object::Value, public virtual Boolean {
-    public:
-
-        Value(bool b) : Boolean(b) {}
-
-        String toString() const override {
-              return Boolean::toString();
-        }
-
-        bool equals(const Object& other) const override {
-              return Boolean::equals(other);
-        }
-
-        int hashCode() const override {
-              return Boolean::hashCode();
-        }
-    };
-    CTOR(Boolean_Heap, Value)
-
-    /** Returns a new heap allocated boolean having the specified value. */
-    static Boolean_Heap newInstance(bool b) {
-        return new Value(b);
     }
 
 };

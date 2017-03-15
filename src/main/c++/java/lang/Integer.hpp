@@ -11,7 +11,6 @@
 
 namespace java {
 namespace lang {
-class Integer_Heap;
 
 /**
  * This class represents a 32 bits integer value.
@@ -25,7 +24,7 @@ class Integer_Heap;
  *
  * @version 7.0
  */
-class Integer : public Number::Abstract, public virtual Comparable<Integer>::Interface {
+class Integer final : public Number::Abstract, public virtual Comparable<Integer>::Interface {
 
     /**
      * Holds the 32 bits integer value.
@@ -33,8 +32,6 @@ class Integer : public Number::Abstract, public virtual Comparable<Integer>::Int
     Type::int32 value;
 
 public:
-    /** Since Integer is a value-type (stack allocated), define an handle type on heap allocated Integer. */
-    typedef Integer_Heap Heap;
 
     /** A constant holding the maximum value (<code>2^31 - 1</code>). **/
     static const Integer MAX_VALUE;
@@ -133,35 +130,6 @@ public:
 
     operator Type::int32() const { // Deboxing.
         return value;
-    }
-
-};
-
-class Integer_Heap final : public virtual Number, public virtual Comparable<Integer> {
-public:
-    class Value final : public Object::Value, public virtual Integer {
-    public:
-
-        Value(Type::int32 i) : Integer(i) {}
-
-        String toString() const override {
-              return Integer::toString();
-        }
-
-        bool equals(const Object& other) const override {
-              return Integer::equals(other);
-        }
-
-        int hashCode() const override {
-              return Integer::hashCode();
-        }
-    };
-
-    CTOR(Integer_Heap, Value)
-
-    /** Returns a new heap allocated 32-bits integer having the specified value. */
-    static Integer_Heap newInstance(Type::int32 i) {
-        return new Value(i);
     }
 
 };

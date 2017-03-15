@@ -12,7 +12,6 @@
 
 namespace java {
 namespace lang {
-class Float_Heap;
 
 /**
  * This class represents a 32 bits float value.
@@ -25,7 +24,7 @@ class Float_Heap;
  *
  * @version 7.0
  */
-class Float : public Number::Abstract, public virtual Comparable<Float>::Interface {
+class Float final : public Number::Abstract, public virtual Comparable<Float>::Interface {
 
     /**
      * Holds the 32 bits float value.
@@ -33,8 +32,6 @@ class Float : public Number::Abstract, public virtual Comparable<Float>::Interfa
     float value;
 
 public:
-    /** Since Float is a value-type (stack allocated), define an handle type on heap allocated Float. */
-    typedef Float_Heap Heap;
 
     /** A constant holding the positive infinity of type {@code float}. */
      static constexpr float POSITIVE_INFINITY = std::numeric_limits<float>::infinity();
@@ -149,35 +146,6 @@ public:
 
     operator float() const { // Deboxing.
         return value;
-    }
-
-};
-
-class Float_Heap final : public virtual Number, public virtual Comparable<Float> {
-public:
-    class Value final : public Object::Value, public virtual Float {
-    public:
-
-        Value(float f) : Float(f) {}
-
-        String toString() const override {
-              return Float::toString();
-        }
-
-        bool equals(const Object& other) const override {
-              return Float::equals(other);
-        }
-
-        int hashCode() const override {
-              return Float::hashCode();
-        }
-    };
-
-    CTOR(Float_Heap, Value)
-
-    /** Returns a new heap allocated 32-bits float having the specified value. */
-    static Float_Heap newInstance(float f) {
-        return new Value(f);
     }
 
 };

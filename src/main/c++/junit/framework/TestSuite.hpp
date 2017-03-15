@@ -7,6 +7,7 @@
 
 #include "java/lang/Array.hpp"
 #include "java/lang/String.hpp"
+#include "java/lang/Class.hpp"
 #include "junit/framework/Test.hpp"
 
 namespace junit {
@@ -38,6 +39,12 @@ public:
     public:
 
         /**
+          * Constructs an empty test suite.
+          */
+        Value()  {
+        }
+
+        /**
          * Constructs a test suite of specified name.
          */
         Value(const String& name) : fName(name) {
@@ -58,6 +65,13 @@ public:
          */
         virtual String getName() const {
             return fName;
+        }
+
+        /**
+         * Sets the name of the suite.
+         */
+        void setName(const String& name) {
+            fName = name;
         }
 
         /**
@@ -91,6 +105,10 @@ public:
 
     String getName() const {
         return this_<Value>()->getName();
+    }
+
+    void setName(const String& name) const {
+        this_<Value>()->setName(name);
     }
 
     Test testAt(int index) const {

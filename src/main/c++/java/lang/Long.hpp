@@ -11,7 +11,6 @@
 
 namespace java {
 namespace lang {
-class Long_Heap;
 
 /**
  * This class represents a 64 bits Long value.
@@ -25,7 +24,7 @@ class Long_Heap;
  *
  * @version 7.0
  */
-class Long : public Number::Abstract, public virtual Comparable<Long>::Interface {
+class Long final : public Number::Abstract, public virtual Comparable<Long>::Interface {
 
     /**
      * Holds the 64 bits Long value.
@@ -33,9 +32,6 @@ class Long : public Number::Abstract, public virtual Comparable<Long>::Interface
     Type::int64 value;
 
 public:
-    /** Since Long is a value-type (stack allocated), define an handle type on heap allocated Long. */
-    typedef Long_Heap Heap;
-
 
     /** A constant holding the maximum value (<code>2^63 - 1</code>). **/
     static const Long MAX_VALUE;
@@ -135,35 +131,6 @@ public:
     operator Type::int64() const { // Deboxing.
         return value;
     }
-};
-
-class Long_Heap final : public virtual Number, public virtual Comparable<Long> {
-public:
-    class Value final : public Object::Value, public virtual Long {
-    public:
-
-        Value(Type::int64 i) : Long(i) {}
-
-        String toString() const override {
-              return Long::toString();
-        }
-
-        bool equals(const Object& other) const override {
-              return Long::equals(other);
-        }
-
-        int hashCode() const override {
-              return Long::hashCode();
-        }
-    };
-
-    CTOR(Long_Heap, Value)
-
-    /** Returns a new heap allocated 64-bits integer having the specified value. */
-    static Long_Heap newInstance(Type::int64 i) {
-        return new Value(i);
-    }
-
 };
 
 }

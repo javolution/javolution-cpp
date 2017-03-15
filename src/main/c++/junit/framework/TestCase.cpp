@@ -27,7 +27,7 @@ void TestCase::Value::runBare() throw (Throwable) {
     setUp();
     try {
         runTest();
-    } catch (Throwable& running) {
+    } catch (Throwable&) {
         tearDown();
         throw; // re-throw
     }

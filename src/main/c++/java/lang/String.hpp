@@ -15,12 +15,12 @@ class String;
 class StringBuilder;
 
 /**
- * A string of wide characters (wchar).
+ * A string of 16-bits Unicode characters (<code>Type::uchar</code>).
  *
- * This class supports autoboxing with <code>char*</code> and <code>wchar_t*</code>,
- * e.g. <code>String str = L"Éléphant";</code>
+ * This class supports autoboxing with <code>char*</code> (ASCII) and <code>Type::uchar*</code>,
+ * e.g. <code>String str = u"Éléphant";</code>
  *
- * Concatenations with string literals (including wide strings) is supported (the first element should be a String).
+ * Concatenation using the operator '+' is supported as long as the first instance is a String.
  * <pre><code>
  * if (invalidRange(srcPos, dstPos, length))
  *    throw IndexOutOfBoundsException(String::valueOf("srcPos: ") +
@@ -35,9 +35,9 @@ public:
 
 	class Value final : public Object::Value, public virtual CharSequence::Interface {
 		friend class StringBuilder;
-		Array<Type::wchar> wchars;
-		Value(const Array<Type::wchar>& wchars) :
-				wchars(wchars) {
+		Array<Type::uchar> uchars;
+		Value(const Array<Type::uchar>& uchars) :
+				uchars(uchars) {
 		}
 	public:
 
@@ -55,16 +55,14 @@ public:
 
 		int hashCode() const override;
 
-		std::wstring toWString() const;
+		Type::u8string toUTF8() const;
 
-		std::string toUTF8() const;
-
-		Type::wchar charAt(int index) const override {
-			return wchars[index];
+		Type::uchar charAt(int index) const override {
+			return uchars[index];
 		}
 
 		int length() const override {
-			return wchars.length;
+			return uchars.length;
 		}
 
 		CharSequence subSequence(int start, int end) const override {
@@ -72,7 +70,7 @@ public:
 		}
 
 		String toString() const override {
-			return new Value(wchars);
+			return const_cast<Value*>(this);
 		}
 	};
 
@@ -92,37 +90,34 @@ public:
 		return obj.toString();
 	}
 
-	/**
-	 * Returns the string holding the specified wide characters
-	 * (null terminated).
-	 */
-	static String valueOf(const Type::wchar* wchars);
+    /**
+     * Returns the string holding the specified ASCII characters (null terminated).
+     *
+     * @throws IllegalArgumentException if any character is not an ASCII character.
+     */
+    static String valueOf(const char* chars);
 
 	/**
-	 * Returns the string holding the specified C++ wide string.
+	 * Returns the string holding the specified UTF-16 characters (null terminated).
 	 */
-	static String valueOf(const std::wstring& wstr);
+	static String valueOf(const Type::uchar* chars);
 
 	/**
-	 * Returns the string holding the specified UTF-8 simple characters
-	 * (null terminated).
+	 * Returns the string holding the specified UTF-8 characters.
 	 */
-	static String valueOf(const char* chars);
+	static String valueOf(const Type::u8string& str);
+
+    /**
+     * Returns the string holding the specified ASCII character.
+     *
+     * @throws IllegalArgumentException if the specified character is not an ASCII character.
+     */
+    static String valueOf(char value);
 
 	/**
-	 * Returns the string holding the specified UTF-8 C++ string.
+	 * Returns the string holding the specified UTF-16 Unicode character.
 	 */
-	static String valueOf(const std::string& str);
-
-	/**
-	 * Returns the string holding the specified wide character.
-	 */
-	static String valueOf(Type::wchar value);
-
-	/**
-	 * Returns the string holding the specified ascii character.
-	 */
-	static String valueOf(char value);
+	static String valueOf(Type::uchar value);
 
 	/**
 	 * Returns the string holding the decimal representation of the specified int value.
@@ -210,17 +205,9 @@ public:
 	}
 
 	/**
-	 * Returns the C++ wide string corresponding to this string object.
+	 * Returns a UTF-8 string corresponding to this string object (can be used for serialization purpose).
 	 */
-	std::wstring toWString() const {
-		return this_<Value>()->toWString();
-	}
-
-	/**
-	 * Returns the C++ char string (UTF-8 encoded) corresponding to this string object
-	 * (can be used for serialization purpose).
-	 */
-	std::string toUTF8() const {
+	Type::u8string toUTF8() const {
 		return this_<Value>()->toUTF8();
 	}
 
@@ -228,7 +215,7 @@ public:
 	// CharSequence //
 	//////////////////
 
-	Type::wchar charAt(int index) const {
+	Type::uchar charAt(int index) const {
 		return this_<Value>()->charAt(index);
 	}
 
@@ -256,20 +243,12 @@ public:
 		*this = String::valueOf(chars);
 	}
 
-	String(std::string const& str) {
-		*this = String::valueOf(str);
+	String& operator=(const Type::uchar* chars) {
+		return *this = String::valueOf(chars);
 	}
 
-	String& operator=(const Type::wchar* wchars) {
-		return *this = String::valueOf(wchars);
-	}
-
-	String(const Type::wchar* wchars) {
-		*this = String::valueOf(wchars);
-	}
-
-	String(std::wstring const& wstr) {
-		*this = String::valueOf(wstr);
+	String(const Type::uchar* chars) {
+		*this = String::valueOf(chars);
 	}
 
 	template<typename E>

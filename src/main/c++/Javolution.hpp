@@ -22,12 +22,13 @@ namespace Type {
 // Define portable primitive types.
 ////////////////////////////////////
 
-typedef wchar_t wchar;
 typedef bool boolean;
 typedef std::int8_t int8;
 typedef std::int16_t int16;
 typedef std::int32_t int32; // Should be the same as 'int'
 typedef std::int64_t int64;
+typedef char16_t uchar; // Unicode character (UTF-16), e.g. Type::uchar euro = u'€'
+typedef std::string u8string; // UTF-8 character string.
 typedef std::atomic_int atomic_count; // No Mutex on 32-bits hardware.
 typedef std::recursive_mutex Mutex;
 typedef std::exception Exception;

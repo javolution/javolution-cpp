@@ -26,7 +26,7 @@ public:
         /**
          * Returns the char value at the specified index.
          */
-        virtual Type::wchar charAt(int index) const = 0;
+        virtual Type::uchar charAt(int index) const = 0;
 
         /**
          * Returns the length of this character sequence.
@@ -44,7 +44,7 @@ public:
 
     // Exported Interface methods.
 
-    Type::wchar charAt(int index) const {
+    Type::uchar charAt(int index) const {
         return this_cast_<Interface>()->charAt(index);
     }
 
