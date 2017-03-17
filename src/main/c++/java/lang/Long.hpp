@@ -39,6 +39,11 @@ public:
     /** A constant holding the minimum value (<code>-2^63</code>). **/
     static const Long MIN_VALUE;
 
+    /** Default constructor (zero). */
+    Long() :
+            value(0L) {
+    }
+
     /** Autoboxing constructor. */
     Long(Type::int64 value) :
             value(value) {

@@ -39,6 +39,11 @@ public:
     /** A constant holding a Not-a-Number (NaN) value of type {@code double}. */
     static constexpr double NaN = std::numeric_limits<float>::quiet_NaN();
 
+    /** Default constructor (zero). */
+    Double() :
+            value(0.0) {
+    }
+
     /** Autoboxing constructor. */
     Double(double value) :
             value(value) {

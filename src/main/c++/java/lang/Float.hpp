@@ -42,7 +42,12 @@ public:
      /** A constant holding a Not-a-Number (NaN) value of type {@code float}. */
      static constexpr float NaN = std::numeric_limits<float>::quiet_NaN();
 
-    /** Autoboxing constructor. */
+     /** Default constructor (zero). */
+     Float() :
+             value(0.0f) {
+     }
+
+     /** Autoboxing constructor. */
     Float(float value) :
             value(value) {
     }

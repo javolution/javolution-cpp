@@ -32,6 +32,11 @@ class Character final : public virtual Object::Interface { // Value-Type.
 
 public:
 
+    /** Default constructor ('\0'). */
+    Character() :
+            value(0) {
+    }
+
     /**
      * Autoboxing constructor from ascii character.
      * @throw IllegalArgumentException if the specified character is not ascii.

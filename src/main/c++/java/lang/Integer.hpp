@@ -39,6 +39,11 @@ public:
     /** A constant holding the minimum value (<code>-2^31</code>). **/
     static const Integer MIN_VALUE;
 
+    /** Default constructor (zero). */
+    Integer() :
+            value(0) {
+    }
+
     /** Autoboxing constructor. */
     Integer(Type::int32 value) :
             value(value) {

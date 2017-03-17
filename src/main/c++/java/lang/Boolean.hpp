@@ -36,6 +36,11 @@ public:
     /** The Boolean object corresponding to the primitive value <code>false</code>. */
     static const Boolean FALSE;
 
+    /** Default constructor (false). */
+    Boolean() :
+            value(false) {
+    }
+
     /** Autoboxing constructor. */
     Boolean(bool value) :
             value(value) {
