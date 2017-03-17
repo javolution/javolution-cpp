@@ -6,30 +6,30 @@
 
 ### Javolution C++ - All the benefits of Javolution for C++ developpers.
 
-Java is fast, very fast, but Javolution C++, can make your Java code even faster!
+Java is fast, very fast, but Javolution C++ can make it even faster!
 
 - **High-Performance** 
-    - With Javolution small immutable objects (such as Boolean, Char, Integer, Double) are allocated on the stack instead of the heap leading to around 10x performance improvement according to our tests (see javolution-cpp-test github project). 
-    - All Java parameterized classes (e.g. collections/maps) are true C++ templates (no syntactic sugar).
-    - Javolution C++ supports natively the latest Java 8 feature such as lambda expressions (see examples below). 
-    - Javolution does not need a garbage collector, memory management is done internally through smart pointers ("polluter pays principle" applied to threads).
-    - For hard real-time applications, a lock-free / fixed-size memory allocator (Type::FastHeap) can be enabled (no system call if the heap is correctly sized).
+    - With Javolution small immutable objects (e.g. Integer, Double) are allocated on the stack (10-15x speed improvement). 
+    - Parameterized classes (e.g. collections/maps) are "true" C++ templates (not syntactic sugar).
+    - Provides native support for latest Java 8 features such as lambda expressions. 
+    - No garbage collector, memory management is done through smart pointers (reference counting).
+    - For hard real-time applications, a lock-free / jitter-free memory allocator (Type::FastHeap) is provided.
 
-- **Real-Time** - Since Javolution C++ is a port of Javolution Real-Time classes, it exhibits the same "real-time" characteristics (even better since there is no jitter caused by JIT compilation, class loading/initialization or heap allocations).
+- **Real-Time** - Javolution C++ is a port of Javolution Real-Time classes, it exhibits the same "real-time" characteristics, even better since there is no jitter caused by JIT compilation, class loading/initialization or garbage collection.
 
-- **Easy** - Someone not knowledgeable in C++ but familiar with Java can quickly start developing complex applications in C++. About 90 % of Javolution C++ source code is common with Java. 
+- **Easy** - About 90% of your source code will be identical to Java code (syntactically and library wise). Someone not knowledgeable in C++ but familiar with Java can quickly start developing complex applications in C++.
 
-- **OSGi** - An open-source implementation of OSGi has been partially ported from Java to C++ and is included in the library.
+- **Safe** - Only a very limited sub-set of C++ should be used (the "java-like" part), reducing the C++ pitfalls to fall into.
 
-- **JUnit** - JUnit has also been ported (see GitHub javolution/javolution-cpp-test for usage), the port took less than one day !
+- **Java Reuse** - Existing Java code can be ported quickly (since 90% of the code stays the same); JUnit and OSGi have been ported in a few days and are now included with the library.
 
 - **Maven-Based** - Javolution C++ can be used through Maven (available from Maven central).
 
-- **Portable** - Any application based on Javolution C++ can be compiled without modification on Linux POSIX and Visual C++ (as long as the compiler supports most common C++11 features). 
+- **Portable** - Application based on Javolution C++ can be compiled without modification on Linux POSIX and Visual C++ (as long as the compiler supports C++11 features). 
 
-- **Free** - JVM licensing for embedded systems can be problematic and expensive. It is not the case for Javolution which is free and always will be (MIT license). 
+- **Free** - JVM licensing for embedded and real-time systems can be problematic and expensive. It is not the case for Javolution which is free and always will be (MIT license). 
   
-For consistency and maintainability we follow the Java Style (http://geosoft.no/development/javastyle.html).
+For consistency and maintainability we recommend following the Java Style (http://geosoft.no/development/javastyle.html).
 
 ```cpp
 String str = "Hello"; 
@@ -73,7 +73,7 @@ namespace org { namespace acme { // Package org::acme
 
 class Foo : public virtual Runnable { // Pointer type.
 public:
-    class Value : public Object::Value, public virtual Runnable::Interface  {  // Value type (hold method description/contract)
+    class Value : public Object::Value, public virtual Runnable::Interface  {  // Value type (holds member methods)
  
         Runnable action;
         String message;
@@ -95,15 +95,9 @@ public:
     
     CTOR(Foo, Value) // Foo constructors (from nullptr and Value*)
         
-    // Exported Value methods.
-        
-    void setMessage(const String& value) {  
-        this_<Value>()->setMessage(value);
-    }
-    
-    void run() {  // Optional (inherited from Runnable), here to avoid dynamic cast.
-        this_<Value>()->run();
-    }
+    // Exported Public Methods.
+    void setMessage(const String& value) {  this_<Value>()->setMessage(value); }    
+    void run() { this_<Value>()->run(); } // Optional (inherited from Runnable).
 }; 
 
 }}
@@ -111,13 +105,13 @@ public:
 Here are some illustrative snippets of C++ source code
 
 ```cpp
-Foo foo = new Foo::Value(); // Default parameters supported.
+Foo foo = new Foo::Value(); // Default parameters are supported.
 foo.setMessage("Hello");
 foo.run(); // Prints "Hello"
 
 bool equals(const Object& other) const override {
     if (this == other) return true;
-    Foo that = other.cast_<Foo::Value>(); // null if invalid cast (C++)
+    Foo that = other.cast_<Foo::Value>(); // null if invalid cast (C++ specific)
     return equals(that);
 }
 
@@ -126,11 +120,11 @@ bool equals(const Foo& that) const {
      return (message == nullptr) ? (that.message == nullptr) : message.equals(that.message);
 } 
 
-List<String> list = FastTable<String>::newTable(); 
+List<String> list = FastTable<String>::newTable(); // Factory method. 
 list.add("first");                                  
 list.add("second");
 list.add("third");
-list.add(nullptr);
+list.add(nullptr); // null value supported.
 list.forEach([](const String& name) { System::out.println(name);}) // Lambda expression.
 ``` 
 
@@ -154,7 +148,7 @@ The simplest way to use the Javolution C++ static library is through Maven with 
         </dependency>
 ```
 
-In order to guarantee worst case execution time and internal heap memory (managed by Javolution) can be enabled during bundle activation and the maximum heap usage can be shown at deactivation. Small immutable objects (such as java::lang::Boolean, java::lang::Char, java::lang::Integer, etc.) are manipulated by value (value-types) and don't use the heap.
+In order to reduce potential jitter Type::FastHeap can be enabled during bundle activation and the maximum heap usage can be shown at deactivation. Small immutable objects (such as java::lang::Boolean, java::lang::Char, java::lang::Integer, etc.) are manipulated by value (value-types) and don't use the heap.
 
 ```cpp
 int main(int, char**) {
