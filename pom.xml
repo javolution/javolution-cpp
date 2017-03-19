@@ -42,20 +42,6 @@
 		</license>
 	</licenses>
 	
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>com.soebes.maven.plugins</groupId>
-				<artifactId>doxygen-maven-plugin</artifactId>
-				<version>1.1.0</version>
-				<configuration>
-				   <input>${project.basedir}/src/main/c++</input>
-                  <recursive>true</recursive>
-                 </configuration>				
-			</plugin>
-		</plugins>
-	</reporting>
-
 	<profiles>
 
 		<!-- =================================== -->
@@ -175,6 +161,24 @@
 			</properties>
 		</profile>
 	</profiles>
+
+    <!-- ===================== -->
+    <!-- Site Report (Doxygen) -->
+    <!-- ===================== -->
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>com.soebes.maven.plugins</groupId>
+                <artifactId>doxygen-maven-plugin</artifactId>
+                <version>1.1.0</version>
+                <configuration>
+                    <input>${project.basedir}/src/main/c++</input>
+                    <recursive>true</recursive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

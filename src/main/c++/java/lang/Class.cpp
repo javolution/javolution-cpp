@@ -4,6 +4,7 @@
  * All rights reserved.
  */
 #include "java/lang/Class.hpp"
+#include "java/lang/Throwable.hpp"
 
 
 #ifdef JAVOLUTION_MSVC
