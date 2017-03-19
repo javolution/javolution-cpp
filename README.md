@@ -9,7 +9,7 @@
 Java is fast, very fast, but Javolution C++ can make it even faster!
 
 - **High-Performance** 
-    - With Javolution small immutable objects (e.g. Integer, Double) are allocated on the stack (10-15x speed improvement). 
+    - With Javolution small immutable objects (e.g. Integer, Double, Complex numbers, etc.) are allocated on the stack (10-30x speed improvement). 
     - Parameterized classes (e.g. collections/maps) are "true" C++ templates (not syntactic sugar).
     - Provides native support for latest Java 8 features such as lambda expressions. 
     - No garbage collector, memory management is done through smart pointers (reference counting).
@@ -52,13 +52,13 @@ void Thread::run() {
     }
 }
 
-class Runnable : public Object { 
+class Runnable : public Object { // Pointer type (non abstract).
 public:
-    class Interface { 
+    class Interface { // Actual interface (pure abstract)
     public:
         virtual void run() = 0;    
     }; 
-    INTERFACE_(Runnable) // Constructors.
+    INTERFACE(Runnable) // Predefined constructor on pointer types.
     void run() { this_cast_<Interface>()->run(); } // Exported public method (dynamic cast)
 };
 ``` 
@@ -71,13 +71,13 @@ Parameters to constructors/functions are usually passed as 'const' references (c
 
 namespace org { namespace acme { // Package org::acme
 
-class Foo : public virtual Runnable { // Pointer type.
+class Foo : public Runnable { // Pointer type.
 public:
-    class Value : public Object::Value, public virtual Runnable::Interface  {  // Value type (holds member methods)
- 
+    class Value : public Object::Value, public Runnable::Interface  {  // Value type (holds member methods)
+
         Runnable action;
         String message;
- 
+
     public:
     
         Value(const Runnable& action = nullptr, const String& message = nullptr) 
@@ -93,9 +93,9 @@ public:
         }
     };
     
-    CLASS_(Foo) // Foo constructors (from nullptr and Value*)
+    CLASS_BASE(Foo, Runnable) // Predefined constructors for pointer types.
         
-    // Exported Public Methods.
+    // Exported Public Methods (forwards to Value).
     void setMessage(const String& value) {  this_<Value>()->setMessage(value); }    
     void run() { this_<Value>()->run(); } // Optional (inherited from Runnable)
 }; 
