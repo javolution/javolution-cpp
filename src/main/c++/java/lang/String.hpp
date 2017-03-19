@@ -20,20 +20,19 @@ class StringBuilder;
  * This class supports autoboxing with <code>char*</code> (ASCII) and <code>Type::uchar*</code>,
  * e.g. <code>String str = u"Éléphant";</code>
  *
- * Concatenation using the operator '+' is supported as long as the first instance is a String.
+ * Concatenation with string literals using the operator '+' is supported.
  * <pre><code>
  * if (invalidRange(srcPos, dstPos, length))
- *    throw IndexOutOfBoundsException(String::valueOf("srcPos: ") +
- *        srcPos + ", dstPos: " + dstPos + ", length: " + length);
+ *    throw IndexOutOfBoundsException("srcPos: " + String::valueOf(srcPos) +
+ *       ", dstPos: " + String::valueOf(dstPos) + ", length: " + String::valueOf(length));
  * </code></pre>
  *
  * @version 7.0
  * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/String.html">Java - String</a>
  */
-class String final : public virtual CharSequence {
+class String final : public CharSequence {
 public:
-
-	class Value final : public Object::Value, public virtual CharSequence::Interface {
+	class Value final : public Object::Value, public CharSequence::Interface {
 		friend class StringBuilder;
 		Array<Type::uchar> uchars;
 		Value(const Array<Type::uchar>& uchars) :
@@ -69,25 +68,18 @@ public:
 			return substring(start, end);
 		}
 
-		String toString() const override {
+  		String toString() const override {
 			return const_cast<Value*>(this);
 		}
 	};
 
-	CTOR(String, Value)
+	CLASS_BASE(String, CharSequence)
 
 	/**
 	 * Returns the string representing the specified object ("null" if (obj == nullptr)).
 	 */
 	static String valueOf(const Object& obj) {
 		return obj == nullptr ? "null" : obj.toString();
-	}
-
-	/**
-	 * Equivalent to <code>obj.toString()</code>
-	 */
-	static String valueOf(const Object::Interface& obj) {
-		return obj.toString();
 	}
 
     /**
@@ -251,13 +243,31 @@ public:
 		*this = String::valueOf(chars);
 	}
 
-	template<typename E>
-	String operator+(const E& e) const {
-		return concat(String::valueOf(e));
-	}
-
 };
 
 }
 }
 
+////////////////////////////////////////
+// Concatenation with String literals //
+////////////////////////////////////////
+
+inline String operator+(const char* left, const String& right) {
+    return String::valueOf(left).concat(right);
+}
+
+inline String operator+(const String& left, const char* right) {
+    return left.concat(String::valueOf(right));
+}
+
+inline String operator+(const Type::uchar* left, const String& right) {
+    return String::valueOf(left).concat(right);
+}
+
+inline String operator+(const String& left, const Type::uchar* right) {
+    return left.concat(String::valueOf(right));
+}
+
+inline String operator+(const String& left, const String& right) {
+    return left.concat(right);
+}

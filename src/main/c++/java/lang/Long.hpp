@@ -5,15 +5,14 @@
  */
 #pragma once
 
-#include "java/lang/Number.hpp"
-#include "java/lang/Comparable.hpp"
 #include "java/lang/String.hpp"
+#include "java/lang/Class.hpp"
 
 namespace java {
 namespace lang {
 
 /**
- * This class represents a 64 bits Long value.
+ * This value-type represents a 64 bits Long value.
  *
  * Autoboxing and direct comparisons with <code>long</code> type
  * is supported. For example: <pre><code>
@@ -24,7 +23,7 @@ namespace lang {
  *
  * @version 7.0
  */
-class Long final : public Number::Abstract, public virtual Comparable<Long>::Interface {
+class Long final { // Value type.
 
     /**
      * Holds the 64 bits Long value.
@@ -66,49 +65,48 @@ public:
     /**
      * Compares this Long with the one specified for order.
      */
-    int compareTo(const Long& that) const override {
+    int compareTo(const Long& that) const {
         return compare(value, that.value);
     }
 
-    /**
-     * Compares this Long with the one specified for equality.
-     */
+    /////////////////////////////////////////////////////////////
+    // Object::Interface Equivalent methods (for template use) //
+    /////////////////////////////////////////////////////////////
+
+    int hashCode() const  {
+        return (int) value;
+    }
+
     bool equals(const Long& that) const {
         return value == that.value;
     }
 
-    ////////////////////////
-    // Overriding methods //
-    ////////////////////////
-
-    Type::int32 intValue() const override {
-        return (Type::int32) value;
-    }
-
-    Type::int64 longValue() const override {
-        return value;
-    }
-
-    float floatValue() const override {
-        return (float) value;
-    }
-
-    double doubleValue() const override {
-        return (double) value;
-    }
-
-    String toString() const override {
+    String toString() const  {
         return String::valueOf(value);
     }
 
-    bool equals(const Object& other) const override {
-        if (this == other) return true;
-        Long* that = other.cast_<Long>();
-        return equals(*that);
+    Class getClass() const {
+          return Class::forName("java::lang::Long");
     }
 
-    int hashCode() const override {
-        return (int) value;
+    //////////////////////////////////////////////////
+    // Number Equivalent methods (for template use) //
+    //////////////////////////////////////////////////
+
+    Type::int32 intValue() const {
+        return (Type::int32) value;
+    }
+
+    Type::int64 longValue() const {
+        return value;
+    }
+
+    float floatValue() const {
+        return (float) value;
+    }
+
+    double doubleValue() const {
+        return (double) value;
     }
 
     //////////////////////////

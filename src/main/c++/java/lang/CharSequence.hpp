@@ -17,10 +17,9 @@ namespace lang {
  *       Java - CharSequence</a>
  * @version 7.0
  */
-class CharSequence: public virtual Object {
+class CharSequence: public Object {
 public:
-
-    class Interface: public virtual Object::Interface {
+    class Interface {
     public:
 
         /**
@@ -40,9 +39,7 @@ public:
 
     };
 
-    CharSequence(Void = nullptr) {}
-
-    // Exported Interface methods.
+    INTERFACE(CharSequence)
 
     Type::uchar charAt(int index) const {
         return this_cast_<Interface>()->charAt(index);

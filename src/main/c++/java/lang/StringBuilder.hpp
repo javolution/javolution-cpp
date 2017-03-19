@@ -27,9 +27,9 @@ namespace lang {
  *       Java - StringBuilder</a>
  * @version 7.0
  */
-class StringBuilder final : public virtual CharSequence {
+class StringBuilder final : public CharSequence {
 public:
-	class Value final : public Object::Value, public virtual CharSequence::Interface {
+	class Value final : public Object::Value, public CharSequence::Interface {
 		static const int CHARS_INC = 32; // Smooth length increment.
 		Array<Type::uchar> uchars = Array<Type::uchar>::newInstance();
 		int count = 0;
@@ -67,9 +67,16 @@ public:
 			return new String::Value(self->uchars); // Share the same array.
 		}
 
+		bool equals(const Object& other) const override {
+	        return Object::Value::equals(other);
+	    }
+
+        int hashCode() const override {
+            return Object::Value::hashCode();
+        }
 	};
 
-	CTOR(StringBuilder, Value)
+	CLASS_BASE(StringBuilder, CharSequence)
 
 	/**
 	 * Appends the textual representation of the specified object.

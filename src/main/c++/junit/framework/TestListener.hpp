@@ -16,10 +16,10 @@ namespace framework {
  *
  * @version 7.0
  */
-class TestListener: public virtual Object {
+class TestListener: public Object {
 public:
 
-    class Interface: public virtual Object::Interface {
+    class Interface {
     public:
 
         /**
@@ -43,9 +43,7 @@ public:
         virtual void startTest(const Test& test) = 0;
     };
 
-    CTOR(TestListener, Interface)
-
-    // Exported Interface methods.
+    INTERFACE(TestListener)
 
     void addError(const Test& test, const Throwable& e) {
         this_cast_<Interface>()->addError(test, e);

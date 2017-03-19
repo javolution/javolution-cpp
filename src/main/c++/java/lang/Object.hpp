@@ -9,10 +9,8 @@
 #include "Javolution.hpp"
 #include "java/lang/Void.hpp"
 
-using namespace java::lang; // Set default java::lang namespace (global setting).
-
-/** Macro to define default constructors for objects handles. */
-#define CTOR(HANDLE, VALUE) HANDLE(Void = nullptr) {} HANDLE(VALUE* value) : Object(value) {}
+// Set default java::lang namespace (global setting).
+using namespace java::lang;
 
 namespace java {
 namespace lang {
@@ -21,52 +19,19 @@ class Object;
 class Class;
 class String;
 
-/**
- * <p> Holds the methods to be implemented by all classes and interfaces (through virtual inheritance).</p>
- */
-class Object_Interface {
+// Standard Java exceptions.
+class Object_Exceptions {
 public:
-
-    /**
-     * Indicates whether some other object value is "equal to" this one.
-     */
-    virtual bool equals(const Object& other) const;
-
-    /**
-     * Returns the hash code value for this object.
-     */
-    virtual int hashCode() const {
-    	std::size_t address = reinterpret_cast<std::size_t>(this);
-        return (int) address;
-    }
-
-    /**
-     * Returns the runtime class of this object.
-     */
-    virtual Class getClass() const;
-
-    /**
-     * Returns the string representation of this object.
-     */
-    virtual String toString() const;
-
-    /**
-     * Returns the monitor associated to this object. This method should be overridden by classes supporting
-     * synchronization such as Collection classes.
-     *
-     * @throw UnsupportedOperationException if the class does not support synchronization (default).
-     */
-    virtual Type::Mutex& monitor_() const;
-
-
+    static void throwNullPointerException();
+    static void throwArrayIndexOutOfBoundsException();
+    static void throwNegativeArraySizeException();
 };
 
 /**
- *  The base class for heap allocated values handled by Object instances (direct inheritance).
- *  Heap allocations/deallocations are performed using FastHeap (if activated).
+ *  The base class for Object Values.
  */
-class Object_Value: public virtual Object_Interface {
-friend class Object;
+class Object_Value {
+    friend class Object;
 
     Type::atomic_count refCount;
 
@@ -80,52 +45,69 @@ friend class Object;
 
 public:
 
+    /** Default constructor.*/
     Object_Value() {
         std::atomic_init(&refCount, 0);
     }
 
-    /** Allocates new instances from FastHeap. */
+    /**
+     * Indicates whether some other object value is "equal to" this one.
+     */
+    virtual bool equals(const Object& other) const;
+
+    /**
+     * Returns the hash code value for this object.
+     */
+    virtual int hashCode() const {
+        std::size_t address = reinterpret_cast<std::size_t>(this);
+        return (int) address;
+    }
+
+    /**
+     * Returns the string representation of this object.
+     */
+    virtual String toString() const;
+
+    /**
+     * Returns the runtime class of this object.
+     */
+    Class getClass() const;
+
+    /**
+     * Returns the monitor associated to this object. This method default implementation throws
+     * UnsupportedOperationException and should be overridden by classes supporting synchronisation.
+     */
+    virtual Type::Mutex& monitor_() const;
+
     inline void* operator new(size_t size) {
-        return Type::FastHeap::INSTANCE.allocate(size);
+        return FastHeap::allocate(size);
     }
 
-    /** Deletes this instance back to FastHeap. */
     inline void operator delete(void* mem) {
-        Type::FastHeap::INSTANCE.deallocate(mem);
+        FastHeap::deallocate(mem);
     }
 
-    /** Destructor (virtual, could be called through a pointer to base class). */
     virtual ~Object_Value() {
     }
-};
 
-// Standard Java exceptions.
-class Object_Exceptions : public virtual Object_Interface {
-public:
-    static void throwNullPointerException();
-    static void throwArrayIndexOutOfBoundsException();
-    static void throwNegativeArraySizeException();
 };
 
 /**
- * The root class for all "Java-Like" objects handles (through virtual inheritance).
+ * The root class for "Java-Like" objects (pointer type).
  *
- * <p> Note: Object and its derived classes are smart pointers (intrusive pointers), they will invoke the delete on
- *           their values automatically once their reference counts reach zero.
+ * <p> Note: Object and its derived classes are smart pointers (intrusive pointers), they invoke the delete on
+ *           their values automatically once their reference counts reach zero.</p>
  *
  * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Object.html">Java - Object</a>
  * @see  <a href="http://en.wikipedia.org/wiki/Comparison_of_Java_and_C%2B%2B">Comparison of Java and C++</a>
  * @see  <a href="http://umich.edu/~eecs381/handouts/C++11_smart_ptrs.pdf>Using C++11’s Smart Pointers</a>
  * @version 7.0
  */
-class Object : public virtual Object_Interface {
+class Object {
 
     Object_Value* valuePtr; // The managed object.
 
- public:
-
-    /** Equivalent to java::lang::Object_Interface */
-    typedef Object_Interface Interface;
+public:
 
     /** Equivalent to java::lang::Object_Exceptions */
     typedef Object_Exceptions Exceptions;
@@ -134,19 +116,15 @@ class Object : public virtual Object_Interface {
     typedef Object_Value Value;
 
     /** Default constructor (null value). */
-    Object(Void = nullptr) : valuePtr(nullptr) {
+    Object(Void = nullptr) :
+            valuePtr(nullptr) {
     }
 
     /** Constructor for the specified value. */
-    Object(Value* value) : valuePtr(value) {
+    Object(Value* value) :
+            valuePtr(value) {
         if (value != nullptr)
             value->incRefCount();
-    }
-
-    /** Constructor for the specified interface.*/
-    Object(Interface* interface) : valuePtr(dynamic_cast<Value*>(interface)) {
-        if (valuePtr != nullptr)
-            valuePtr->incRefCount();
     }
 
     /** Copy constructor. */
@@ -181,30 +159,28 @@ class Object : public virtual Object_Interface {
     template<class T> T* this_cast_() const {
         if (valuePtr == nullptr)
             Object_Exceptions::throwNullPointerException();
-        return  dynamic_cast<T*>(valuePtr);
+        return dynamic_cast<T*>(valuePtr);
     }
 
-    bool equals(const Object& other) const override {
+    ///////////////////////////////////
+    // Exported Public Value Methods //
+    ///////////////////////////////////
+
+    bool equals(const Object& other) const {
         if (valuePtr == nullptr)
             Object_Exceptions::throwNullPointerException();
         return valuePtr == other.valuePtr;
     }
 
-    int hashCode() const override {
+    int hashCode() const {
         if (valuePtr == nullptr)
             Object_Exceptions::throwNullPointerException();
         return valuePtr->hashCode();
     }
 
-    Class getClass() const override ;
+    Class getClass() const;
 
-    String toString() const override ;
-
-    Type::Mutex& monitor_() const override {
-        if (valuePtr == nullptr)
-            Object_Exceptions::throwNullPointerException();
-        return valuePtr->monitor_();
-    }
+    String toString() const;
 
     //////////////////////////////////
     // Intrusive Pointer Management //
@@ -251,12 +227,14 @@ class Object : public virtual Object_Interface {
     ////////////////////////////////
 
     Value& operator*() const {
-        if (valuePtr == nullptr) Object_Exceptions::throwNullPointerException();
+        if (valuePtr == nullptr)
+            Object_Exceptions::throwNullPointerException();
         return *valuePtr;
     }
 
     Value* operator->() const {
-        if (valuePtr == nullptr) Object_Exceptions::throwNullPointerException();
+        if (valuePtr == nullptr)
+            Object_Exceptions::throwNullPointerException();
         return valuePtr;
     }
 
@@ -273,7 +251,7 @@ private:
 }
 }
 
-inline bool Object_Interface::equals(const Object& other) const {
+inline bool Object_Value::equals(const Object& other) const {
     return this == other.value_();
 }
 
@@ -299,7 +277,5 @@ inline bool operator!=(const Object& obj1, const Object& obj2) {
 }
 
 // Stream operation.
+
 std::ostream& operator<<(std::ostream& os, const Object& that);
-
-std::wostream& operator<<(std::wostream& wos, const Object& that);
-

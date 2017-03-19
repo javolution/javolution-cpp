@@ -13,15 +13,17 @@ namespace java {
 namespace lang {
 
 /**
- * The class is the superclass of all errors and exceptions.
+ * This value-type is the superclass of all errors and exceptions.
  * Instances of this class should be thrown by value and caught by reference.
  *
  * @see  <a href="https://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html">
  *       Java - Throwable</a>
  * @version 7.0
  */
-class Throwable: public booster::backtrace, public std::exception, public virtual Object::Interface { // Value-type.
+class Throwable: public booster::backtrace, public std::exception {
+
     String message;
+
 public:
 
     /** Creates a throwable exception with specified optional message. */
@@ -47,7 +49,12 @@ public:
     /**
      * Returns a short description of this throwable (classname + ": " + getMessage())
      */
-    virtual String toString() const override;
+    virtual String toString() const;
+
+    /**
+     * Returns the class of this throwable.
+     */
+    Class getClass() const;
 
     /**
      * Returns the stack trace information of this throwable.
@@ -65,7 +72,6 @@ public:
     const char* what() const throw () {
         return toString().toUTF8().c_str();
     }
-
 };
 
 }

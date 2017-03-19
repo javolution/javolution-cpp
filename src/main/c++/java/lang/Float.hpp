@@ -6,15 +6,14 @@
 #pragma once
 
 #include <limits>
-#include "java/lang/Number.hpp"
-#include "java/lang/Comparable.hpp"
 #include "java/lang/String.hpp"
+#include "java/lang/Class.hpp"
 
 namespace java {
 namespace lang {
 
 /**
- * This class represents a 32 bits float value.
+ * This value-type represents a 32 bits float value.
  *
  * Autoboxing and comparisons with <code>float</code> type are supported.
  * For example: <pre><code>
@@ -24,7 +23,7 @@ namespace lang {
  *
  * @version 7.0
  */
-class Float final : public Number::Abstract, public virtual Comparable<Float>::Interface {
+class Float final {
 
     /**
      * Holds the 32 bits float value.
@@ -83,49 +82,48 @@ public:
     /**
      * Compares this float with the one specified for order.
      */
-    int compareTo(const Float& that) const override {
+    int compareTo(const Float& that) const {
         return Float::compare(value, that.value);
     }
 
-   /**
-     * Compares this float with the one specified for equality.
-     */
+    /////////////////////////////////////////////////////////////
+    // Object::Interface Equivalent methods (for template use) //
+    /////////////////////////////////////////////////////////////
+
+    int hashCode() const {
+        return (int) value;
+    }
+
     bool equals(const Float& that) const {
         return value == that.value;
     }
 
-    ////////////////////////
-    // Overriding methods //
-    ////////////////////////
-
-    Type::int32 intValue() const override {
-        return (Type::int32) value;
-    }
-
-    Type::int64 longValue() const override {
-        return (Type::int64) value;
-    }
-
-    float floatValue() const override {
-        return value;
-    }
-
-    double doubleValue() const override {
-        return (double) value;
-    }
-
-    String toString() const override {
+    String toString() const  {
         return String::valueOf(value);
     }
 
-    bool equals(const Object& other) const override {
-        if (this == other) return true;
-        Float* that = other.cast_<Float>();
-        return equals(*that);
+    Class getClass() const {
+          return Class::forName("java::lang::Float");
     }
 
-    int hashCode() const override {
-        return (int) value;
+    //////////////////////////////////////////////////
+    // Number Equivalent methods (for template use) //
+    //////////////////////////////////////////////////
+
+    Type::int32 intValue() const {
+        return (Type::int32) value;
+    }
+
+    Type::int64 longValue() const {
+        return (Type::int64) value;
+    }
+
+    float floatValue() const {
+        return value;
+    }
+
+    double doubleValue() const {
+        return (double) value;
     }
 
     //////////////////////////

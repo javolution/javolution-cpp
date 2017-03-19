@@ -6,6 +6,7 @@
 #pragma once
 
 #include "java/lang/String.hpp"
+#include "java/lang/Class.hpp"
 #include "java/lang/IllegalArgumentException.hpp"
 #include "java/lang/ArithmeticException.hpp"
 
@@ -13,7 +14,7 @@ namespace java {
 namespace lang {
 
 /**
- * This class wraps the value of the primitive type <code>Type::uchar</code> (Unicode UTF-16 character) in an object.
+ * This value-type represents an Unicode UTF-16 character.
  *
  * Autoboxing and direct comparisons with <code>char</code> (ASCII) and <code>Type::uchar</code> are supported.
  * For example: <pre><code>
@@ -26,7 +27,7 @@ namespace lang {
  *       Java - Character</a>
  * @version 7.0
  */
-class Character final : public virtual Object::Interface { // Value-Type.
+class Character final { // Value-Type.
 
     Type::uchar value;
 
@@ -67,13 +68,6 @@ public:
     }
 
     /**
-     * Compares this character with the one specified.
-     */
-    bool equals(const Character& that) const {
-        return value == that.value;
-    }
-
-    /**
      * Returns the ASCII character value for this character.
      * @throw ArithmeticException if this character cannot be represented as an ascii character.
      */
@@ -83,22 +77,24 @@ public:
         return (char) value;
     }
 
-    ////////////////////////
-    // Overriding methods //
-    ////////////////////////
+    /////////////////////////////////////////////////////////////
+    // Object::Interface Equivalent methods (for template use) //
+    /////////////////////////////////////////////////////////////
 
-    String toString() const override {
+    int hashCode() const {
+        return (int) value;
+    }
+
+    bool equals(const Character& that) const {
+        return value == that.value;
+    }
+
+    String toString() const  {
         return String::valueOf(value);
     }
 
-    bool equals(const Object& other) const override {
-        if (this == other) return true;
-        Character* that = other.cast_<Character>();
-        return equals(*that);
-    }
-
-    int hashCode() const override {
-        return (int) value;
+    Class getClass() const {
+          return Class::forName("java::lang::Character");
     }
 
     //////////////////////////

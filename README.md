@@ -52,14 +52,14 @@ void Thread::run() {
     }
 }
 
-class Runnable : public virtual Object { // Java-like type (pointer).
+class Runnable : public Object { 
 public:
-    class Interface : public virtual Object::Interface { // The actual interface (abstract)
+    class Interface { 
     public:
         virtual void run() = 0;    
     }; 
-    CTOR(Runnable, Interface)
-    void run() { this_cast_<Interface>()->run(); } // Default implementation (dynamic cast)
+    INTERFACE_(Runnable) // Constructors.
+    void run() { this_cast_<Interface>()->run(); } // Exported public method (dynamic cast)
 };
 ``` 
 
@@ -93,11 +93,11 @@ public:
         }
     };
     
-    CTOR(Foo, Value) // Foo constructors (from nullptr and Value*)
+    CLASS_(Foo) // Foo constructors (from nullptr and Value*)
         
     // Exported Public Methods.
     void setMessage(const String& value) {  this_<Value>()->setMessage(value); }    
-    void run() { this_<Value>()->run(); } // Optional (inherited from Runnable).
+    void run() { this_<Value>()->run(); } // Optional (inherited from Runnable)
 }; 
 
 }}

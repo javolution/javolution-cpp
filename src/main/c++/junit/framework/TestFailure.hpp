@@ -18,7 +18,7 @@ namespace framework {
  *
  * @version 7.0
  */
-class TestFailure : public virtual Object {
+class TestFailure : public Object {
 public:
 
     ////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ public:
 
     };
 
-    CTOR(TestFailure, Value)
+    CLASS(TestFailure)
 
     // Exported Value methods.
 

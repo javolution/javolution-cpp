@@ -17,9 +17,9 @@ namespace lang {
  *       Java - Runnable</a>
  * @version 7.0
  */
-class Runnable: public virtual Object {
+class Runnable: public Object {
 public:
-    class Interface: public virtual Object::Interface {
+    class Interface {
     public:
 
         /**
@@ -30,9 +30,7 @@ public:
 
     };
 
-    CTOR(Runnable, Interface)
-
-    // Exported Interface methods.
+    INTERFACE(Runnable)
 
     void run() {
         this_cast_<Interface>()->run();

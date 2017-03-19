@@ -17,9 +17,9 @@ namespace lang {
  *       Java - Number</a>
  * @version 7.0
  */
-class Number: public virtual Object {
+class Number: public Object {
 public:
-    class Abstract: public virtual Object::Interface {
+    class Interface {
     public:
         /**
          * Returns the value of the specified number as a 32 bits <code>int</code>.
@@ -42,7 +42,7 @@ public:
         virtual double doubleValue() const = 0;
     };
 
-    CTOR(Number, Abstract)
+    INTERFACE(Number)
 
     /**
      * Returns the value of the specified number as an <code>int8</code>.
@@ -61,19 +61,19 @@ public:
     // Exported Abstract methods.
 
     Type::int32 intValue() const {
-        return this_cast_<Abstract>()->intValue();
+        return this_cast_<Interface>()->intValue();
     }
 
     Type::int64 longValue() const {
-        return this_cast_<Abstract>()->longValue();
+        return this_cast_<Interface>()->longValue();
     }
 
     float floatValue() const {
-        return this_cast_<Abstract>()->floatValue();
+        return this_cast_<Interface>()->floatValue();
     }
 
     double doubleValue() const {
-        return this_cast_<Abstract>()->doubleValue();
+        return this_cast_<Interface>()->doubleValue();
     }
 
 };

@@ -151,4 +151,3 @@ Type::u8string String::Value::toUTF8() const {
     return std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.to_bytes(u16);
 #endif
 }
-

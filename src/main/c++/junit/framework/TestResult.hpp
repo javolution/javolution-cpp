@@ -22,7 +22,7 @@ namespace framework {
  *
  * @version 7.0
  */
-class TestResult: public virtual Object {
+class TestResult: public Object {
 public:
 
     ////////////////////////////////////////////////////////////////////////
@@ -30,6 +30,7 @@ public:
     ////////////////////////////////////////////////////////////////////////
 
     class Value: public Object::Value {
+    friend class TestResult;
         Type::Mutex monitor; // Allows for synchronization on TestResult instances.
     protected:
         Array<TestFailure> fFailures;
@@ -123,13 +124,11 @@ public:
         }
 
         Type::Mutex& monitor_() const override {
-             return const_cast<Type::Mutex&>(monitor);
+               return const_cast<Type::Mutex&>(monitor);
         }
-    };
+  };
 
-    CTOR(TestResult, Value)
-
-    // Exported Value methods.
+    CLASS(TestResult)
 
     void run(TestCase& test) {
         this_<Value>()->run(test);

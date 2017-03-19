@@ -18,7 +18,7 @@ namespace lang {
  *       Java - Thread</a>
  * @version 7.0
  */
-class Thread: public virtual Runnable {
+class Thread: public Runnable {
 
 	static const Thread MAIN; // The main thread.
 	static Type::atomic_count threadNumber; // Autonumbering anonymous threads.
@@ -26,7 +26,7 @@ class Thread: public virtual Runnable {
 public:
 
 	/** Thread Value base class. */
-	class Value: public Object::Value, public virtual Runnable::Interface {
+	class Value: public Object::Value, public Runnable::Interface {
 		Runnable target;
 		String name;
 		void* nativeThreadPtr;
@@ -63,11 +63,23 @@ public:
 			return name;
 		}
 
-		~Value() override;
+        bool equals(const Object& other) const override {
+            return Object::Value::equals(other);
+        }
+
+        int hashCode() const override {
+            return Object::Value::hashCode();
+        }
+
+        String toString() const override {
+            return Object::Value::toString();
+        }
+
+        ~Value() override;
 
 	};
 
-	CTOR(Thread, Value)
+	CLASS_BASE(Thread, Runnable)
 
 	/**
 	 * Returns a reference to the currently executing thread object.

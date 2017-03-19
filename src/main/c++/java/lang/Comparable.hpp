@@ -20,10 +20,10 @@ namespace lang {
  * @version 7.0
  */
 template<class T>
-class Comparable: public virtual Object {
+class Comparable: public Object {
 public:
 
-    class Interface: public virtual Object::Interface {
+    class Interface {
     public:
 
         /**
@@ -35,9 +35,7 @@ public:
 
     };
 
-    CTOR(Comparable, Interface)
-
-    // Exported Interface methods.
+    INTERFACE(Comparable)
 
     int compareTo(const T& that) const {
         return this_cast_<Interface>()->compareTo(that);

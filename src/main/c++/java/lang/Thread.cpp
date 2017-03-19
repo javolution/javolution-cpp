@@ -32,7 +32,7 @@ DWORD WINAPI MyThreadFunction(LPVOID lpParam) {
 		error.printStackTrace();
 	}
 	catch (const std::exception& ex) {
-		System::err.println(String::valueOf("C++ Exception : ") + ex.what());
+		System::err.println("C++ Exception : " + String::valueOf(ex.what()));
 	}
 	catch (...) {
 		System::err.println("Unknown C++ Error!");
@@ -54,7 +54,7 @@ void Thread::Value::join() {
 
 Thread::Value::Value(const Runnable& target, const String& threadName) :
 	target(target) {
-	name = (threadName != nullptr) ? threadName : String::valueOf("Thread-") + ++threadNumber;
+	name = (threadName != nullptr) ? threadName : "Thread-" + String::valueOf(++threadNumber);
 }
 
 Thread::Value::~Value() {
@@ -82,7 +82,7 @@ extern "C" {
 			error.printStackTrace();
 		}
 		catch (const std::exception& ex) {
-			System::err.println(String::valueOf("C++ Exception : ") + ex.what());
+			System::err.println("C++ Exception : " + String::valueOf(ex.what()));
 		}
 		catch (...) {
 			System::err.println("Unknown C++ Error!");
@@ -104,7 +104,7 @@ void Thread::Value::join() {
 
 Thread::Value::Value(const Runnable& target, const String& threadName) :
 	target(target) {
-	name = (threadName != nullptr) ? threadName : String::valueOf("Thread-") + ++threadNumber;
+	name = (threadName != nullptr) ? threadName : "Thread-" + String::valueOf(++threadNumber);
 	nativeThreadPtr = new pthread_t();
 }
 

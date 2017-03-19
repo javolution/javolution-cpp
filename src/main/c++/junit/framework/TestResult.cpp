@@ -56,7 +56,7 @@ void TestResult::Value::endTest(const Test& test) {
 
 void TestResult::Value::startTest(const Test& test) {
     int count = test.countTestCases();
-    synchronized (this) {
+    synchronized (TestResult(this)) {
         fRunTests += count;
     }
     for (int i = 0; i < fListeners.length; i++) {

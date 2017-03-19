@@ -5,15 +5,14 @@
  */
 #pragma once
 
-#include "java/lang/Number.hpp"
-#include "java/lang/Comparable.hpp"
 #include "java/lang/String.hpp"
+#include "java/lang/Class.hpp"
 
 namespace java {
 namespace lang {
 
 /**
- * This class represents a 32 bits integer value.
+ * This value-type represents a 32 bits integer value.
  * 
  * Autoboxing and direct comparisons with <code>int</code> type
  * is supported. For example: <pre><code>
@@ -24,7 +23,7 @@ namespace lang {
  *
  * @version 7.0
  */
-class Integer final : public Number::Abstract, public virtual Comparable<Integer>::Interface {
+class Integer final {
 
     /**
      * Holds the 32 bits integer value.
@@ -66,49 +65,48 @@ public:
     /**
      * Compares this integer with the one specified for order.
      */
-    int compareTo(const Integer& that) const override {
+    int compareTo(const Integer& that) const {
         return compare(value, that.value);
     }
 
-    /**
-     * Compares this integer with the one specified for equality.
-     */
+    /////////////////////////////////////////////////////////////
+    // Object::Interface Equivalent methods (for template use) //
+    /////////////////////////////////////////////////////////////
+
+    int hashCode() const {
+        return value;
+    }
+
     bool equals(const Integer& that) const {
         return value == that.value;
     }
 
-    ////////////////////////
-    // Overriding methods //
-    ////////////////////////
-
-    Type::int32 intValue() const override {
-        return value;
-    }
-
-    Type::int64 longValue() const override {
-        return (Type::int64) value;
-    }
-
-    float floatValue() const override {
-        return (float) value;
-    }
-
-    double doubleValue() const override {
-        return (double) value;
-    }
-
-    String toString() const override {
+    String toString() const  {
         return String::valueOf(value);
     }
 
-    bool equals(const Object& other) const override {
-        if (this == other) return true;
-        Integer* that = other.cast_<Integer>();
-        return equals(*that);
+    Class getClass() const {
+          return Class::forName("java::lang::Integer");
     }
 
-    int hashCode() const override {
-        return (int) value;
+    //////////////////////////////////////////////////
+    // Number Equivalent methods (for template use) //
+    //////////////////////////////////////////////////
+
+    Type::int32 intValue() const {
+        return value;
+    }
+
+    Type::int64 longValue() const {
+        return (Type::int64) value;
+    }
+
+    float floatValue() const {
+        return (float) value;
+    }
+
+    double doubleValue() const {
+        return (double) value;
     }
 
     //////////////////////////

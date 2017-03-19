@@ -11,10 +11,10 @@
 #include "junit/framework/Test.hpp"
 
 /** Macro to define a test class for the specified method. */
-#define TEST(TEST_METHOD) class TEST_METHOD : public Value { \
+#define TEST(TEST_METHOD_) class TEST_METHOD_ : public Value { \
 public: \
     void runTest() throw (Throwable) { \
-          Value::TEST_METHOD(); \
+          Value::TEST_METHOD_(); \
     } \
 };
 
@@ -44,7 +44,7 @@ namespace framework {
  *           fValue2= 3.0;
  *        }
  *    };
- *    CTOR(MathTest, Value)
+ *    CLASS_BASE(MathTest, TestCase)
  * };
  * </pre>
  *
@@ -60,7 +60,7 @@ namespace framework {
  * Once the methods are defined you can run each method separately .
  * <pre>
  * TEST(testAdd)
- * TestCase test = new testAdd();
+ * MathTest test = new testAdd();
  * test.run();
  * </pre>
  *
@@ -78,14 +78,14 @@ namespace framework {
  * @see TestSuite
  * @version 7.0
  */
-class TestCase: public virtual Test {
+class TestCase: public Test {
 public:
 
     ////////////////////////////////////////////////////////////////////////
     // Translated to C++ from public domain java source files (junit 3.x) //
     ////////////////////////////////////////////////////////////////////////
 
-    class Value: public Object::Value, public virtual Test::Interface, public virtual Assert {
+    class Value: public Object::Value, public Assert, public virtual Test::Interface {
     protected:
 
         /**
@@ -152,9 +152,7 @@ public:
 
     };
 
-    CTOR(TestCase, Value)
-
-    // Exported Value methods.
+    CLASS_BASE(TestCase, Test)
 
     TestResult run();
 

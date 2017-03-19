@@ -16,14 +16,14 @@ class TestResult;
  * @version 7.0
  * @see TestResult
  */
-class Test: public virtual Object {
+class Test: public Object {
 public:
 
     ////////////////////////////////////////////////////////////////////////
     // Translated to C++ from public domain java source files (junit 3.x) //
     ////////////////////////////////////////////////////////////////////////
 
-    class Interface: public virtual Object::Interface {
+    class Interface {
     public:
 
         /**
@@ -38,9 +38,7 @@ public:
 
     };
 
-    CTOR(Test, Interface)
-
-    // Exported Interface methods.
+    INTERFACE(Test)
 
     int countTestCases() const {
         return this_cast_<Interface>()->countTestCases();

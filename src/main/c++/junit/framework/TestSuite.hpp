@@ -26,14 +26,14 @@ class TestResult;
  *
  * @version 7.0
  */
-class TestSuite: public virtual Test {
+class TestSuite: public Test {
 public:
 
     ////////////////////////////////////////////////////////////////////////
     // Translated to C++ from public domain java source files (junit 3.x) //
     ////////////////////////////////////////////////////////////////////////
 
-    class Value: public Object::Value, public virtual Test::Interface {
+    class Value: public Object::Value, public Test::Interface {
         String fName;
         Array<Test> fTests =  Array<Test>::newInstance(0);
     public:
@@ -95,9 +95,7 @@ public:
 
     };
 
-    CTOR(TestSuite, Value)
-
-    // Exported Value methods.
+    CLASS_BASE(TestSuite, Test)
 
     void addTest(const Test& test) {
         this_<Value>()->addTest(test);

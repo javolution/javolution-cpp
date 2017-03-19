@@ -90,8 +90,8 @@ public:
 	template<typename E> static void arraycopy(const Array<E>& src, int srcPos, Array<E>& dst, int dstPos, int length) {
 		if ((srcPos < 0) || (dstPos < 0) || (length < 0) || (srcPos + length > src.length)
 				|| (dstPos + length > dst.length))
-			throw IndexOutOfBoundsException(
-					String::valueOf("srcPos: ") + srcPos + ", dstPos: " + dstPos + ", length: " + length);
+			throw IndexOutOfBoundsException("srcPos: " + String::valueOf(srcPos) +
+			        ", dstPos: " + String::valueOf(dstPos) + ", length: " + String::valueOf(length));
 		for (int i = 0; i < length; ++i) {
 			dst[dstPos + i] = src[srcPos + i]; // TODO: Use forEach(lambda)
 		}

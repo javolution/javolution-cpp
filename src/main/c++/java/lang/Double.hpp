@@ -6,15 +6,14 @@
 #pragma once
 
 #include <limits>
-#include "java/lang/Number.hpp"
-#include "java/lang/Comparable.hpp"
 #include "java/lang/String.hpp"
+#include "java/lang/Class.hpp"
 
 namespace java {
 namespace lang {
 
 /**
- * This class represents a 64 bits float value.
+ * This value-type represents a 64 bits float value.
  *
  * Autoboxing and comparisons with <code>double</code> type are supported.
  * For example: <pre><code>
@@ -24,7 +23,7 @@ namespace lang {
  *
  * @version 7.0
  */
-class Double final : public Number::Abstract, public virtual Comparable<Double>::Interface {
+class Double final {
 
     double value;
 
@@ -80,49 +79,48 @@ public:
     /**
      * Compares this double with the one specified for order.
      */
-    int compareTo(const Double& that) const override {
+    int compareTo(const Double& that) const {
         return Double::compare(value, that.value);
     }
 
-    /**
-     * Compares this double with the one specified for equality.
-     */
+    /////////////////////////////////////////////////////////////
+    // Object::Interface Equivalent methods (for template use) //
+    /////////////////////////////////////////////////////////////
+
+    int hashCode() const {
+        return (int) value;
+    }
+
     bool equals(const Double& that) const {
         return value == that.value;
     }
 
-    ////////////////////////
-    // Overriding methods //
-    ////////////////////////
-
-    Type::int32 intValue() const override {
-        return (Type::int32) value;
-    }
-
-    Type::int64 longValue() const override {
-        return (Type::int64) value;
-    }
-
-    float floatValue() const override {
-        return (float) value;
-    }
-
-    double doubleValue() const override {
-        return value;
-    }
-
-    String toString() const override {
+    String toString() const  {
         return String::valueOf(value);
     }
 
-    bool equals(const Object& other) const override {
-        if (this == other) return true;
-        Double* that = other.cast_<Double>();
-        return equals(*that);
+    Class getClass() const {
+          return Class::forName("java::lang::Double");
     }
 
-    int hashCode() const override {
-        return (int) value;
+    //////////////////////////////////////////////////
+    // Number Equivalent methods (for template use) //
+    //////////////////////////////////////////////////
+
+    Type::int32 intValue() const {
+        return (Type::int32) value;
+    }
+
+    Type::int64 longValue() const {
+        return (Type::int64) value;
+    }
+
+    float floatValue() const {
+        return (float) value;
+    }
+
+    double doubleValue() const {
+        return value;
     }
 
     //////////////////////////

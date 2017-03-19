@@ -88,7 +88,7 @@
 							<compilerOutputDirectory>${project.build.directory}/${native.classifier}/objs</compilerOutputDirectory>
 							<linkerOutputDirectory>${project.build.directory}/${native.classifier}</linkerOutputDirectory>
 							<compilerProvider>msvc</compilerProvider>
-							<envFactoryName>org.javolution.maven.MSVC2017x64EnvFactory</envFactoryName>
+							<envFactoryName>org.javolution.maven.MSVC2017x86EnvFactory</envFactoryName>
 							<compilerStartOptions>
 								<compilerStartOption>/EHsc /TP /W4 /O2 /Zi
 									/Fd${project.artifactId} /MT /utf-8</compilerStartOption>

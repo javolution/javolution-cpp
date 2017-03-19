@@ -25,8 +25,8 @@ class System;
  *
  * @version 7.0
  */
-template<typename E> class Array final : public virtual Object {
-friend class System;
+template<typename E> class Array final : public Object {
+public:
     class Value: public Object::Value {
     public:
         virtual E& elementAt(int index) = 0;
@@ -34,21 +34,8 @@ friend class System;
         virtual Value* setLength(int length) = 0;
         virtual Value* clone() const = 0;
     };
-    Array(Value* value, int length) : Object(value), length(length) {}
-public:
-    Array(Void = nullptr) {} // Null array.
 
-
-    /** Consumer function which can be used to iterate over array elements (see <code>forEach</code>). */
-    typedef std::function<void(E)> Consumer;
-
-
-    /** Performs an action for each element of this array.
-     *  For example: <code>names.forEach([](const String& name) { System::out.println(name);})</code> */
-    void forEach(const Consumer& action) {
-        Value* array = this_<Value>();
-        for (int i=0; i < length; i++) action(array->elementAt(i)); // TBD: Use recursions...
-    }
+    CLASS(Array)
 
     /** The length property of the array which can be set (for non-const arrays) without
      *  modifying the capacity of the array. To adjust the capacity to the length, the method
@@ -57,7 +44,9 @@ public:
 
     /** Returns a new array of small/optimized length. */
     static Array<E> newInstance() {
-        return Array(new BlockValue(), BlockValue::MAX_CAPACITY);
+        Array<E> tmp = new BlockValue();
+        tmp.length = BlockValue::MAX_CAPACITY;
+        return tmp;
     }
 
     /**
@@ -66,7 +55,7 @@ public:
      * @throws NegativeArraySizeException if the specified length is negative
      */
     static Array<E> newInstance(int length) {
-        Array<E> tmp = newInstance();
+        Array<E> tmp = new BlockValue();
         tmp.setLength(length);
         return tmp;
     }
@@ -93,7 +82,9 @@ public:
      * Returns a new array, holding the same elements as this one.
      */
     Array<E> clone() const {
-        return Array<E>(this_<Value>()->clone(), length);
+        Array<E> tmp = this_<Value>()->clone();
+        tmp.length = length;
+        return tmp;
     }
 
     /**
@@ -105,7 +96,19 @@ public:
     void setLength(int newLength) {
         if (newLength < 0)
              Object::Exceptions::throwNegativeArraySizeException();
-         *this = Array<E>(this_<Value>()->setLength(newLength), newLength);
+        Array<E> tmp = this_<Value>()->setLength(newLength);
+        tmp.length = newLength;
+        *this = tmp;
+    }
+
+    /** Consumer function which can be used to iterate over array elements (see <code>forEach</code>). */
+    typedef std::function<void(E)> Consumer;
+
+    /** Performs an action for each element of this array.
+     *  For example: <code>names.forEach([](const String& name) { System::out.println(name);})</code> */
+    void forEach(const Consumer& action) {
+        Value* array = this_<Value>();
+        for (int i=0; i < length; i++) action(array->elementAt(i)); // TBD: Use recursions...
     }
 
 private:
@@ -124,7 +127,7 @@ private:
         typedef BlockValue4 Outer;
     public:
 
-        static const size_t SIZE = Type::FastHeap::BLOCK_FREE_SIZE / sizeof(E);
+        static const size_t SIZE = FastHeap::BLOCK_FREE_SIZE / sizeof(E);
         static const int SHIFT = (SIZE >= 256) ? 8 : (SIZE >= 128) ? 7 : (SIZE >= 64) ? 6 : (SIZE >= 32) ? 5 :
                                          (SIZE >= 16) ? 4 : (SIZE >= 8) ? 3 : 2;
         static const int MAX_CAPACITY = 1 << SHIFT;

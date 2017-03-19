@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include <typeinfo>
 #include "java/lang/Object.hpp"
 #include "java/lang/String.hpp"
 
@@ -28,10 +29,11 @@ namespace lang {
  *       Java - Class</a>
  * @version 7.0
  */
-class Class final : public virtual Object {
+class Class final : public Object {
 public:
 
 	class Value: public Object::Value {
+	friend class Class;
 		String name;
 		Type::Mutex monitor;
 	public:
@@ -63,25 +65,26 @@ public:
 		}
 
 		String toString() const override {
-			return String::valueOf("Class ") + getName();
+			return "Class " + getName();
 		}
 
 		Type::Mutex& monitor_() const override {
-			return const_cast<Type::Mutex&>(monitor);
+		     return const_cast<Type::Mutex&>(monitor);
 		}
 
 	};
 
-	CTOR(Class, Value)
+    using Object::Object;
 
 	/** Returns the class having the specified name (e.g. <code>Class::forName("java::lang::String")</code>). */
 	static Class forName(const String& name) {
 		return new Value(name);
 	}
 
-	// Exported Value methods.
+    /** Returns the class having the specified type info (e.g. <code>Class::forType(typeid(*this))</code>). */
+    static Class forType(const std::type_info& info);
 
-	String getName() const {
+    String getName() const {
 		return this_<Value>()->getName();
 	}
 

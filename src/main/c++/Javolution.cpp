@@ -10,9 +10,22 @@
 
 using namespace java::lang;
 
-Type::FastHeap Type::FastHeap::INSTANCE;
+Type::atomic_count FastHeap::newCount {-1};
+Type::atomic_count FastHeap::delCount {-1};
 
-void Type::FastHeap::setSize(int size) {
+void** FastHeap::queue = nullptr;
+int FastHeap::queueSize = 0;
+int FastHeap::queueMask = 0;
+
+FastHeap::Block* FastHeap::buffer = nullptr;
+void* FastHeap::bufferFirst = nullptr;
+void* FastHeap::bufferLast = nullptr;
+
+Type::int64 FastHeap::systemHeapCount = 0;
+size_t FastHeap::blockSize = 0;
+int FastHeap::maxUseCount = 0;
+
+void FastHeap::setSize(int size) {
 	if (size == queueSize) return;
 	if (queueSize != 0)
 		throw UnsupportedOperationException("FastHeap resizing not supported.");

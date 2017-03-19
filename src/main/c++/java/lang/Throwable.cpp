@@ -11,6 +11,10 @@
 #include "java/lang/StringBuilder.hpp"
 #include "java/lang/Thread.hpp"
 
+Class Throwable::getClass() const {
+   return Class::forType(typeid(*this));
+}
+
 String Throwable::toString() const {
    String classname = getClass().getName();
    String s = getClass().getName();

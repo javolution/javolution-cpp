@@ -6,6 +6,7 @@
 #pragma once
 
 #include "java/lang/String.hpp"
+#include "java/lang/Class.hpp"
 
 namespace java {
 namespace lang {
@@ -24,7 +25,7 @@ namespace lang {
  *       Java - Boolean</a>
  * @version 7.0
  */
-class Boolean final : public virtual Object::Interface { // Value-Type.
+class Boolean final  { // Value-Type.
 
     bool value;
 
@@ -60,29 +61,24 @@ public:
         return value;
     }
 
-    /**
-     * Compares this bool with the one specified.
-     */
+    /////////////////////////////////////////////////////////////
+    // Object::Interface Equivalent methods (for template use) //
+    /////////////////////////////////////////////////////////////
+
+    int hashCode() const {
+        return (int) value;
+    }
+
     bool equals(const Boolean& that) const {
         return value == that.value;
     }
 
-    ////////////////////////
-    // Overriding methods //
-    ////////////////////////
-
-    String toString() const override {
+    String toString() const  {
         return String::valueOf(value);
     }
 
-    bool equals(const Object& other) const override {
-        if (this == other) return true;
-        Boolean* that = other.cast_<Boolean>();
-        return equals(*that);
-    }
-
-    int hashCode() const override {
-        return (int) value;
+    Class getClass() const {
+          return Class::forName("java::lang::Boolean");
     }
 
     //////////////////////////

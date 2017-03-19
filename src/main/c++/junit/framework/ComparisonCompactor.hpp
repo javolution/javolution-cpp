@@ -14,7 +14,7 @@ namespace framework {
  * Reduces error message size when comparing strings.
  * @version 7.0
  */
-class ComparisonCompactor: public virtual Object {
+class ComparisonCompactor: public Object {
 public:
 
     ////////////////////////////////////////////////////////////////////////
@@ -51,9 +51,7 @@ public:
 
     };
 
-    CTOR (ComparisonCompactor, Value)
-
-    // Exported Value methods.
+    CLASS(ComparisonCompactor)
 
     String compact(const String& message) {
         return this_<Value>()->compact(message);

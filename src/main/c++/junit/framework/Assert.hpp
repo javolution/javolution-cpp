@@ -123,7 +123,7 @@ public:
     static void assertEquals(const String& message, double expected, double actual, double delta) {
         if (Double::compare(expected, actual) == 0) return;
         if (!(Math::abs(expected - actual) <= delta)) {
-            failNotEquals(message, Double::valueOf(expected), Double::valueOf(actual));
+            failNotEquals(message, String::valueOf(expected), String::valueOf(actual));
         }
     }
 
@@ -142,7 +142,7 @@ public:
     static void assertEquals(const String& message, float expected, float actual, float delta) {
         if (Float::compare(expected, actual) == 0) return;
         if (!(Math::abs(expected - actual) <= delta)) {
-            failNotEquals(message, Float::valueOf(expected), Float::valueOf(actual));
+            failNotEquals(message, String::valueOf(expected), String::valueOf(actual));
         }
     }
 
@@ -159,7 +159,7 @@ public:
      */
     static void assertEquals(const String& message, long expected, long actual) {
         if (Long::valueOf(expected).equals(actual)) return;
-        failNotEquals(message, Long::valueOf(expected), Long::valueOf(actual));
+        failNotEquals(message, String::valueOf(expected), String::valueOf(actual));
     }
 
     /**
@@ -174,7 +174,7 @@ public:
      */
     static void assertEquals(const String& message, bool expected, bool actual) {
         if (Boolean::valueOf(expected).equals(actual)) return;
-        failNotEquals(message, Boolean::valueOf(expected), Boolean::valueOf(actual));
+        failNotEquals(message, String::valueOf(expected), String::valueOf(actual));
     }
 
     /**
@@ -189,7 +189,7 @@ public:
      */
     static void assertEquals(const String& message, char expected, char actual) {
         if (Character::valueOf(expected).equals(actual)) return;
-        failNotEquals(message, Character::valueOf(expected), Character::valueOf(actual));
+        failNotEquals(message, String::valueOf(expected), String::valueOf(actual));
     }
 
     /**
@@ -205,7 +205,7 @@ public:
      */
     static void assertEquals(const String& message, Type::uchar expected, Type::uchar actual) {
         if (Character::valueOf(expected).equals(actual)) return;
-        failNotEquals(message, Character::valueOf(expected), Character::valueOf(actual));
+        failNotEquals(message, String::valueOf(expected), String::valueOf(actual));
     }
 
     /**
@@ -220,7 +220,7 @@ public:
      */
     static void assertEquals(const String& message, int expected, int actual) {
         if (Integer::valueOf(expected).equals(actual)) return;
-        failNotEquals(message, Integer::valueOf(expected), Integer::valueOf(actual));
+        failNotEquals(message, String::valueOf(expected), String::valueOf(actual));
     }
 
     /**
@@ -304,7 +304,7 @@ public:
 
     static void failNotSame(const String& message, const Object& expected, const Object& actual) {
         String formatted = (message != nullptr) ? message + " " : "";
-        fail(formatted + "expected same:<" + expected + "> was not:<" + actual + ">");
+        fail(formatted + "expected same:<" + String::valueOf(expected) + "> was not:<" + String::valueOf(actual) + ">");
     }
 
     static void failNotEquals(const String& message, const Object& expected, const Object& actual) {
@@ -316,16 +316,7 @@ public:
         if (message != nullptr && message.length() > 0) {
             formatted = message + " ";
         }
-        return formatted + "expected:<" + expected + "> but was:<" + actual + ">";
-    }
-
-    static void failNotEquals(const String& message, const Object::Interface& expected, const Object::Interface& actual) {
-        String formatted = "";
-        if (message != nullptr && message.length() > 0) {
-            formatted = message + " ";
-        }
-        formatted = formatted + "expected:<" + expected.toString() + "> but was:<" + actual.toString() + ">";
-        fail(formatted);
+        return formatted + "expected:<" + String::valueOf(expected) + "> but was:<" + String::valueOf(actual) + ">";
     }
 
 };
