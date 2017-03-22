@@ -10,7 +10,7 @@ Java is fast, very fast, but Javolution C++ can make it even faster!
 
 - **High-Performance** 
     - With Javolution small immutable objects (e.g. Integer, Double, Complex numbers, etc.)
-      are allocated on the stack ([10-30x speed improvement](https://github.com/javolution/javolution-cpp-test). 
+      are allocated on the stack ([10-30x speed improvement](https://github.com/javolution/javolution-cpp-test)). 
     - Parameterized classes (e.g. collections/maps) are "true" C++ templates (not syntactic sugar).
     - Provides native support for latest Java 8 features such as lambda expressions. 
     - No garbage collector, memory management is done through smart pointers (reference counting).
