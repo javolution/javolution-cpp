@@ -9,7 +9,8 @@
 Java is fast, very fast, but Javolution C++ can make it even faster!
 
 - **High-Performance** 
-    - With Javolution small immutable objects (e.g. Integer, Double, Complex numbers, etc.) are allocated on the stack (10-30x speed improvement). 
+    - With Javolution small immutable objects (e.g. Integer, Double, Complex numbers, etc.)
+      are allocated on the stack ([10-30x speed improvement](https://github.com/javolution/javolution-cpp-test). 
     - Parameterized classes (e.g. collections/maps) are "true" C++ templates (not syntactic sugar).
     - Provides native support for latest Java 8 features such as lambda expressions. 
     - No garbage collector, memory management is done through smart pointers (reference counting).
@@ -130,7 +131,8 @@ list.forEach([](const String& name) { System::out.println(name);}) // Lambda exp
 
 ### Usage
 
-The simplest way to use the Javolution C++ static library is through Maven with the native plugin (http://www.mojohaus.org/maven-native/native-maven-plugin/) with the following dependencies in your pom.xml (see javolution-cpp-test project for an example how to build an executable). Windows (Visual C++) and Linux (gcc) compilations will be supported with no change in your code (write once, run everywhere principle).
+The simplest way to use the Javolution C++ static library is through Maven with the [native plugin](http://www.mojohaus.org/maven-native/native-maven-plugin/) 
+with the following dependencies in your pom.xml (see [javolution-cpp-test](https://github.com/javolution/javolution-cpp) project for an example how to build an executable). 
 
 ```
         <dependency>
@@ -148,7 +150,8 @@ The simplest way to use the Javolution C++ static library is through Maven with 
         </dependency>
 ```
 
-In order to reduce potential jitter Type::FastHeap can be enabled during bundle activation and the maximum heap usage can be shown at deactivation. Small immutable objects (such as java::lang::Boolean, java::lang::Char, java::lang::Integer, etc.) are manipulated by value (value-types) and don't use the heap.
+In order to reduce potential jitter Type::FastHeap can be enabled during bundle activation and the maximum heap usage can be shown at deactivation. 
+Small immutable objects (such as java::lang::Boolean, java::lang::Char, java::lang::Integer, etc.) are manipulated by value (value-types) and don't use the heap.
 
 ```cpp
 int main(int, char**) {
@@ -178,3 +181,6 @@ int main(int, char**) {
 ### Links
 
 - Website: http://javolution.org
+- javolution (GitHub): https://github.com/javolution/javolution
+- javolution-cpp-test (Case Study - Benchmark): https://github.com/javolution/javolution-cpp-test
+
