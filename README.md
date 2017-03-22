@@ -14,7 +14,7 @@ Java is fast, very fast, but Javolution C++ can make it even faster!
     - Parameterized classes (e.g. collections/maps) are "true" C++ templates (not syntactic sugar).
     - Provides native support for latest Java 8 features such as lambda expressions. 
     - No garbage collector, memory management is done through smart pointers (reference counting).
-    - For hard real-time applications, a lock-free / jitter-free memory allocator (Type::FastHeap) is provided.
+    - For hard real-time applications, a lock-free / jitter-free memory allocator (FastHeap) is provided.
 
 - **Real-Time** - Javolution C++ is a port of Javolution Real-Time classes, it exhibits the same "real-time" characteristics, even better since there is no jitter caused by JIT compilation, class loading/initialization or garbage collection.
 
